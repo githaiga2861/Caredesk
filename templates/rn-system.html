@@ -12497,5 +12497,18 @@ function injectSignatures(html,draft){
   sidebar.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('click',close);});
 })();
 </script>
+  <script>
+(function () {
+  var o = window.__CDP_ONBOARD__; if (!o) return;
+  document.querySelectorAll('[data-cdp]').forEach(function (el) {
+    var k = el.getAttribute('data-cdp');
+    if (o[k] != null && o[k] !== '') el.textContent = o[k];
+  });
+  var r = document.documentElement.style;
+  if (o.primaryColor) r.setProperty('--brand', o.primaryColor);
+  if (o.secondaryColor) r.setProperty('--brand2', o.secondaryColor);
+  if (o.logoBase64) document.querySelectorAll('img[data-cdp-logo]').forEach(function (img) { img.src = o.logoBase64; });
+})();
+</script>
 </body>
 </html>
