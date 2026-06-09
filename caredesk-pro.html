@@ -1,0 +1,2928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareDesk Pro — Operator Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   CAREDESK PRO — DESIGN SYSTEM
+   Refined Command Center. Dark, editorial, intentional.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --bg:        #0a0c10;
+  --surface:   #111318;
+  --surface2:  #181c24;
+  --surface3:  #1e2330;
+
+  --border:    #1e2330;
+  --border2:   #252c3a;
+  --border3:   #2e3545;
+
+  --gold:      #c8a96e;
+  --gold2:     #e8c98e;
+  --gold-dim:  rgba(200,169,110,0.12);
+  --gold-glow: rgba(200,169,110,0.25);
+
+  --teal:      #4ec9b0;
+  --teal-dim:  rgba(78,201,176,0.1);
+
+  --green:     #98c379;
+  --green-dim: rgba(152,195,121,0.1);
+  --amber:     #e5c07b;
+  --amber-dim: rgba(229,192,123,0.1);
+  --red:       #e06c75;
+  --red-dim:   rgba(224,108,117,0.1);
+  --blue:      #61afef;
+  --blue-dim:  rgba(97,175,239,0.1);
+
+  --text:      #d4d8e2;
+  --text-dim:  #6b7280;
+  --text-muted:#3d4452;
+
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  --font-display: 'Cormorant Garamond', serif;
+  --font-mono: 'DM Mono', monospace;
+  --font-body: 'Outfit', sans-serif;
+
+  --header-h: 56px;
+  --status-h: 32px;
+  --sidebar-w: 220px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border3); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+h1,h2,h3,h4 { font-family: var(--font-display); font-weight: 500; letter-spacing: 0.2px; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold2); }
+
+.mono { font-family: var(--font-mono); }
+.dim { color: var(--text-dim); }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes fadeSlideUp { from { opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
+@keyframes slideInRight { from { transform:translateX(100%); opacity:0;} to {transform:translateX(0); opacity:1;} }
+@keyframes slideOutRight { from { transform:translateX(0); opacity:1;} to {transform:translateX(100%); opacity:0;} }
+@keyframes scaleIn { from { transform:scale(0.95); opacity:0;} to {transform:scale(1); opacity:1;} }
+@keyframes pulseDot { 0%,60%,100%{opacity:0.2; transform:scale(0.8);} 30%{opacity:1; transform:scale(1.1);} }
+@keyframes overdueGlow { 0%,100%{box-shadow:0 0 0 0 rgba(229,192,123,0);} 50%{box-shadow:0 0 8px 2px rgba(229,192,123,0.4);} }
+@keyframes toastIn { from{transform:translateX(120%); opacity:0;} to{transform:translateX(0); opacity:1;} }
+@keyframes toastOut { from{transform:translateX(0); opacity:1;} to{transform:translateX(120%); opacity:0;} }
+@keyframes spinFade { to { opacity: 0.3; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ═══ APP SHELL ═══ */
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+header.topbar {
+  height: var(--header-h);
+  flex: 0 0 var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  z-index: 30;
+}
+.brand-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+  display: grid; place-items: center;
+  color: #0a0c10; font-family: var(--font-display); font-weight: 600; font-size: 18px;
+  box-shadow: 0 2px 10px var(--gold-glow);
+}
+.brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+.brand-text .name { font-family: var(--font-display); font-size: 19px; letter-spacing: 0.5px; color: var(--text); }
+.brand-text .sub { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+.topbar-spacer { flex: 1; }
+.operator-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 14px 5px 6px; border: 1px solid var(--border2); border-radius: 30px; background: var(--surface2);
+}
+.operator-chip .av { width: 26px; height: 26px; border-radius: 50%; background: var(--gold-dim); color: var(--gold); display:grid; place-items:center; font-family:var(--font-display); font-size:14px; }
+.operator-chip .meta { line-height: 1.15; }
+.operator-chip .meta .n { font-size: 12px; color: var(--text); }
+.operator-chip .meta .r { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); }
+.clock { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; min-width: 132px; text-align: right; }
+
+.body-row { flex: 1; display: flex; min-height: 0; }
+
+/* ═══ SIDEBAR ═══ */
+nav.sidebar {
+  width: var(--sidebar-w); flex: 0 0 var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 14px 12px;
+  transition: width 0.2s ease;
+}
+.nav-section-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); padding: 12px 10px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: var(--r-md); cursor: pointer;
+  color: var(--text-dim); font-size: 13.5px; font-weight: 400;
+  transition: background 0.15s, color 0.15s; position: relative;
+}
+.nav-item svg { width: 18px; height: 18px; flex: 0 0 18px; stroke: currentColor; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--gold-dim); color: var(--gold2); }
+.nav-item.active::before { content:''; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:3px; background:var(--gold); }
+.nav-item .label-txt { white-space: nowrap; }
+.nav-spacer { flex: 1; }
+.nav-foot { padding: 10px; border-top: 1px solid var(--border); font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted); line-height: 1.6; }
+
+@media (max-width: 900px) {
+  nav.sidebar { width: 60px; flex-basis: 60px; }
+  nav.sidebar .label-txt, nav.sidebar .nav-section-label, nav.sidebar .nav-foot { display: none; }
+  .nav-item { justify-content: center; padding: 12px 0; }
+}
+
+/* ═══ MAIN PANEL AREA ═══ */
+main.stage { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+.panel { flex: 1; overflow-y: auto; display: none; }
+.panel.active { display: block; }
+.panel-inner { padding: 26px 32px 60px; max-width: 1300px; }
+.panel-head {
+  position: sticky; top: 0; z-index: 10;
+  background: linear-gradient(180deg, var(--bg) 70%, rgba(10,12,16,0));
+  padding-bottom: 18px; margin-bottom: 6px;
+}
+.panel-title { font-size: 30px; color: var(--text); font-weight: 500; }
+.panel-sub { color: var(--text-dim); font-size: 13px; margin-top: 2px; }
+
+.reveal > * { opacity: 0; animation: fadeSlideUp 0.5s ease forwards; }
+.reveal > *:nth-child(1){animation-delay:.04s}
+.reveal > *:nth-child(2){animation-delay:.09s}
+.reveal > *:nth-child(3){animation-delay:.14s}
+.reveal > *:nth-child(4){animation-delay:.19s}
+.reveal > *:nth-child(5){animation-delay:.24s}
+.reveal > *:nth-child(6){animation-delay:.29s}
+.reveal > *:nth-child(7){animation-delay:.34s}
+.reveal > *:nth-child(8){animation-delay:.39s}
+
+/* ═══ STATUS BAR ═══ */
+footer.statusbar {
+  height: var(--status-h); flex: 0 0 var(--status-h);
+  display: flex; align-items: center; gap: 22px; padding: 0 20px;
+  background: var(--surface); border-top: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); letter-spacing: 0.3px;
+}
+.statusbar .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 7px; vertical-align: middle; }
+.dot.on { background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+.dot.off { background: var(--red); }
+.statusbar .sb-item { display:flex; align-items:center; }
+.statusbar .sb-spacer { flex: 1; }
+
+/* ═══ BUTTONS ═══ */
+button { font-family: var(--font-body); cursor: pointer; }
+.btn {
+  font-family: var(--font-body); font-weight: 500; font-size: 13px;
+  padding: 10px 20px; border-radius: var(--r-md); border: 1px solid transparent;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s, background 0.15s;
+  display: inline-flex; align-items: center; gap: 8px; line-height: 1;
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: #0a0c10; }
+.btn-primary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 18px var(--gold-glow); }
+.btn-secondary { background: transparent; color: var(--text); border-color: var(--border2); }
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold2); }
+.btn-danger { background: var(--red-dim); color: var(--red); border-color: rgba(224,108,117,0.4); }
+.btn-danger:hover { background: rgba(224,108,117,0.2); }
+.btn-ghost { background: transparent; color: var(--text-dim); border-color: transparent; padding: 8px 12px; }
+.btn-ghost:hover { color: var(--text); background: var(--surface2); }
+.btn-sm { padding: 7px 13px; font-size: 12px; }
+.btn-block { width: 100%; justify-content: center; }
+.icon-btn {
+  width: 30px; height: 30px; border-radius: var(--r-sm); border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text-dim); display: grid; place-items: center;
+  transition: all 0.15s;
+}
+.icon-btn svg { width: 15px; height: 15px; stroke: currentColor; }
+.icon-btn:hover { color: var(--gold2); border-color: var(--gold); }
+
+/* ═══ FORMS ═══ */
+.field { margin-bottom: 16px; }
+.field label, .form-label {
+  display: block; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--text-dim); margin-bottom: 7px;
+}
+.field label .opt { color: var(--text-muted); text-transform: none; letter-spacing: 0; }
+input[type=text], input[type=email], input[type=password], input[type=number],
+input[type=date], input[type=datetime-local], select, textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text); font-family: var(--font-body); font-size: 13px;
+  border-radius: var(--r-md); padding: 9px 12px; transition: border-color 0.15s, box-shadow 0.15s;
+}
+textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+input[type=color] { width: 46px; height: 38px; padding: 3px; cursor: pointer; }
+.field-row { display: flex; gap: 14px; }
+.field-row .field { flex: 1; }
+
+/* ═══ CARDS ═══ */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; }
+.card.clickable { cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+.card.clickable:hover { border-color: var(--border3); transform: translateY(-2px); }
+.card-grid { display: grid; gap: 16px; }
+.cols-2 { grid-template-columns: repeat(2,1fr); }
+.cols-3 { grid-template-columns: repeat(3,1fr); }
+.cols-4 { grid-template-columns: repeat(4,1fr); }
+@media (max-width: 1100px){ .cols-4{grid-template-columns:repeat(2,1fr);} .cols-3{grid-template-columns:1fr 1fr;} }
+@media (max-width: 760px){ .cols-4,.cols-3,.cols-2{grid-template-columns:1fr;} .field-row{flex-direction:column;gap:0;} }
+
+.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px 20px; position: relative; overflow: hidden; }
+.metric-card .m-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
+.metric-card .m-value { font-family: var(--font-display); font-size: 34px; font-weight: 500; color: var(--text); margin-top: 6px; line-height: 1; }
+.metric-card .m-value.gold { color: var(--gold2); }
+.metric-card .m-value.amber { color: var(--amber); }
+.metric-card .m-foot { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+.metric-card .m-glyph { position: absolute; right: 14px; top: 14px; opacity: 0.18; }
+.metric-card .m-glyph svg { width: 28px; height: 28px; stroke: var(--gold); }
+
+/* ═══ TABLES ═══ */
+.table-wrap { border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; background: var(--surface); }
+table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data thead th {
+  text-align: left; font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--text-dim); padding: 12px 16px; background: var(--surface2);
+  border-bottom: 1px solid var(--border2); white-space: nowrap;
+}
+table.data tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+table.data tbody tr { transition: background 0.1s; }
+table.data tbody tr:hover { background: var(--surface3); }
+table.data tbody tr:last-child td { border-bottom: none; }
+.cell-strong { color: var(--text); font-weight: 500; }
+.cell-mono { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+.row-actions { display: flex; gap: 6px; }
+
+/* ═══ BADGES ═══ */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px;
+  font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;
+}
+.badge.active   { background: var(--green-dim); color: var(--green); }
+.badge.overdue  { background: var(--amber-dim); color: var(--amber); animation: overdueGlow 2.2s ease-in-out infinite; }
+.badge.locked   { background: var(--red-dim); color: var(--red); }
+.badge.trial    { background: var(--blue-dim); color: var(--blue); }
+.badge.cancelled{ background: var(--surface3); color: var(--text-dim); }
+.badge.home     { background: var(--gold-dim); color: var(--gold2); }
+.badge.rn       { background: var(--teal-dim); color: var(--teal); }
+.badge.neutral  { background: var(--surface3); color: var(--text-dim); }
+.badge.green    { background: var(--green-dim); color: var(--green); }
+.badge.amber    { background: var(--amber-dim); color: var(--amber); }
+.badge.red      { background: var(--red-dim); color: var(--red); }
+.badge.blue     { background: var(--blue-dim); color: var(--blue); }
+.lockchip { display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11px; }
+.lockchip .lvl { width:18px; height:18px; border-radius:5px; display:grid; place-items:center; font-size:10px; }
+.lvl-0{background:var(--surface3); color:var(--text-dim);}
+.lvl-1{background:var(--gold-dim); color:var(--gold2);}
+.lvl-2{background:var(--amber-dim); color:var(--amber);}
+.lvl-3{background:var(--red-dim); color:var(--red);}
+
+/* ═══ TOOLBAR ═══ */
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.toolbar .search { flex: 1; min-width: 200px; position: relative; }
+.toolbar .search input { padding-left: 34px; }
+.toolbar .search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; stroke: var(--text-dim); }
+.toolbar select { width: auto; min-width: 140px; }
+.seg { display: inline-flex; border: 1px solid var(--border2); border-radius: var(--r-md); overflow: hidden; }
+.seg button { background: transparent; border: none; color: var(--text-dim); padding: 8px 14px; font-size: 12px; font-family: var(--font-body); transition: all 0.15s; }
+.seg button.on { background: var(--gold-dim); color: var(--gold2); }
+.seg button:not(.on):hover { color: var(--text); }
+
+/* ═══ EMPTY STATES ═══ */
+.empty { text-align: center; padding: 50px 20px; color: var(--text-dim); }
+.empty .glyph { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; background: var(--surface2); display: grid; place-items: center; }
+.empty .glyph svg { width: 26px; height: 26px; stroke: var(--text-muted); }
+.empty h4 { font-size: 20px; color: var(--text); margin-bottom: 4px; }
+.empty p { font-size: 13px; max-width: 320px; margin: 0 auto; }
+
+/* ═══ LOADER ═══ */
+.loader { display: inline-flex; gap: 5px; align-items: center; }
+.loader span { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulseDot 1.2s infinite ease-in-out; }
+.loader span:nth-child(2){ animation-delay: 0.15s; }
+.loader span:nth-child(3){ animation-delay: 0.3s; }
+.loader-block { padding: 30px; display: grid; place-items: center; }
+
+/* ═══ TOASTS ═══ */
+#toasts { position: fixed; top: 70px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast {
+  pointer-events: auto; min-width: 260px; max-width: 360px; padding: 13px 16px;
+  border-radius: var(--r-md); border: 1px solid var(--border2); background: var(--surface);
+  display: flex; gap: 11px; align-items: flex-start; animation: toastIn 0.3s ease forwards;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+.toast.out { animation: toastOut 0.3s ease forwards; }
+.toast .bar { width: 3px; align-self: stretch; border-radius: 3px; }
+.toast.success .bar { background: var(--gold); }
+.toast.info .bar { background: var(--teal); }
+.toast.error .bar { background: var(--red); }
+.toast .msg { font-size: 13px; color: var(--text); line-height: 1.4; }
+.toast .t-title { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.toast.success .t-title { color: var(--gold2); }
+.toast.info .t-title { color: var(--teal); }
+.toast.error .t-title { color: var(--red); }
+
+/* ═══ MODALS ═══ */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r-lg);
+  width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; animation: scaleIn 0.2s ease forwards;
+}
+.modal.wide { max-width: 720px; }
+.modal-head { padding: 20px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; }
+.modal-head h3 { font-size: 22px; color: var(--text); }
+.modal-head .sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.modal-body { padding: 20px 24px; }
+.modal-foot { padding: 14px 24px 20px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--border); }
+.close-x { background: none; border: none; color: var(--text-dim); font-size: 22px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.close-x:hover { color: var(--text); }
+
+/* ═══ DRAWER ═══ */
+.drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 110; display: none; }
+.drawer-overlay.open { display: block; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 92vw;
+  background: var(--surface); border-left: 1px solid var(--border2); z-index: 120;
+  display: none; flex-direction: column; box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+}
+.drawer.open { display: flex; animation: slideInRight 0.28s ease forwards; }
+.drawer-head { padding: 22px 24px 16px; border-bottom: 1px solid var(--border); }
+.drawer-head .top { display: flex; justify-content: space-between; align-items: flex-start; }
+.drawer-tabs { display: flex; gap: 4px; padding: 0 18px; border-bottom: 1px solid var(--border); }
+.drawer-tab { padding: 12px 14px; font-size: 12.5px; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.drawer-tab.on { color: var(--gold2); border-bottom-color: var(--gold); }
+.drawer-tab:not(.on):hover { color: var(--text); }
+.drawer-body { flex: 1; overflow-y: auto; padding: 22px 24px; }
+
+/* ═══ WIZARD ═══ */
+.wizard-steps { display: flex; align-items: center; gap: 0; margin-bottom: 30px; }
+.wstep { display: flex; align-items: center; gap: 10px; }
+.wstep .num { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border2); display: grid; place-items: center; font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); transition: all 0.25s; flex: 0 0 30px; }
+.wstep .lbl { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+.wstep.done .num { background: var(--gold-dim); border-color: var(--gold); color: var(--gold2); }
+.wstep.current .num { background: var(--gold); border-color: var(--gold); color: #0a0c10; box-shadow: 0 0 0 4px var(--gold-dim); }
+.wstep.current .lbl { color: var(--text); }
+.wstep .connector { width: 36px; height: 1px; background: var(--border2); margin: 0 6px; }
+@media (max-width:900px){ .wstep .lbl{ display:none; } .wstep .connector{ width:18px; } }
+
+.wpane { display: none; animation: fadeSlideUp 0.4s ease; }
+.wpane.active { display: block; }
+
+.type-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width:760px){ .type-cards{ grid-template-columns:1fr; } }
+.type-card { border: 1px solid var(--border2); border-radius: var(--r-lg); padding: 26px; cursor: pointer; transition: all 0.18s; background: var(--surface); position: relative; }
+.type-card:hover { border-color: var(--border3); }
+.type-card.sel { border-color: var(--gold); background: var(--gold-dim); box-shadow: 0 0 0 3px var(--gold-dim); }
+.type-card .tc-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--surface2); display: grid; place-items: center; margin-bottom: 16px; }
+.type-card .tc-icon svg { width: 26px; height: 26px; stroke: var(--gold); }
+.type-card h3 { font-size: 23px; color: var(--text); }
+.type-card .tc-sub { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); margin: 4px 0 12px; }
+.type-card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.type-card .price { position: absolute; top: 22px; right: 22px; font-family: var(--font-display); font-size: 18px; color: var(--gold2); }
+.type-card .tc-check { position:absolute; top:14px; right:14px; width:22px; height:22px; border-radius:50%; background:var(--gold); color:#0a0c10; display:none; place-items:center; }
+.type-card.sel .tc-check { display:grid; }
+.type-card.sel .price { display:none; }
+
+.review-group { border: 1px solid var(--border); border-radius: var(--r-md); margin-bottom: 14px; overflow: hidden; }
+.review-group .rg-head { background: var(--surface2); padding: 10px 16px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); }
+.review-row { display: flex; padding: 9px 16px; border-top: 1px solid var(--border); font-size: 13px; }
+.review-row .k { width: 200px; color: var(--text-dim); flex: 0 0 200px; }
+.review-row .v { color: var(--text); }
+
+.logo-preview { width: 80px; height: 80px; border-radius: 12px; border: 1px dashed var(--border3); display: grid; place-items: center; overflow: hidden; background: var(--surface2); }
+.logo-preview img { width: 100%; height: 100%; object-fit: contain; }
+.logo-preview .initials { font-family: var(--font-display); font-size: 30px; color: var(--gold2); }
+
+.success-hero { text-align: center; padding: 30px 0; }
+.success-hero .check { width: 72px; height: 72px; margin: 0 auto 18px; border-radius: 50%; background: var(--gold-dim); display: grid; place-items: center; }
+.success-hero .check svg { width: 36px; height: 36px; stroke: var(--gold2); }
+.success-hero h2 { font-size: 34px; color: var(--text); }
+.client-id-pill { display: inline-block; font-family: var(--font-mono); font-size: 15px; letter-spacing: 1px; color: var(--gold2); background: var(--gold-dim); border: 1px solid var(--gold); padding: 8px 18px; border-radius: 30px; margin-top: 14px; }
+.checklist { list-style: none; }
+.checklist li { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-dim); align-items: flex-start; }
+.checklist li .box { width: 16px; height: 16px; border: 1px solid var(--border3); border-radius: 4px; flex: 0 0 16px; margin-top: 2px; }
+.checklist li .seq { font-family: var(--font-mono); color: var(--gold); flex: 0 0 22px; }
+
+/* ═══ TABS (engine 3 etc) ═══ */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
+.tab { padding: 11px 18px; font-size: 13px; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab.on { color: var(--gold2); border-bottom-color: var(--gold); }
+.tab:not(.on):hover { color: var(--text); }
+.tabpane { display: none; }
+.tabpane.on { display: block; animation: fadeSlideUp 0.35s ease; }
+
+.split { display: grid; grid-template-columns: 360px 1fr; gap: 22px; align-items: start; }
+@media (max-width:1000px){ .split{ grid-template-columns:1fr; } }
+
+.section-block { margin-bottom: 30px; }
+.section-block > h3 { font-size: 21px; margin-bottom: 4px; }
+.section-block > .panel-sub { margin-bottom: 16px; }
+
+.draft-out { border: 1px solid var(--border2); border-radius: var(--r-md); padding: 18px; background: var(--surface2); min-height: 200px; white-space: pre-wrap; font-size: 13.5px; line-height: 1.7; color: var(--text); }
+.queue-item { border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 12px; background: var(--surface); }
+.queue-item .qi-head { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.queue-item .qi-preview { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.queue-item .qi-foot { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.queue-item .qi-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-left: auto; }
+
+.campaign { border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 16px; overflow: hidden; background: var(--surface); }
+.campaign .c-head { padding: 18px 20px; cursor: pointer; display: flex; align-items: center; gap: 14px; }
+.campaign .c-head h4 { font-size: 19px; color: var(--text); }
+.campaign .c-head .c-target { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); }
+.campaign .c-body { padding: 0 20px 20px; display: none; }
+.campaign.open .c-body { display: block; }
+.campaign .c-msg { font-size: 13px; color: var(--text-dim); font-style: italic; margin-bottom: 16px; padding: 12px 16px; background: var(--surface2); border-left: 2px solid var(--gold); border-radius: 0 6px 6px 0; }
+.week-row { display: flex; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.week-row .wk { font-family: var(--font-mono); font-size: 11px; color: var(--gold); flex: 0 0 64px; }
+.week-row .wk-title { font-size: 13px; color: var(--text); flex: 1; }
+.week-row select { width: auto; min-width: 130px; }
+.chev { transition: transform 0.2s; }
+.campaign.open .chev { transform: rotate(90deg); }
+
+/* settings */
+.key-row { display: flex; gap: 10px; align-items: flex-end; }
+.key-row .field { flex: 1; margin-bottom: 0; }
+.codeblock { background: #06080b; border: 1px solid var(--border2); border-radius: var(--r-md); padding: 16px; font-family: var(--font-mono); font-size: 11.5px; color: var(--teal); line-height: 1.6; overflow-x: auto; white-space: pre; max-height: 360px; overflow-y: auto; }
+.set-card { margin-bottom: 20px; }
+.set-card h3 { font-size: 19px; margin-bottom: 3px; }
+.set-card .panel-sub { margin-bottom: 16px; }
+
+.hint { font-size: 11.5px; color: var(--text-dim); margin-top: 7px; line-height: 1.5; }
+.divider { height: 1px; background: var(--border); margin: 22px 0; }
+.pill-tabs { display: inline-flex; background: var(--surface2); border-radius: var(--r-md); padding: 3px; gap: 3px; margin-bottom: 16px; }
+.pill-tabs button { background: transparent; border: none; color: var(--text-dim); padding: 7px 14px; border-radius: 6px; font-size: 12px; }
+.pill-tabs button.on { background: var(--gold-dim); color: var(--gold2); }
+.tag { display:inline-block; font-family:var(--font-mono); font-size:9px; padding:2px 7px; border-radius:10px; background:var(--surface3); color:var(--text-dim); margin:2px; }
+.kv { display:flex; padding:7px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.kv .k { color:var(--text-dim); width:150px; flex:0 0 150px; }
+.kv .v { color:var(--text); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="topbar">
+    <div class="brand-mark">C</div>
+    <div class="brand-text">
+      <span class="name">CareDesk Pro</span>
+      <span class="sub">Operator Command Center</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="operator-chip">
+      <div class="av" id="op-avatar">J</div>
+      <div class="meta">
+        <div class="n" id="op-name">Joseph</div>
+        <div class="r">Solo Operator · KE → WA</div>
+      </div>
+    </div>
+    <div class="clock" id="clock">--:--:--</div>
+  </header>
+
+  <div class="body-row">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <nav class="sidebar">
+      <div class="nav-section-label">Engines</div>
+      <div class="nav-item active" data-panel="creator">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        <span class="label-txt">System Creator</span>
+      </div>
+      <div class="nav-item" data-panel="crm">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="label-txt">Client CRM</span>
+      </div>
+      <div class="nav-item" data-panel="marketing">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        <span class="label-txt">Marketing</span>
+      </div>
+      <div class="nav-spacer"></div>
+      <div class="nav-section-label">System</div>
+      <div class="nav-item" data-panel="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label-txt">Settings</span>
+      </div>
+      <div class="nav-foot">CareDesk Pro<br>v1.0 · Private build</div>
+    </nav>
+
+    <!-- ═══ STAGE ═══ -->
+    <main class="stage">
+
+      <!-- ENGINE 1 : SYSTEM CREATOR -->
+      <section class="panel active" id="panel-creator">
+        <div class="panel-inner">
+          <div class="panel-head">
+            <div class="eyebrow">Engine 01</div>
+            <div class="panel-title">System Creator</div>
+            <div class="panel-sub">Onboard a new client and generate a deployable care system in five steps.</div>
+          </div>
+
+          <div class="wizard-steps" id="wizard-steps"></div>
+
+          <!-- step panes -->
+          <div class="wpane active" id="wpane-1"></div>
+          <div class="wpane" id="wpane-2"></div>
+          <div class="wpane" id="wpane-3"></div>
+          <div class="wpane" id="wpane-4"></div>
+          <div class="wpane" id="wpane-5"></div>
+          <div class="wpane" id="wpane-success"></div>
+
+          <div id="wizard-nav" style="display:flex; gap:10px; margin-top:26px;"></div>
+        </div>
+      </section>
+
+      <!-- ENGINE 2 : CRM -->
+      <section class="panel" id="panel-crm">
+        <div class="panel-inner">
+          <div class="panel-head">
+            <div class="eyebrow">Engine 02</div>
+            <div class="panel-title">Client CRM &amp; Oversight</div>
+            <div class="panel-sub">Every system you've built, its billing health, and its access state — in one view.</div>
+          </div>
+
+          <div class="card-grid cols-4" id="crm-metrics" style="margin-bottom:24px;"></div>
+
+          <div class="toolbar">
+            <div class="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" id="crm-search" placeholder="Search by client name or email…">
+            </div>
+            <select id="crm-filter-type"><option value="all">All types</option><option value="home">CareDesk Home</option><option value="rn">CareDesk RN</option></select>
+            <select id="crm-filter-status"><option value="all">All statuses</option><option value="active">Active</option><option value="overdue">Overdue</option><option value="locked">Locked</option><option value="trial">Trial</option><option value="cancelled">Cancelled</option></select>
+            <select id="crm-sort"><option value="name">Sort: Name</option><option value="overdue">Sort: Days overdue</option><option value="payment">Sort: Last payment</option><option value="mrr">Sort: MRR</option></select>
+            <button class="btn btn-secondary btn-sm" id="crm-refresh">Refresh</button>
+          </div>
+
+          <div id="crm-table-host"></div>
+
+          <div class="section-block" style="margin-top:34px;">
+            <h3>Webhook event log</h3>
+            <div class="panel-sub">Last 50 billing events received from Lemon Squeezy (via your Supabase edge function).</div>
+            <div id="webhook-table-host" style="margin-top:14px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ENGINE 3 : MARKETING -->
+      <section class="panel" id="panel-marketing">
+        <div class="panel-inner">
+          <div class="panel-head">
+            <div class="eyebrow">Engine 03</div>
+            <div class="panel-title">Marketing Intelligence</div>
+            <div class="panel-sub">Your outbound command center — contact pool, AI drafting, outreach, and campaign arcs.</div>
+          </div>
+
+          <div class="tabs">
+            <div class="tab on" data-mtab="pool">Contact Pool</div>
+            <div class="tab" data-mtab="drafter">AI Post Drafter</div>
+            <div class="tab" data-mtab="outreach">Cold Email &amp; Outreach</div>
+            <div class="tab" data-mtab="campaigns">Campaign Tracker</div>
+            <div class="tab" data-mtab="social">Social Accounts</div>
+          </div>
+
+          <div class="tabpane on" id="mtab-pool"></div>
+          <div class="tabpane" id="mtab-drafter"></div>
+          <div class="tabpane" id="mtab-outreach"></div>
+          <div class="tabpane" id="mtab-campaigns"></div>
+          <div class="tabpane" id="mtab-social"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="panel" id="panel-settings">
+        <div class="panel-inner">
+          <div class="panel-head">
+            <div class="eyebrow">System</div>
+            <div class="panel-title">Settings</div>
+            <div class="panel-sub">Keys, operator profile, database schemas, and data export. Keys live only in this browser.</div>
+          </div>
+          <div id="settings-host"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ═══ STATUS BAR ═══ -->
+  <footer class="statusbar">
+    <span class="sb-item"><span class="dot off" id="sb-dot"></span><span id="sb-conn">Master Supabase: not connected</span></span>
+    <span class="sb-item">Clients: <span class="mono" id="sb-clients" style="color:var(--text);margin-left:5px;">—</span></span>
+    <span class="sb-item">MRR: <span class="mono" id="sb-mrr" style="color:var(--gold2);margin-left:5px;">—</span></span>
+    <span class="sb-spacer"></span>
+    <span class="sb-item" id="sb-build">CareDesk Pro v1.0</span>
+  </footer>
+</div>
+
+<!-- containers -->
+<div id="toasts"></div>
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<aside class="drawer" id="drawer"></aside>
+
+<!-- CDN dependencies -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CAREDESK PRO — APPLICATION CORE
+   Vanilla JS. No frameworks. Three engines + settings.
+   ═══════════════════════════════════════════════════════════════ */
+
+// ── Global state ──
+const CDP = {
+  version: '1.0',
+  buildDate: '2026-06-09',
+  supabase: null,
+  connected: false,
+  clients: [],
+  payments: [],
+  contacts: [],
+  webhooks: [],
+  emailLog: [],
+  draftQueue: [],     // approved-but-unpublished posts (session)
+  lastOutreach: null, // generated outreach awaiting compose
+  wizard: { step: 1, data: {} }
+};
+
+const LS = {
+  masterUrl:   'caredesk_master_url',
+  masterKey:   'caredesk_master_key',
+  lemonKey:    'caredesk_lemon_key',
+  resendKey:   'caredesk_resend_key',
+  claudeKey:   'caredesk_claude_key',
+  opName:      'caredesk_op_name',
+  opEmail:     'caredesk_op_email',
+  campaigns:   'caredesk_campaigns'
+};
+
+// ── Safe localStorage helpers ──
+/** Read a localStorage value, swallowing access errors. */
+function lsGet(key) {
+  try { return localStorage.getItem(key) || ''; } catch (e) { console.warn('ls read failed', e); return ''; }
+}
+/** Write a localStorage value, swallowing access errors. */
+function lsSet(key, val) {
+  try { localStorage.setItem(key, val); return true; } catch (e) { console.warn('ls write failed', e); return false; }
+}
+/** Remove a localStorage value. */
+function lsDel(key) { try { localStorage.removeItem(key); } catch (e) {} }
+
+// ── DOM shorthands ──
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+/** Build an element from an HTML string and return the first node. */
+function el(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+/** Escape user text for safe HTML interpolation. */
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+// ── Formatting ──
+const fmtMoney = n => '$' + (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtDate  = d => { if (!d) return '—'; const x = new Date(d); return isNaN(x) ? '—' : x.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); };
+const truncate = (s, n) => { s = s || ''; return s.length > n ? s.slice(0, n) + '…' : s; };
+
+// ── Toasts ──
+/** Show a transient toast. variant: success | info | error. */
+function showToast(message, variant = 'success', title) {
+  const host = $('#toasts');
+  const titles = { success: 'Done', info: 'Info', error: 'Problem' };
+  const t = el(`<div class="toast ${variant}">
+    <div class="bar"></div>
+    <div><div class="t-title">${esc(title || titles[variant] || '')}</div><div class="msg">${esc(message)}</div></div>
+  </div>`);
+  host.appendChild(t);
+  while (host.children.length > 3) host.removeChild(host.firstChild);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ── Loader markup ──
+const loaderHTML = '<div class="loader-block"><div class="loader"><span></span><span></span><span></span></div></div>';
+
+// ── Clipboard ──
+/** Copy text to clipboard with graceful fallback. */
+async function copyText(text, label) {
+  try { await navigator.clipboard.writeText(text); showToast((label || 'Copied') + ' to clipboard', 'success'); }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast((label || 'Copied') + ' to clipboard', 'success'); }
+    catch (_) { showToast('Could not access clipboard', 'error'); }
+    ta.remove();
+  }
+}
+
+// ── Modal ──
+/** Open the modal with given inner HTML. wide=true widens it. */
+function openModal(innerHTML, wide = false) {
+  const m = $('#modal'); m.className = 'modal' + (wide ? ' wide' : ''); m.innerHTML = innerHTML;
+  $('#overlay').classList.add('open');
+}
+function closeModal() { $('#overlay').classList.remove('open'); }
+$('#overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeModal(); });
+
+/** Confirmation dialog before destructive actions. */
+function confirmAction({ title, body, confirmLabel = 'Confirm', danger = false, onConfirm }) {
+  openModal(`
+    <div class="modal-head"><div><h3>${esc(title)}</h3></div><button class="close-x" data-x>&times;</button></div>
+    <div class="modal-body"><p style="color:var(--text-dim);line-height:1.6;">${body}</p></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-x>Cancel</button>
+      <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" id="confirm-yes">${esc(confirmLabel)}</button>
+    </div>`);
+  $$('[data-x]').forEach(b => b.onclick = closeModal);
+  $('#confirm-yes').onclick = () => { closeModal(); onConfirm && onConfirm(); };
+}
+
+// ── Drawer ──
+function openDrawer(innerHTML) {
+  const d = $('#drawer'); d.innerHTML = innerHTML;
+  $('#drawer-overlay').classList.add('open'); d.classList.add('open');
+}
+function closeDrawer() {
+  const d = $('#drawer'); d.classList.remove('open'); $('#drawer-overlay').classList.remove('open');
+}
+$('#drawer-overlay').addEventListener('click', closeDrawer);
+
+// ── Supabase ──
+/** (Re)initialize the master Supabase client from saved keys. */
+function initMasterSupabase() {
+  const url = lsGet(LS.masterUrl), key = lsGet(LS.masterKey);
+  if (!url || !key || !window.supabase) { CDP.supabase = null; CDP.connected = false; updateStatusBar(); return false; }
+  try {
+    CDP.supabase = window.supabase.createClient(url, key);
+    CDP.connected = true;
+    updateStatusBar();
+    return true;
+  } catch (e) {
+    console.error('supabase init failed', e); CDP.supabase = null; CDP.connected = false; updateStatusBar(); return false;
+  }
+}
+
+/** Guard helper — returns supabase client or shows a toast and returns null. */
+function requireSupabase() {
+  if (!CDP.supabase) { showToast('Connect master Supabase in Settings first.', 'error'); return null; }
+  return CDP.supabase;
+}
+
+// ── Status bar ──
+function updateStatusBar() {
+  $('#sb-dot').className = 'dot ' + (CDP.connected ? 'on' : 'off');
+  $('#sb-conn').textContent = CDP.connected ? 'Master Supabase: connected' : 'Master Supabase: not connected';
+  const active = CDP.clients.filter(c => c.subscription_status === 'active');
+  const mrr = active.reduce((s, c) => s + (Number(c.plan_price) || 0), 0);
+  $('#sb-clients').textContent = CDP.clients.length || '—';
+  $('#sb-mrr').textContent = CDP.clients.length ? fmtMoney(mrr) + '/mo' : '—';
+  $('#sb-build').textContent = `CareDesk Pro v${CDP.version} · ${CDP.buildDate}`;
+}
+
+// ── Navigation ──
+function switchPanel(name) {
+  $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.panel === name));
+  $$('.panel').forEach(p => p.classList.remove('active'));
+  const panel = $('#panel-' + name);
+  if (panel) {
+    panel.classList.add('active');
+    const inner = $('.panel-inner', panel);
+    if (inner) { inner.classList.remove('reveal'); void inner.offsetWidth; inner.classList.add('reveal'); }
+  }
+  if (name === 'crm') loadCRM();
+  if (name === 'marketing') loadMarketing();
+  if (name === 'settings') renderSettings();
+}
+$$('.nav-item').forEach(n => n.addEventListener('click', () => switchPanel(n.dataset.panel)));
+
+// ── Live clock ──
+function tickClock() {
+  const now = new Date();
+  $('#clock').textContent = now.toLocaleTimeString('en-US', { hour12: false }) + '  ·  ' +
+    now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+setInterval(tickClock, 1000); tickClock();
+
+// ── Operator profile to header ──
+function refreshOperatorChip() {
+  const name = lsGet(LS.opName) || 'Joseph';
+  $('#op-name').textContent = name;
+  $('#op-avatar').textContent = (name.trim()[0] || 'J').toUpperCase();
+}
+
+// ── Boot ──
+function boot() {
+  refreshOperatorChip();
+  initMasterSupabase();
+  initWizard();
+  renderSettings();
+  if (CDP.connected) {
+    loadClients().then(() => { updateStatusBar(); });
+    loadContacts();
+  }
+  $('.panel.active .panel-inner')?.classList.add('reveal');
+  updateStatusBar();
+}
+// ═══════════════════════════════════════════════════════════════
+// ENGINE 1: SYSTEM CREATOR
+// ═══════════════════════════════════════════════════════════════
+
+const WIZARD_STEPS = ['System', 'Identity', 'Branding', 'Config', 'Review'];
+
+/** Paint the step indicator row. */
+function renderWizardSteps() {
+  const host = $('#wizard-steps'); host.innerHTML = '';
+  WIZARD_STEPS.forEach((label, i) => {
+    const n = i + 1;
+    const cls = n < CDP.wizard.step ? 'done' : (n === CDP.wizard.step ? 'current' : '');
+    host.appendChild(el(`<div class="wstep ${cls}"><div class="num">${n < CDP.wizard.step ? '✓' : n}</div><div class="lbl">${label}</div></div>`));
+    if (i < WIZARD_STEPS.length - 1) host.appendChild(el('<div class="connector"></div>'));
+  });
+}
+
+/** Show a given wizard pane (1..5 or 'success'). */
+function showWizardPane(which) {
+  $$('.wpane').forEach(p => p.classList.remove('active'));
+  $('#wpane-' + which).classList.add('active');
+}
+
+function initWizard() {
+  CDP.wizard = { step: 1, data: { primaryColor: '#c8a96e', secondaryColor: '#4ec9b0' } };
+  renderStep1(); renderStep2(); renderStep3(); renderStep4();
+  renderWizardSteps(); showWizardPane(1); renderWizardNav();
+}
+
+function renderWizardNav() {
+  const nav = $('#wizard-nav'); const s = CDP.wizard.step;
+  if ($('#wpane-success').classList.contains('active')) { nav.innerHTML = ''; return; }
+  let html = '';
+  if (s > 1) html += '<button class="btn btn-secondary" id="wz-back">Back</button>';
+  html += '<div style="flex:1"></div>';
+  if (s < 5) html += `<button class="btn btn-primary" id="wz-next">Continue</button>`;
+  else html += '<button class="btn btn-primary" id="wz-generate">Looks good — generate system</button>';
+  nav.innerHTML = html;
+  $('#wz-back') && ($('#wz-back').onclick = () => gotoStep(s - 1));
+  $('#wz-next') && ($('#wz-next').onclick = () => { if (validateStep(s)) gotoStep(s + 1); });
+  $('#wz-generate') && ($('#wz-generate').onclick = generateSystem);
+}
+
+function gotoStep(n) {
+  CDP.wizard.step = n;
+  if (n === 5) renderStep5();
+  renderWizardSteps(); showWizardPane(n); renderWizardNav();
+  $('#panel-creator').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Step 1: system type ──
+function renderStep1() {
+  $('#wpane-1').innerHTML = `
+    <h3 style="font-size:22px;margin-bottom:4px;">Choose the system type</h3>
+    <p class="panel-sub" style="margin-bottom:22px;">Pick the product this client is being onboarded onto.</p>
+    <div class="type-cards">
+      <div class="type-card" data-type="home">
+        <div class="tc-check">✓</div>
+        <div class="price">$49.99/mo</div>
+        <div class="tc-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
+        <h3>CareDesk Home</h3>
+        <div class="tc-sub">Adult Family Home System</div>
+        <p>Full facility admin for AFH operators. Residents, ADLs, vitals, payments, staff wages, DSHS compliance, incidents.</p>
+      </div>
+      <div class="type-card" data-type="rn">
+        <div class="tc-check">✓</div>
+        <div class="price">$29.99/mo</div>
+        <div class="tc-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 2v6a4 4 0 0 0 8 0V2"/><path d="M8 14a6 6 0 0 0 12 0v-2"/><circle cx="20" cy="10" r="2"/></svg></div>
+        <h3>CareDesk RN</h3>
+        <div class="tc-sub">Registered Nurse System</div>
+        <p>Delegation management for RN case managers. Client tracking, DSHS forms, credential monitoring, shift documentation.</p>
+      </div>
+    </div>`;
+  $$('#wpane-1 .type-card').forEach(card => card.onclick = () => {
+    $$('#wpane-1 .type-card').forEach(c => c.classList.remove('sel'));
+    card.classList.add('sel');
+    CDP.wizard.data.systemType = card.dataset.type;
+  });
+  if (CDP.wizard.data.systemType) {
+    const sel = $(`#wpane-1 .type-card[data-type="${CDP.wizard.data.systemType}"]`);
+    sel && sel.classList.add('sel');
+  }
+}
+
+// ── Step 2: identity ──
+function renderStep2() {
+  $('#wpane-2').innerHTML = `
+    <h3 style="font-size:22px;margin-bottom:4px;">Client identity</h3>
+    <p class="panel-sub" style="margin-bottom:22px;">Official business details. These are baked into the generated system.</p>
+    <div class="field"><label>Official business name</label><input type="text" id="f-name" placeholder="Sunrise Adult Family Home LLC"></div>
+    <div class="field"><label>Operating address — line 1</label><input type="text" id="f-addr1" placeholder="1420 Evergreen Way"></div>
+    <div class="field"><label>Address line 2 <span class="opt">(optional)</span></label><input type="text" id="f-addr2" placeholder="Suite B"></div>
+    <div class="field-row">
+      <div class="field"><label>City</label><input type="text" id="f-city" placeholder="Everett"></div>
+      <div class="field"><label>State</label><input type="text" id="f-state" placeholder="WA" maxlength="2"></div>
+      <div class="field"><label>ZIP</label><input type="text" id="f-zip" placeholder="98201"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Business phone</label><input type="text" id="f-phone" placeholder="(425) 555-0142"></div>
+      <div class="field"><label>Owner / operator full name</label><input type="text" id="f-owner" placeholder="Maria Okonkwo"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Owner email <span class="opt">(system login)</span></label><input type="email" id="f-email" placeholder="maria@sunriseafh.com"></div>
+      <div class="field"><label>Billing email <span class="opt">(Lemon Squeezy)</span></label><input type="email" id="f-billing" placeholder="billing@sunriseafh.com"></div>
+    </div>
+    <div class="field-row" id="home-extra">
+      <div class="field"><label>WA AFH license number <span class="opt">(optional)</span></label><input type="text" id="f-license" placeholder="AFH-0001234"></div>
+      <div class="field"><label>Number of beds <span class="opt">(optional)</span></label><input type="number" id="f-beds" placeholder="6"></div>
+    </div>
+    <div class="field" id="rn-extra" style="display:none;"><label>RN license number <span class="opt">(optional)</span></label><input type="text" id="f-rnlicense" placeholder="RN60123456"></div>`;
+}
+
+// ── Step 3: branding ──
+function renderStep3() {
+  $('#wpane-3').innerHTML = `
+    <h3 style="font-size:22px;margin-bottom:4px;">Branding</h3>
+    <p class="panel-sub" style="margin-bottom:22px;">How the client's system looks. A text logo is generated automatically if none is uploaded.</p>
+    <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+      <div>
+        <label class="form-label">Logo</label>
+        <div class="logo-preview" id="logo-preview"><span class="initials" id="logo-initials">—</span></div>
+        <input type="file" id="f-logo" accept="image/png,image/jpeg,image/svg+xml" style="display:none;">
+        <button class="btn btn-secondary btn-sm" id="logo-pick" style="margin-top:10px;">Upload logo</button>
+        <button class="btn btn-ghost btn-sm" id="logo-clear" style="margin-top:10px;">Clear</button>
+      </div>
+      <div style="flex:1; min-width:260px;">
+        <div class="field-row">
+          <div class="field"><label>Primary brand color</label><div style="display:flex;gap:10px;align-items:center;"><input type="color" id="f-primary" value="#c8a96e"><input type="text" id="f-primary-hex" value="#c8a96e"></div></div>
+          <div class="field"><label>Secondary brand color</label><div style="display:flex;gap:10px;align-items:center;"><input type="color" id="f-secondary" value="#4ec9b0"><input type="text" id="f-secondary-hex" value="#4ec9b0"></div></div>
+        </div>
+        <div class="field"><label>Tagline <span class="opt">(optional — shown on login)</span></label><input type="text" id="f-tagline" placeholder="Compassionate care, organized."></div>
+        <div class="field"><label>Subdomain suggestion <span class="opt">(editable)</span></label><input type="text" id="f-subdomain" placeholder="sunrise-afh"><div class="hint">Preview: <span class="mono" id="subdomain-preview" style="color:var(--gold2)">sunrise-afh</span>.github.io</div></div>
+      </div>
+    </div>`;
+  // logo handling
+  $('#logo-pick').onclick = () => $('#f-logo').click();
+  $('#logo-clear').onclick = () => { CDP.wizard.data.logoBase64 = ''; paintLogoPreview(); };
+  $('#f-logo').onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { CDP.wizard.data.logoBase64 = reader.result; paintLogoPreview(); };
+    reader.onerror = () => showToast('Could not read that image file.', 'error');
+    reader.readAsDataURL(file);
+  };
+  // color sync
+  const sync = (picker, hex, key) => {
+    const p = $(picker), h = $(hex);
+    p.oninput = () => { h.value = p.value; CDP.wizard.data[key] = p.value; };
+    h.oninput = () => { if (/^#[0-9a-fA-F]{6}$/.test(h.value)) { p.value = h.value; CDP.wizard.data[key] = h.value; } };
+  };
+  sync('#f-primary', '#f-primary-hex', 'primaryColor');
+  sync('#f-secondary', '#f-secondary-hex', 'secondaryColor');
+  $('#f-subdomain').oninput = e => { $('#subdomain-preview').textContent = (e.target.value || 'your-system').toLowerCase().replace(/\s+/g, '-'); };
+}
+
+function paintLogoPreview() {
+  const box = $('#logo-preview');
+  if (CDP.wizard.data.logoBase64) { box.innerHTML = `<img src="${CDP.wizard.data.logoBase64}" alt="logo">`; }
+  else {
+    const name = CDP.wizard.data.officialName || '';
+    const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '—';
+    box.innerHTML = `<span class="initials">${esc(initials)}</span>`;
+  }
+}
+
+// ── Step 4: technical config ──
+function renderStep4() {
+  $('#wpane-4').innerHTML = `
+    <h3 style="font-size:22px;margin-bottom:4px;">Technical configuration</h3>
+    <p class="panel-sub" style="margin-bottom:22px;">Connection details for the client's own Supabase project and first admin login.</p>
+    <div class="field"><label>Supabase project URL</label><input type="text" id="f-supaurl" placeholder="https://abcdefgh.supabase.co"></div>
+    <div class="field"><label>Supabase anon key</label><input type="password" id="f-supakey" placeholder="eyJhbGciOi…"></div>
+    <div class="field-row">
+      <div class="field"><label>Admin email</label><input type="email" id="f-adminemail" placeholder="auto-filled from owner email"></div>
+      <div class="field"><label>Admin password <span class="opt">(min 8 chars)</span></label><input type="password" id="f-adminpass" placeholder="••••••••"></div>
+    </div>
+    <div class="card" style="background:var(--surface2);border-style:dashed;">
+      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">You'll set up the Supabase project separately. This config is baked into the generated system's <span class="mono" style="color:var(--gold2)">config.js</span>. You can edit it later before pushing to GitHub.</div>
+    </div>`;
+}
+
+// ── Step 5: review ──
+function collectStepData() {
+  const d = CDP.wizard.data;
+  const g = id => ($('#' + id) ? $('#' + id).value.trim() : '');
+  if (CDP.wizard.step >= 2 || $('#f-name')) {
+    d.officialName = g('f-name'); d.addr1 = g('f-addr1'); d.addr2 = g('f-addr2');
+    d.city = g('f-city'); d.state = g('f-state'); d.zip = g('f-zip');
+    d.phone = g('f-phone'); d.owner = g('f-owner'); d.email = g('f-email'); d.billing = g('f-billing');
+    d.license = d.systemType === 'rn' ? g('f-rnlicense') : g('f-license'); d.beds = g('f-beds');
+  }
+  if ($('#f-tagline')) {
+    d.tagline = g('f-tagline');
+    d.subdomain = (g('f-subdomain') || d.officialName || 'caredesk').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if ($('#f-primary')) d.primaryColor = $('#f-primary').value;
+    if ($('#f-secondary')) d.secondaryColor = $('#f-secondary').value;
+  }
+  if ($('#f-supaurl')) {
+    d.supaUrl = g('f-supaurl'); d.supaKey = g('f-supakey');
+    d.adminEmail = g('f-adminemail') || d.email; d.adminPass = g('f-adminpass');
+  }
+}
+
+function renderStep5() {
+  collectStepData();
+  const d = CDP.wizard.data;
+  const fullAddr = [d.addr1, d.addr2, [d.city, d.state, d.zip].filter(Boolean).join(', ')].filter(Boolean).join(', ');
+  const row = (k, v) => `<div class="review-row"><div class="k">${esc(k)}</div><div class="v">${esc(v || '—')}</div></div>`;
+  $('#wpane-5').innerHTML = `
+    <h3 style="font-size:22px;margin-bottom:4px;">Review &amp; generate</h3>
+    <p class="panel-sub" style="margin-bottom:22px;">Confirm everything below. Generation builds the zip, downloads it, and registers the client in your master database.</p>
+    <div class="review-group"><div class="rg-head">System</div>
+      ${row('Type', d.systemType === 'home' ? 'CareDesk Home — $49.99/mo' : 'CareDesk RN — $29.99/mo')}</div>
+    <div class="review-group"><div class="rg-head">Identity</div>
+      ${row('Business name', d.officialName)}${row('Address', fullAddr)}${row('Phone', d.phone)}${row('Owner', d.owner)}
+      ${row('Owner email', d.email)}${row('Billing email', d.billing)}${row('License #', d.license)}${d.systemType === 'home' ? row('Beds', d.beds) : ''}</div>
+    <div class="review-group"><div class="rg-head">Branding</div>
+      ${row('Primary color', d.primaryColor)}${row('Secondary color', d.secondaryColor)}${row('Tagline', d.tagline)}${row('Subdomain', d.subdomain + '.github.io')}${row('Logo', d.logoBase64 ? 'Uploaded' : 'Auto-generated text logo')}</div>
+    <div class="review-group"><div class="rg-head">Configuration</div>
+      ${row('Supabase URL', d.supaUrl)}${row('Supabase key', d.supaKey ? '•••••••• (set)' : 'not set')}${row('Admin email', d.adminEmail)}${row('Admin password', d.adminPass ? '•••••••• (set)' : 'not set')}</div>`;
+}
+
+// ── Validation ──
+function validateStep(step) {
+  collectStepData(); const d = CDP.wizard.data;
+  if (step === 1) { if (!d.systemType) { showToast('Select a system type to continue.', 'error'); return false; } 
+    // toggle the per-type fields once chosen
+    return true; }
+  if (step === 2) {
+    if (!d.officialName) return fail('Business name is required.');
+    if (!d.addr1 || !d.city || !d.state || !d.zip) return fail('Complete the operating address.');
+    if (!d.phone) return fail('Business phone is required.');
+    if (!d.owner) return fail('Owner name is required.');
+    if (!validEmail(d.email)) return fail('A valid owner email is required.');
+    if (!validEmail(d.billing)) return fail('A valid billing email is required.');
+    return true;
+  }
+  if (step === 3) { paintLogoPreview(); return true; }
+  if (step === 4) {
+    if (!d.supaUrl || !/^https?:\/\//.test(d.supaUrl)) return fail('Enter a valid Supabase project URL.');
+    if (!d.supaKey) return fail('Supabase anon key is required.');
+    if (!validEmail(d.adminEmail)) return fail('A valid admin email is required.');
+    if (!d.adminPass || d.adminPass.length < 8) return fail('Admin password must be at least 8 characters.');
+    return true;
+  }
+  return true;
+}
+function fail(msg) { showToast(msg, 'error'); return false; }
+function validEmail(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e || ''); }
+
+// keep step-2 conditional fields in sync when entering step 2
+const _origGoto = gotoStep;
+gotoStep = function (n) {
+  _origGoto(n);
+  if (n === 2) {
+    const d = CDP.wizard.data;
+    $('#home-extra') && ($('#home-extra').style.display = d.systemType === 'home' ? 'flex' : 'none');
+    $('#rn-extra') && ($('#rn-extra').style.display = d.systemType === 'rn' ? 'block' : 'none');
+    if (d.officialName) $('#f-name').value = d.officialName;
+  }
+  if (n === 3) { paintLogoPreview(); if (!$('#f-subdomain').value && CDP.wizard.data.officialName) { const sub = CDP.wizard.data.officialName.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); $('#f-subdomain').value = sub; $('#subdomain-preview').textContent = sub; } }
+  if (n === 4 && !$('#f-adminemail').value && CDP.wizard.data.email) $('#f-adminemail').value = CDP.wizard.data.email;
+};
+
+// ── Generation ──
+/** Build the zip, download it, register the client, then show success. */
+async function generateSystem() {
+  collectStepData();
+  const d = CDP.wizard.data;
+  if (!window.JSZip || !window.saveAs) { showToast('Zip libraries failed to load. Check your connection.', 'error'); return; }
+
+  const btn = $('#wz-generate'); if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader"><span></span><span></span><span></span></span> Generating…'; }
+
+  try {
+    // 1. unique client id
+    const rand = String(Math.floor(1000 + Math.random() * 9000));
+    const clientId = (d.systemType === 'home' ? 'cd_home_' : 'cd_rn_') + rand;
+    d.clientId = clientId;
+    const fullAddr = [d.addr1, d.addr2, [d.city, d.state, d.zip].filter(Boolean).join(', ')].filter(Boolean).join(', ');
+
+    // 2. token map
+    const tokens = {
+      '{{CLIENT_ID}}': clientId,
+      '{{CLIENT_NAME}}': d.officialName,
+      '{{CLIENT_ADDRESS}}': fullAddr,
+      '{{CLIENT_PHONE}}': d.phone,
+      '{{CLIENT_EMAIL}}': d.email,
+      '{{BILLING_EMAIL}}': d.billing,
+      '{{LICENSE_NUMBER}}': d.license || '',
+      '{{LOGO_BASE64}}': d.logoBase64 || '',
+      '{{PRIMARY_COLOR}}': d.primaryColor || '#c8a96e',
+      '{{SECONDARY_COLOR}}': d.secondaryColor || '#4ec9b0',
+      '{{TAGLINE}}': d.tagline || '',
+      '{{SUPABASE_URL}}': d.supaUrl,
+      '{{SUPABASE_KEY}}': d.supaKey,
+      '{{MASTER_SUPABASE_URL}}': lsGet(LS.masterUrl),
+      '{{MASTER_SUPABASE_KEY}}': lsGet(LS.masterKey),
+      '{{ADMIN_EMAIL}}': d.adminEmail,
+      '{{ADMIN_PASSWORD}}': d.adminPass
+    };
+
+    // 3. assemble files via the template engine
+    const onboarding = buildOnboarding(d, clientId, fullAddr);
+    const files = (d.systemType === 'home')
+      ? buildHomeSystem(tokens, d)
+      : await buildRnSystemFromTemplate(tokens, d, onboarding);
+
+    // 4. zip
+    const zip = new JSZip();
+    const folder = (d.systemType === 'home' ? 'caredesk-home-' : 'caredesk-rn-') + clientId;
+    const root = zip.folder(folder);
+    Object.entries(files).forEach(([path, content]) => root.file(path, content));
+    if (d.logoBase64 && d.logoBase64.includes(',')) {
+      const b64 = d.logoBase64.split(',')[1];
+      root.folder('assets').file('logo.png', b64, { base64: true });
+    } else {
+      root.folder('assets').file('logo.txt', 'Text logo generated from business initials. Replace with logo.png if desired.');
+    }
+    const blob = await zip.generateAsync({ type: 'blob' });
+    saveAs(blob, folder + '.zip');
+
+    // 5. register in master supabase
+    await registerClient(d, clientId, fullAddr);
+
+    // 6. success
+    showSuccessScreen(d, clientId);
+    showToast('System generated and downloaded.', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Generation failed: ' + (err.message || err), 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Looks good — generate system'; }
+  }
+}
+
+/** Insert the new client row into caredesk_clients (best-effort). */
+async function registerClient(d, clientId, fullAddr) {
+  const sb = CDP.supabase;
+  if (!sb) { showToast('Generated, but not registered — connect master Supabase in Settings.', 'info'); return; }
+  try {
+    const planName = d.systemType === 'home' ? 'CareDesk Home' : 'CareDesk RN';
+    const planPrice = d.systemType === 'home' ? 49.99 : 29.99;
+    const { error } = await sb.from('caredesk_clients').insert({
+      client_id: clientId, system_type: d.systemType, official_name: d.officialName,
+      address: fullAddr, phone: d.phone, admin_email: d.adminEmail, billing_email: d.billing,
+      supabase_url: d.supaUrl, system_url: d.subdomain ? `https://${d.subdomain}.github.io` : null,
+      plan_name: planName, plan_price: planPrice, subscription_status: 'trial',
+      lockout_level: 0, days_overdue: 0, license_number: d.license || null,
+      consent_given: false, notes: ''
+    });
+    if (error) throw error;
+    await loadClients();
+  } catch (e) {
+    console.error('register failed', e);
+    showToast('Downloaded, but registration to master DB failed: ' + (e.message || e), 'error');
+  }
+}
+
+function showSuccessScreen(d, clientId) {
+  const homeSteps = [
+    'Unzip the downloaded file',
+    'Open config.js and verify all details are correct',
+    'Make any additional personalizations (colors, content, modules)',
+    `Create a GitHub repository named: ${d.subdomain || 'client'}-caredesk`,
+    'Push all files to the repository',
+    'Settings → Pages → Deploy from main branch',
+    'Create a new Supabase project at supabase.com',
+    'SQL Editor → run the client schema (copy from CareDesk Pro → Settings)',
+    'Update config.js with the real Supabase URL and anon key',
+    'Push the updated config.js to GitHub',
+    'Share the GitHub Pages URL with your client',
+    'Set up the Lemon Squeezy subscription for this client',
+    'Update the system URL in the CareDesk Pro Client CRM'
+  ];
+  const rnSteps = [
+    'Unzip the downloaded file',
+    `Create a GitHub repository named: ${d.subdomain || 'client'}-rn`,
+    'Push all files to the repository (include the assets/ folder)',
+    'Settings → Pages → Deploy from main branch',
+    'Create a new Supabase project at supabase.com',
+    'SQL Editor → run supabase-schema.sql (included in the zip)',
+    `Authentication → Users → add the admin user: ${d.adminEmail || d.email || 'admin email'}` +
+      (d.adminPass ? ` · password: ${d.adminPass}` : ''),
+    'Open the GitHub Pages URL — Supabase keys and business details are already baked in',
+    'Confirm login works, then share the URL with your client',
+    'Update the system URL in the CareDesk Pro Client CRM'
+  ];
+  const steps = d.systemType === 'rn' ? rnSteps : homeSteps;
+  $('#wpane-success').innerHTML = `
+    <div class="success-hero">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2>System generated successfully</h2>
+      <div class="client-id-pill">${esc(clientId)}</div>
+    </div>
+    <div class="card" style="max-width:680px;margin:0 auto;">
+      <div class="eyebrow" style="margin-bottom:14px;">Next steps to deploy</div>
+      <ul class="checklist">
+        ${steps.map((s, i) => `<li><span class="box"></span><span class="seq">${String(i + 1).padStart(2, '0')}</span><span>${esc(s)}</span></li>`).join('')}
+      </ul>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button class="btn btn-primary" id="sx-crm">View in CRM</button>
+        <button class="btn btn-secondary" id="sx-another">Onboard another client</button>
+      </div>
+    </div>`;
+  showWizardPane('success'); renderWizardSteps(); $('#wizard-nav').innerHTML = '';
+  $('#sx-crm').onclick = () => { switchPanel('crm'); setTimeout(() => openClientDrawer(clientId), 300); };
+  $('#sx-another').onclick = () => initWizard();
+}
+// ═══════════════════════════════════════════════════════════════
+// ENGINE 2: CLIENT CRM & OVERSIGHT
+// ═══════════════════════════════════════════════════════════════
+
+/** Fetch all clients from the master DB into state. */
+async function loadClients() {
+  const sb = CDP.supabase; if (!sb) return;
+  try {
+    const { data, error } = await sb.from('caredesk_clients').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    CDP.clients = data || [];
+    updateStatusBar();
+  } catch (e) { console.error(e); showToast('Could not load clients: ' + (e.message || e), 'error'); }
+}
+
+async function loadPayments() {
+  const sb = CDP.supabase; if (!sb) return;
+  try { const { data } = await sb.from('caredesk_payments').select('*').order('payment_date', { ascending: false }); CDP.payments = data || []; }
+  catch (e) { console.error(e); }
+}
+
+async function loadWebhooks() {
+  const sb = CDP.supabase; if (!sb) return;
+  try { const { data } = await sb.from('caredesk_webhook_log').select('*').order('received_at', { ascending: false }).limit(50); CDP.webhooks = data || []; }
+  catch (e) { console.error(e); }
+}
+
+/** Entry point when the CRM panel is shown. */
+async function loadCRM() {
+  if (!CDP.supabase) {
+    $('#crm-metrics').innerHTML = '';
+    $('#crm-table-host').innerHTML = notConnectedState();
+    $('#webhook-table-host').innerHTML = '';
+    return;
+  }
+  await Promise.all([loadClients(), loadPayments(), loadWebhooks()]);
+  renderCRMMetrics(); renderClientTable(); renderWebhookTable();
+}
+
+function notConnectedState() {
+  return `<div class="table-wrap"><div class="empty">
+    <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+    <h4>Connect your master database</h4>
+    <p>Add your master Supabase URL and key in Settings to load clients, payments, and billing events.</p>
+    <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="switchPanel('settings')">Open settings</button>
+  </div></div>`;
+}
+
+function renderCRMMetrics() {
+  const c = CDP.clients;
+  const active = c.filter(x => x.subscription_status === 'active');
+  const overdue = c.filter(x => (x.days_overdue || 0) > 0);
+  const mrr = active.reduce((s, x) => s + (Number(x.plan_price) || 0), 0);
+  const now = new Date(), m = now.getMonth(), y = now.getFullYear();
+  const collected = CDP.payments.filter(p => p.status === 'paid' && p.payment_date && new Date(p.payment_date).getMonth() === m && new Date(p.payment_date).getFullYear() === y)
+    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const card = (label, value, cls, glyph, foot) => `<div class="metric-card">
+    <div class="m-glyph">${glyph}</div>
+    <div class="m-label">${label}</div><div class="m-value ${cls || ''}">${value}</div>
+    ${foot ? `<div class="m-foot">${foot}</div>` : ''}</div>`;
+  $('#crm-metrics').innerHTML =
+    card('Total MRR', fmtMoney(mrr) + '<span style="font-size:14px;color:var(--text-dim)">/mo</span>', 'gold',
+      '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+      `${active.length} active subscriptions`) +
+    card('Active clients', active.length, '', '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>', `${c.length} systems total`) +
+    card('Overdue clients', overdue.length, overdue.length ? 'amber' : '', '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', overdue.length ? 'Needs attention' : 'All current') +
+    card('Collected this month', fmtMoney(collected), '', '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>', now.toLocaleDateString('en-US', { month: 'long' }));
+}
+
+function statusBadge(s) {
+  const map = { active: 'Active', overdue: 'Overdue', locked: 'Locked', trial: 'Trial', cancelled: 'Cancelled' };
+  return `<span class="badge ${s || 'trial'}">${map[s] || 'Trial'}</span>`;
+}
+function typeBadge(t) { return t === 'home' ? '<span class="badge home">Home</span>' : '<span class="badge rn">RN</span>'; }
+function lockChip(level) { return `<span class="lockchip"><span class="lvl lvl-${level || 0}">${level || 0}</span></span>`; }
+
+/** Apply current search/filter/sort and render the client table. */
+function renderClientTable() {
+  const q = ($('#crm-search')?.value || '').toLowerCase();
+  const ft = $('#crm-filter-type')?.value || 'all';
+  const fs = $('#crm-filter-status')?.value || 'all';
+  const sort = $('#crm-sort')?.value || 'name';
+
+  let rows = CDP.clients.filter(c => {
+    if (ft !== 'all' && c.system_type !== ft) return false;
+    if (fs !== 'all' && c.subscription_status !== fs) return false;
+    if (q && !((c.official_name || '').toLowerCase().includes(q) || (c.billing_email || '').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  rows.sort((a, b) => {
+    if (sort === 'overdue') return (b.days_overdue || 0) - (a.days_overdue || 0);
+    if (sort === 'mrr') return (Number(b.plan_price) || 0) - (Number(a.plan_price) || 0);
+    if (sort === 'payment') return new Date(b.last_payment_date || 0) - new Date(a.last_payment_date || 0);
+    return (a.official_name || '').localeCompare(b.official_name || '');
+  });
+
+  const host = $('#crm-table-host');
+  if (!rows.length) {
+    host.innerHTML = `<div class="table-wrap"><div class="empty">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <h4>${CDP.clients.length ? 'No clients match' : 'No clients yet'}</h4>
+      <p>${CDP.clients.length ? 'Adjust your search or filters.' : 'Generate your first system in the System Creator to see it here.'}</p>
+    </div></div>`;
+    return;
+  }
+
+  const overdueCell = n => { n = n || 0; if (!n) return '<span class="dim">—</span>'; const cls = n >= 15 ? 'red' : 'amber'; return `<span style="color:var(--${cls})">${n}d</span>`; };
+  host.innerHTML = `<div class="table-wrap"><table class="data"><thead><tr>
+      <th>Client</th><th>Plan</th><th>Billing email</th><th>Status</th><th>Overdue</th><th>Lockout</th><th>Last payment</th><th style="text-align:right">Actions</th>
+    </tr></thead><tbody>${rows.map(c => `<tr>
+      <td><div class="cell-strong">${esc(c.official_name)}</div><div style="margin-top:4px">${typeBadge(c.system_type)}</div></td>
+      <td>${esc(c.plan_name || '—')}<div class="cell-mono">${fmtMoney(c.plan_price)}/mo</div></td>
+      <td class="cell-mono">${esc(truncate(c.billing_email || '—', 24))}</td>
+      <td>${statusBadge(c.subscription_status)}</td>
+      <td>${overdueCell(c.days_overdue)}</td>
+      <td>${lockChip(c.lockout_level)}</td>
+      <td class="cell-mono">${fmtDate(c.last_payment_date)}</td>
+      <td><div class="row-actions" style="justify-content:flex-end">
+        <button class="icon-btn" title="View" data-act="view" data-id="${c.client_id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="icon-btn" title="Adjust lockout" data-act="lock" data-id="${c.client_id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
+        <button class="icon-btn" title="Payment log" data-act="pay" data-id="${c.client_id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></button>
+      </div></td>
+    </tr>`).join('')}</tbody></table></div>`;
+
+  $$('#crm-table-host [data-act]').forEach(b => b.onclick = () => {
+    const id = b.dataset.id;
+    if (b.dataset.act === 'view') openClientDrawer(id);
+    if (b.dataset.act === 'lock') openLockoutModal(id);
+    if (b.dataset.act === 'pay') openClientDrawer(id, 'payments');
+  });
+}
+
+['crm-search', 'crm-filter-type', 'crm-filter-status', 'crm-sort'].forEach(id => {
+  document.addEventListener('input', e => { if (e.target.id === id) renderClientTable(); });
+});
+document.addEventListener('click', e => { if (e.target.id === 'crm-refresh') loadCRM(); });
+
+// ── Lockout control ──
+const LOCK_LEVELS = [
+  { n: 0, name: 'No restrictions', desc: 'System fully open. Default state.' },
+  { n: 1, name: 'Gentle reminders', desc: 'A soft gold toast every 10 minutes. System fully usable.' },
+  { n: 2, name: 'Banner + dim', desc: 'Persistent amber banner and a 10% opacity dim on content.' },
+  { n: 3, name: 'Blur overlay', desc: 'Full-screen blur with a payment prompt. Data is preserved and the overlay is dismissible.' }
+];
+
+function openLockoutModal(clientId) {
+  const c = CDP.clients.find(x => x.client_id === clientId); if (!c) return;
+  openModal(`
+    <div class="modal-head"><div><h3>Access level</h3><div class="sub">${esc(c.official_name)}</div></div><button class="close-x" data-x>&times;</button></div>
+    <div class="modal-body">
+      <p class="hint" style="margin-bottom:16px">This writes <span class="mono" style="color:var(--gold2)">lockout_level</span> to the master database. The client's system reads it on next page load. Data is never deleted at any level.</p>
+      ${LOCK_LEVELS.map(l => `<label class="card clickable" style="display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;${c.lockout_level === l.n ? 'border-color:var(--gold);background:var(--gold-dim)' : ''}">
+        <input type="radio" name="lock" value="${l.n}" ${c.lockout_level === l.n ? 'checked' : ''} style="width:auto;margin-top:3px">
+        <div><div class="cell-strong">Level ${l.n} — ${l.name}</div><div class="hint" style="margin-top:3px">${l.desc}</div></div>
+      </label>`).join('')}
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" data-x>Cancel</button><button class="btn btn-primary" id="lock-save">Apply level</button></div>`);
+  $$('[data-x]').forEach(b => b.onclick = closeModal);
+  $('#lock-save').onclick = () => {
+    const lvl = Number($$('input[name=lock]').find(r => r.checked)?.value ?? c.lockout_level);
+    if (lvl === 3) { closeModal(); confirmAction({ title: 'Apply Level 3 blur?', body: `This shows a full-screen payment prompt on <strong>${esc(c.official_name)}</strong>'s system. Their data stays safe and the overlay is dismissible — but it is the most assertive reminder.`, confirmLabel: 'Apply Level 3', onConfirm: () => setLockout(clientId, lvl) }); }
+    else { setLockout(clientId, lvl); closeModal(); }
+  };
+}
+
+/** Persist a new lockout level for a client. */
+async function setLockout(clientId, level) {
+  const sb = requireSupabase(); if (!sb) return;
+  try {
+    const patch = { lockout_level: level };
+    if (level >= 1) patch.subscription_status = 'overdue';
+    if (level === 0) patch.subscription_status = 'active';
+    const { error } = await sb.from('caredesk_clients').update(patch).eq('client_id', clientId);
+    if (error) throw error;
+    const c = CDP.clients.find(x => x.client_id === clientId); if (c) Object.assign(c, patch);
+    renderClientTable(); renderCRMMetrics(); updateStatusBar();
+    showToast(`Access set to Level ${level}.`, 'success');
+  } catch (e) { showToast('Could not update: ' + (e.message || e), 'error'); }
+}
+
+// ── Client detail drawer ──
+function openClientDrawer(clientId, startTab = 'profile') {
+  const c = CDP.clients.find(x => x.client_id === clientId); if (!c) { showToast('Client not found.', 'error'); return; }
+  const logo = c.logo_base64 ? `<img src="${c.logo_base64}" style="width:40px;height:40px;border-radius:9px;object-fit:contain;background:var(--surface2)">`
+    : `<div style="width:40px;height:40px;border-radius:9px;background:var(--gold-dim);color:var(--gold2);display:grid;place-items:center;font-family:var(--font-display);font-size:18px">${esc((c.official_name || '?')[0])}</div>`;
+  openDrawer(`
+    <div class="drawer-head">
+      <div class="top">
+        <div style="display:flex;gap:12px;align-items:center">${logo}<div><div style="font-family:var(--font-display);font-size:21px">${esc(c.official_name)}</div><div class="cell-mono">${esc(c.client_id)}</div></div></div>
+        <button class="close-x" id="dr-close">&times;</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">${typeBadge(c.system_type)} ${statusBadge(c.subscription_status)} ${lockChip(c.lockout_level)}</div>
+      <div style="margin-top:12px;font-size:12.5px;line-height:1.8">
+        ${c.system_url ? `<div>System: <a href="${esc(c.system_url)}" target="_blank" rel="noopener">${esc(c.system_url)}</a></div>` : ''}
+        ${c.supabase_url ? `<div>Supabase: <a href="${esc(c.supabase_url)}" target="_blank" rel="noopener">${esc(truncate(c.supabase_url, 40))}</a></div>` : ''}
+      </div>
+    </div>
+    <div class="drawer-tabs">
+      <div class="drawer-tab" data-dt="profile">Subscription</div>
+      <div class="drawer-tab" data-dt="payments">Payments</div>
+      <div class="drawer-tab" data-dt="consent">Contact &amp; consent</div>
+      <div class="drawer-tab" data-dt="notes">Notes</div>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>`);
+  $('#dr-close').onclick = closeDrawer;
+  $$('#drawer .drawer-tab').forEach(t => t.onclick = () => renderDrawerTab(clientId, t.dataset.dt));
+  renderDrawerTab(clientId, startTab);
+}
+
+function renderDrawerTab(clientId, tab) {
+  $$('#drawer .drawer-tab').forEach(t => t.classList.toggle('on', t.dataset.dt === tab));
+  const c = CDP.clients.find(x => x.client_id === clientId); const body = $('#drawer-body'); if (!c || !body) return;
+
+  if (tab === 'profile') {
+    body.innerHTML = `
+      <div class="kv"><div class="k">Plan</div><div class="v">${esc(c.plan_name || '—')} · ${fmtMoney(c.plan_price)}/mo</div></div>
+      <div class="kv"><div class="k">Billing email</div><div class="v">${esc(c.billing_email || '—')}</div></div>
+      <div class="kv"><div class="k">Lemon Squeezy ID</div><div class="v">${esc(c.ls_subscription_id || '— not linked')}</div></div>
+      <div class="kv"><div class="k">Last payment</div><div class="v">${fmtDate(c.last_payment_date)}</div></div>
+      <div class="kv"><div class="k">Next payment</div><div class="v">${fmtDate(c.next_payment_date)}</div></div>
+      <div class="kv"><div class="k">Days overdue</div><div class="v">${c.days_overdue || 0}</div></div>
+      <div class="kv"><div class="k">Setup fee</div><div class="v">${c.setup_fee_paid ? 'Paid' : 'Unpaid'}</div></div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-primary btn-sm" id="dr-markpaid">Mark payment received</button>
+        <button class="btn btn-secondary btn-sm" id="dr-edit">Edit URLs</button>
+      </div>`;
+    $('#dr-markpaid').onclick = () => openPaymentModal(clientId);
+    $('#dr-edit').onclick = () => openEditUrlsModal(clientId);
+  }
+
+  if (tab === 'payments') {
+    const pays = CDP.payments.filter(p => p.client_id === clientId);
+    body.innerHTML = pays.length ? `<div class="table-wrap"><table class="data"><thead><tr><th>Date</th><th>Amount</th><th>Status</th><th>Method</th></tr></thead><tbody>
+      ${pays.map(p => `<tr><td class="cell-mono">${fmtDate(p.payment_date)}</td><td class="cell-strong">${fmtMoney(p.amount)}</td><td><span class="badge ${p.status === 'paid' ? 'green' : p.status === 'failed' ? 'red' : 'amber'}">${esc(p.status)}</span></td><td class="cell-mono">${esc(p.payment_method || '—')}</td></tr>`).join('')}
+      </tbody></table></div><button class="btn btn-primary btn-sm" style="margin-top:14px" id="dr-addpay">Log a payment</button>`
+      : `<div class="empty"><h4>No payments logged</h4><p>Manual transfers and overrides will appear here.</p><button class="btn btn-primary btn-sm" style="margin-top:14px" id="dr-addpay">Log a payment</button></div>`;
+    $('#dr-addpay') && ($('#dr-addpay').onclick = () => openPaymentModal(clientId));
+  }
+
+  if (tab === 'consent') {
+    const fromHere = CDP.contacts.filter(x => x.source === clientId);
+    const opted = fromHere.filter(x => x.consent_given);
+    body.innerHTML = `
+      <div class="kv"><div class="k">Owner email</div><div class="v">${esc(c.admin_email || '—')}</div></div>
+      <div class="kv"><div class="k">Phone</div><div class="v">${esc(c.phone || '—')}</div></div>
+      <div class="kv"><div class="k">Address</div><div class="v">${esc(c.address || '—')}</div></div>
+      <div class="kv"><div class="k">Marketing consent</div><div class="v">${c.consent_given ? '<span class="badge green">Opted in</span>' : '<span class="badge neutral">Not given</span>'}</div></div>
+      <div class="kv"><div class="k">Consent date</div><div class="v">${fmtDate(c.consent_date)}</div></div>
+      <div class="kv"><div class="k">Opted-in contacts</div><div class="v">${opted.length} from this system</div></div>`;
+  }
+
+  if (tab === 'notes') {
+    body.innerHTML = `<label class="form-label">Operator notes</label>
+      <textarea id="dr-notes" style="min-height:220px" placeholder="Private notes about this client…">${esc(c.notes || '')}</textarea>
+      <div class="hint">Auto-saves when you click away.</div>`;
+    $('#dr-notes').onblur = async () => {
+      const sb = requireSupabase(); if (!sb) return;
+      try { const { error } = await sb.from('caredesk_clients').update({ notes: $('#dr-notes').value }).eq('client_id', clientId); if (error) throw error; c.notes = $('#dr-notes').value; showToast('Notes saved.', 'success'); }
+      catch (e) { showToast('Could not save notes: ' + (e.message || e), 'error'); }
+    };
+  }
+}
+
+function openPaymentModal(clientId) {
+  const c = CDP.clients.find(x => x.client_id === clientId);
+  openModal(`
+    <div class="modal-head"><div><h3>Log a payment</h3><div class="sub">${esc(c.official_name)}</div></div><button class="close-x" data-x>&times;</button></div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label>Amount (USD)</label><input type="number" id="pay-amt" value="${c.plan_price || ''}" step="0.01"></div>
+        <div class="field"><label>Date</label><input type="date" id="pay-date" value="${new Date().toISOString().slice(0, 10)}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Status</label><select id="pay-status"><option value="paid">Paid</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="refunded">Refunded</option></select></div>
+        <div class="field"><label>Method</label><input type="text" id="pay-method" placeholder="Wise / card / manual transfer"></div>
+      </div>
+      <div class="field"><label>Notes <span class="opt">(optional)</span></label><input type="text" id="pay-notes"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" data-x>Cancel</button><button class="btn btn-primary" id="pay-save">Save payment</button></div>`);
+  $$('[data-x]').forEach(b => b.onclick = closeModal);
+  $('#pay-save').onclick = async () => {
+    const sb = requireSupabase(); if (!sb) return;
+    const amount = Number($('#pay-amt').value), date = $('#pay-date').value, status = $('#pay-status').value;
+    if (!amount || !date) { showToast('Amount and date are required.', 'error'); return; }
+    try {
+      const { error } = await sb.from('caredesk_payments').insert({ client_id: clientId, amount, currency: 'USD', status, payment_date: date, payment_method: $('#pay-method').value || 'manual', notes: $('#pay-notes').value });
+      if (error) throw error;
+      if (status === 'paid') {
+        const patch = { last_payment_date: date, subscription_status: 'active', days_overdue: 0, lockout_level: 0 };
+        await sb.from('caredesk_clients').update(patch).eq('client_id', clientId);
+        const c2 = CDP.clients.find(x => x.client_id === clientId); if (c2) Object.assign(c2, patch);
+      }
+      await loadPayments();
+      closeModal(); renderClientTable(); renderCRMMetrics(); updateStatusBar();
+      if ($('#drawer').classList.contains('open')) renderDrawerTab(clientId, 'payments');
+      showToast('Payment logged.', 'success');
+    } catch (e) { showToast('Could not save payment: ' + (e.message || e), 'error'); }
+  };
+}
+
+function openEditUrlsModal(clientId) {
+  const c = CDP.clients.find(x => x.client_id === clientId);
+  openModal(`
+    <div class="modal-head"><div><h3>Edit links</h3><div class="sub">${esc(c.official_name)}</div></div><button class="close-x" data-x>&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>System URL</label><input type="text" id="e-sys" value="${esc(c.system_url || '')}" placeholder="https://client.github.io"></div>
+      <div class="field"><label>Supabase project URL</label><input type="text" id="e-supa" value="${esc(c.supabase_url || '')}"></div>
+      <div class="field"><label>Lemon Squeezy subscription ID</label><input type="text" id="e-ls" value="${esc(c.ls_subscription_id || '')}"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" data-x>Cancel</button><button class="btn btn-primary" id="e-save">Save</button></div>`);
+  $$('[data-x]').forEach(b => b.onclick = closeModal);
+  $('#e-save').onclick = async () => {
+    const sb = requireSupabase(); if (!sb) return;
+    try {
+      const patch = { system_url: $('#e-sys').value, supabase_url: $('#e-supa').value, ls_subscription_id: $('#e-ls').value };
+      const { error } = await sb.from('caredesk_clients').update(patch).eq('client_id', clientId);
+      if (error) throw error;
+      Object.assign(c, patch); closeModal(); renderClientTable();
+      if ($('#drawer').classList.contains('open')) openClientDrawer(clientId);
+      showToast('Links updated.', 'success');
+    } catch (e) { showToast('Could not save: ' + (e.message || e), 'error'); }
+  };
+}
+
+// ── Webhook log ──
+function renderWebhookTable() {
+  const host = $('#webhook-table-host');
+  if (!CDP.webhooks.length) {
+    host.innerHTML = `<div class="table-wrap"><div class="empty"><div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h4>No webhook events</h4><p>Once your Supabase edge function is receiving Lemon Squeezy events, they'll stream in here.</p></div></div>`;
+    return;
+  }
+  const cmap = {}; CDP.clients.forEach(c => { if (c.billing_email) cmap[c.billing_email] = c.official_name; });
+  host.innerHTML = `<div class="table-wrap"><table class="data"><thead><tr><th>Event</th><th>Client</th><th>Payload</th><th>Received</th><th>Processed</th></tr></thead><tbody>
+    ${CDP.webhooks.map(w => `<tr><td class="cell-mono">${esc(w.event_name || '—')}</td><td>${esc(cmap[w.client_id] || w.client_id || '—')}</td><td class="cell-mono dim">${esc(truncate(w.payload_preview || '', 36))}</td><td class="cell-mono">${fmtDate(w.received_at)}</td><td>${w.processed ? '<span class="badge green">yes</span>' : '<span class="badge amber">no</span>'}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+// ═══════════════════════════════════════════════════════════════
+// ENGINE 3: MARKETING INTELLIGENCE
+// ═══════════════════════════════════════════════════════════════
+
+const MARKETING_SYSTEM_PROMPT = `You are the Marketing Intelligence engine for CareDesk, a software product built by Joseph, an independent developer based in Kenya serving the United States care-facility market. CareDesk has two products:
+
+- CareDesk Home: facility management software for small Washington State Adult Family Homes (AFHs), typically 2–6 residents. Owners are often immigrants or former caregivers. It handles residents, ADLs, vitals, payments, staff wages, DSHS compliance, doctor appointments, and incident logs. $49.99/month plus a $99–$149 setup fee.
+- CareDesk RN: delegation-management software for individual Registered Nurse case managers who oversee nurse delegation across multiple AFHs. It handles AFH client lists, delegation tracking, DSHS forms (13-678, 13-680, 13-681, 01-212, 13-893), caregiver credential tracking, and shift notes. $29.99/month plus setup fee.
+
+Reference proof point: Harmony Living House (HLH), a live AFH deployment in Washington State.
+
+Voice: calm, credible, specific, never hypey. You write for busy operators and clinicians who distrust marketing fluff. Lead with the operator's real pain (DSHS audit anxiety, paper-record risk, delegation paperwork, staff wage tracking) and show concrete relief. Use plain language. Avoid exclamation marks, emoji spam, and buzzwords. Be honest and compliant — never invent statistics, never make medical or legal claims, never imply CareDesk replaces professional clinical judgement. Always make outreach easy to decline and include a clear way to opt out.
+
+When asked to draft a social post, return only the post text, ready to publish, sized appropriately for the platform. When asked to draft an outreach email, return a subject line, a short body, and a one-line strategy note, clearly labelled. When asked a strategy question, answer concisely and practically.`;
+
+/** Call the Anthropic messages endpoint (proxy handles the API key). */
+async function callClaude(userMessage, system = MARKETING_SYSTEM_PROMPT) {
+  const apiKey = lsGet(LS.claudeKey);
+  if (!apiKey) { showToast('Claude API key not configured. Go to Settings.', 'error'); return null; }
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system, messages: [{ role: 'user', content: userMessage }] })
+    });
+    if (!res.ok) { showToast('Claude API error: ' + res.status, 'error'); return null; }
+    const data = await res.json();
+    return (data.content || []).map(b => b.type === 'text' ? b.text : '').filter(Boolean).join('\n').trim();
+  } catch (e) { console.error(e); showToast('Claude request failed: ' + (e.message || e), 'error'); return null; }
+}
+
+async function loadContacts() {
+  const sb = CDP.supabase; if (!sb) return;
+  try { const { data } = await sb.from('caredesk_contacts').select('*').order('created_at', { ascending: false }); CDP.contacts = data || []; }
+  catch (e) { console.error(e); }
+}
+async function loadEmailLog() {
+  const sb = CDP.supabase; if (!sb) return;
+  try { const { data } = await sb.from('caredesk_email_log').select('*').order('sent_at', { ascending: false }).limit(100); CDP.emailLog = data || []; }
+  catch (e) { console.error(e); }
+}
+
+async function loadMarketing() {
+  if (CDP.supabase) await Promise.all([loadContacts(), loadEmailLog()]);
+  renderPoolTab(); renderDrafterTab(); renderOutreachTab(); renderCampaignsTab(); renderSocialTab();
+}
+
+$$('.tab[data-mtab]').forEach(t => t.onclick = () => {
+  $$('.tab[data-mtab]').forEach(x => x.classList.toggle('on', x === t));
+  $$('.tabpane').forEach(p => p.classList.toggle('on', p.id === 'mtab-' + t.dataset.mtab));
+});
+
+// ── Tab 1: Contact Pool ──
+function renderPoolTab() {
+  const host = $('#mtab-pool');
+  const contacts = CDP.contacts;
+  const consented = contacts.filter(c => c.consent_given).length;
+  const roles = {}; contacts.forEach(c => { const r = c.role || 'Other'; roles[r] = (roles[r] || 0) + 1; });
+  const cmap = {}; CDP.clients.forEach(c => cmap[c.client_id] = c.official_name);
+
+  const summary = `<div class="card-grid cols-3" style="margin-bottom:18px">
+    <div class="metric-card"><div class="m-label">Total contacts</div><div class="m-value">${contacts.length}</div></div>
+    <div class="metric-card"><div class="m-label">Consented</div><div class="m-value gold">${contacts.length ? Math.round(consented / contacts.length * 100) : 0}<span style="font-size:16px">%</span></div><div class="m-foot">${consented} opted in</div></div>
+    <div class="metric-card"><div class="m-label">By role</div><div class="m-foot" style="margin-top:8px">${Object.entries(roles).map(([r, n]) => `${esc(r)}: ${n}`).join(' · ') || '—'}</div></div>
+  </div>`;
+
+  const table = contacts.length ? `<div class="table-wrap"><table class="data"><thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Source</th><th>Consent</th><th>Tags</th><th style="text-align:right">Actions</th></tr></thead><tbody>
+    ${contacts.map(c => `<tr>
+      <td class="cell-strong">${esc(c.email)}</td>
+      <td>${esc(c.full_name || '—')}</td>
+      <td><span class="badge neutral">${esc(c.role || 'Other')}</span></td>
+      <td>${esc(cmap[c.source] || c.source || '—')}</td>
+      <td>${c.consent_given ? `<span class="badge green">${fmtDate(c.consent_date)}</span>` : '<span class="badge neutral">no</span>'}</td>
+      <td>${(c.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('') || '—'}</td>
+      <td><div class="row-actions" style="justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" data-compose="${esc(c.email)}">Compose</button>
+        <button class="icon-btn" data-remove="${c.id}" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+      </div></td></tr>`).join('')}
+  </tbody></table></div>`
+    : `<div class="table-wrap"><div class="empty"><div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg></div><h4>No contacts yet</h4><p>Contacts who opt in through a client system's consent prompt appear here automatically.</p></div></div>`;
+
+  host.innerHTML = summary + table;
+  $$('#mtab-pool [data-compose]').forEach(b => b.onclick = () => { switchToOutreachCompose(b.dataset.compose); });
+  $$('#mtab-pool [data-remove]').forEach(b => b.onclick = () => removeContact(b.dataset.remove));
+}
+
+async function removeContact(id) {
+  confirmAction({ title: 'Remove from pool?', body: 'This deletes the contact from your marketing pool. It does not affect their CareDesk system.', danger: true, confirmLabel: 'Remove', onConfirm: async () => {
+    const sb = requireSupabase(); if (!sb) return;
+    try { await sb.from('caredesk_contacts').delete().eq('id', id); await loadContacts(); renderPoolTab(); showToast('Contact removed.', 'success'); }
+    catch (e) { showToast('Could not remove: ' + (e.message || e), 'error'); }
+  }});
+}
+
+// ── Tab 2: AI Post Drafter ──
+function renderDrafterTab() {
+  const host = $('#mtab-drafter');
+  host.innerHTML = `
+    <div class="split">
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:14px">Controls</div>
+        <div class="field"><label>Platform</label><div class="seg" id="d-platform">
+          <button class="on" data-v="LinkedIn">LinkedIn</button><button data-v="Facebook">Facebook</button><button data-v="Twitter/X">Twitter/X</button></div></div>
+        <div class="field"><label>Audience</label><select id="d-audience"><option>AFH Owners</option><option>RN Case Managers</option><option>Both</option></select></div>
+        <div class="field"><label>Content goal</label><select id="d-goal"><option>AWARENESS</option><option>EDUCATION</option><option>SOCIAL_PROOF</option><option>CONVERSION</option><option>OUTREACH</option><option>RETENTION</option></select></div>
+        <div class="field"><label>Topic / angle</label><input type="text" id="d-topic" placeholder="DSHS audit anxiety"></div>
+        <div class="field"><label>Tone note <span class="opt">(optional)</span></label><input type="text" id="d-tone" placeholder="empathetic, data-driven"></div>
+        <button class="btn btn-primary btn-block" id="d-draft">Draft post</button>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:12px">Output</div>
+        <div id="d-tags" style="margin-bottom:10px"></div>
+        <div class="draft-out" id="d-out"><span class="dim">Your drafted post will appear here.</span></div>
+        <div id="d-actions" style="display:none;gap:10px;margin-top:14px">
+          <button class="btn btn-primary btn-sm" id="d-approve">Approve &amp; copy</button>
+          <button class="btn btn-secondary btn-sm" id="d-regen">Regenerate</button>
+          <button class="btn btn-ghost btn-sm" id="d-discard">Discard</button>
+        </div>
+      </div>
+    </div>
+    <div class="section-block" style="margin-top:34px">
+      <h3>Post approval queue</h3>
+      <div class="panel-sub">Approved posts waiting to be published.</div>
+      <div id="queue-host" style="margin-top:14px"></div>
+    </div>`;
+
+  $$('#d-platform button').forEach(b => b.onclick = () => { $$('#d-platform button').forEach(x => x.classList.remove('on')); b.classList.add('on'); });
+  $('#d-draft').onclick = draftPost;
+  $('#d-regen').onclick = draftPost;
+  $('#d-discard').onclick = () => { $('#d-out').innerHTML = '<span class="dim">Discarded. Draft another when ready.</span>'; $('#d-actions').style.display = 'none'; $('#d-tags').innerHTML = ''; };
+  $('#d-approve').onclick = approvePost;
+  renderQueue();
+}
+
+function drafterParams() {
+  return {
+    platform: $('#d-platform button.on')?.dataset.v || 'LinkedIn',
+    audience: $('#d-audience').value, goal: $('#d-goal').value,
+    topic: $('#d-topic').value.trim(), tone: $('#d-tone').value.trim()
+  };
+}
+
+async function draftPost() {
+  const p = drafterParams();
+  if (!p.topic) { showToast('Add a topic or angle.', 'error'); return; }
+  $('#d-out').innerHTML = loaderHTML; $('#d-actions').style.display = 'none';
+  $('#d-tags').innerHTML = `<span class="badge blue">${esc(p.platform)}</span> <span class="badge neutral">${esc(p.audience)}</span> <span class="badge amber">${esc(p.goal)}</span>`;
+  const msg = `Draft a ${p.platform} post for the audience "${p.audience}" with the goal ${p.goal}. Topic / angle: "${p.topic}".${p.tone ? ' Tone: ' + p.tone + '.' : ''} Return only the post text, ready to publish.`;
+  const out = await callClaude(msg);
+  if (out === null) { $('#d-out').innerHTML = '<span class="dim">No draft — check your Claude API key in Settings.</span>'; return; }
+  const charNote = p.platform === 'Twitter/X' ? `<div class="hint" style="margin-top:8px">${out.length} characters</div>` : '';
+  $('#d-out').innerHTML = esc(out) + charNote;
+  $('#d-out').dataset.text = out; $('#d-out').dataset.meta = JSON.stringify(p);
+  $('#d-actions').style.display = 'flex';
+}
+
+function approvePost() {
+  const text = $('#d-out').dataset.text; if (!text) return;
+  const meta = JSON.parse($('#d-out').dataset.meta || '{}');
+  CDP.draftQueue.unshift({ id: Date.now(), text, platform: meta.platform, goal: meta.goal, ts: new Date() });
+  copyText(text, 'Post');
+  renderQueue();
+}
+
+function renderQueue() {
+  const host = $('#queue-host'); if (!host) return;
+  if (!CDP.draftQueue.length) { host.innerHTML = `<div class="empty" style="padding:30px"><h4>Queue is empty</h4><p>Approved posts collect here for the session.</p></div>`; return; }
+  host.innerHTML = CDP.draftQueue.map(q => `<div class="queue-item">
+    <div class="qi-head"><span class="badge blue">${esc(q.platform)}</span><span class="badge amber">${esc(q.goal)}</span><span class="qi-time">${q.ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span></div>
+    <div class="qi-preview">${esc(truncate(q.text, 220))}</div>
+    <div class="qi-foot"><button class="btn btn-secondary btn-sm" data-copy="${q.id}">Copy</button><button class="btn btn-ghost btn-sm" data-pub="${q.id}">Mark published</button></div>
+  </div>`).join('');
+  $$('#queue-host [data-copy]').forEach(b => b.onclick = () => { const q = CDP.draftQueue.find(x => x.id == b.dataset.copy); if (q) copyText(q.text, 'Post'); });
+  $$('#queue-host [data-pub]').forEach(b => b.onclick = () => { CDP.draftQueue = CDP.draftQueue.filter(x => x.id != b.dataset.pub); renderQueue(); showToast('Marked as published.', 'success'); });
+}
+
+// ── Tab 3: Cold Email & Outreach ──
+function renderOutreachTab() {
+  const host = $('#mtab-outreach');
+  const poolOpts = CDP.contacts.map(c => `<option value="${esc(c.email)}">${esc(c.email)}</option>`).join('');
+  host.innerHTML = `
+    <div class="section-block">
+      <h3>AI outreach generator</h3>
+      <div class="panel-sub">Generate a first-touch or follow-up message, then push it into the composer.</div>
+      <div class="split" style="margin-top:16px">
+        <div class="card">
+          <div class="field"><label>Recipient type</label><select id="o-recipient"><option>AFH Owner</option><option>RN Case Manager</option><option>DON</option><option>Administrator</option></select></div>
+          <div class="field"><label>Channel</label><select id="o-channel"><option>Cold Email (first touch)</option><option>LinkedIn DM</option><option>Follow-up #2</option><option>Follow-up #3</option></select></div>
+          <div class="field"><label>Personalization detail</label><input type="text" id="o-detail" placeholder="Runs 2 homes in Tacoma, recently expanded"></div>
+          <div class="field"><label>Pain point to lead with</label><input type="text" id="o-pain" placeholder="DSHS audit prep eats their weekends"></div>
+          <button class="btn btn-primary btn-block" id="o-gen">Generate outreach</button>
+        </div>
+        <div>
+          <div class="eyebrow" style="margin-bottom:12px">Output</div>
+          <div class="draft-out" id="o-out"><span class="dim">Generated outreach will appear here.</span></div>
+          <button class="btn btn-primary btn-sm" id="o-tocompose" style="display:none;margin-top:14px">Approve &amp; add to composer</button>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-block">
+      <h3>Email composer</h3>
+      <div class="panel-sub">Send through Resend. Every send is logged to your master database.</div>
+      <div class="card" style="margin-top:16px">
+        <div class="field-row">
+          <div class="field"><label>To</label><input type="text" id="c-to" list="pool-list" placeholder="name@example.com"><datalist id="pool-list">${poolOpts}</datalist></div>
+          <div class="field"><label>CC <span class="opt">(optional)</span></label><input type="text" id="c-cc"></div>
+        </div>
+        <div class="field"><label>Subject</label><input type="text" id="c-subject"></div>
+        <div class="field"><label>Body</label><textarea id="c-body" style="min-height:170px"></textarea></div>
+        <div class="field"><label>Schedule for later <span class="opt">(optional)</span></label><input type="datetime-local" id="c-schedule"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" id="c-send">Send email</button>
+          <button class="btn btn-secondary" id="c-preview">Preview</button>
+        </div>
+      </div>
+    </div>
+    <div class="section-block">
+      <h3>Send log</h3>
+      <div id="sendlog-host" style="margin-top:14px"></div>
+    </div>`;
+
+  $('#o-gen').onclick = generateOutreach;
+  $('#o-tocompose').onclick = () => { if (!CDP.lastOutreach) return; $('#c-subject').value = CDP.lastOutreach.subject || ''; $('#c-body').value = CDP.lastOutreach.body || ''; document.querySelector('#mtab-outreach .section-block:nth-of-type(2)')?.scrollIntoView({ behavior: 'smooth' }); showToast('Loaded into composer.', 'success'); };
+  $('#c-send').onclick = sendComposerEmail;
+  $('#c-preview').onclick = previewEmail;
+  renderSendLog();
+}
+
+function switchToOutreachCompose(email) {
+  $$('.tab[data-mtab]').forEach(x => x.classList.toggle('on', x.dataset.mtab === 'outreach'));
+  $$('.tabpane').forEach(p => p.classList.toggle('on', p.id === 'mtab-outreach'));
+  setTimeout(() => { $('#c-to').value = email; document.querySelector('#mtab-outreach .section-block:nth-of-type(2)')?.scrollIntoView({ behavior: 'smooth' }); }, 60);
+}
+
+async function generateOutreach() {
+  const r = { recipient: $('#o-recipient').value, channel: $('#o-channel').value, detail: $('#o-detail').value.trim(), pain: $('#o-pain').value.trim() };
+  if (!r.pain) { showToast('Add a pain point to lead with.', 'error'); return; }
+  $('#o-out').innerHTML = loaderHTML; $('#o-tocompose').style.display = 'none';
+  const msg = `Write outreach for a ${r.recipient} via "${r.channel}".${r.detail ? ' Personalization: ' + r.detail + '.' : ''} Lead with this pain point: "${r.pain}". Return a subject line (label it "Subject:"), then the message body, then a one-line strategy note (label it "Strategy:").`;
+  const out = await callClaude(msg);
+  if (out === null) { $('#o-out').innerHTML = '<span class="dim">No output — check your Claude API key in Settings.</span>'; return; }
+  $('#o-out').textContent = out;
+  const subjMatch = out.match(/subject:\s*(.+)/i);
+  const subject = subjMatch ? subjMatch[1].trim() : '';
+  let body = out.replace(/subject:\s*.+\n?/i, '').replace(/strategy:\s*.+$/i, '').trim();
+  CDP.lastOutreach = { subject, body };
+  $('#o-tocompose').style.display = 'inline-flex';
+}
+
+function previewEmail() {
+  const subject = $('#c-subject').value, body = $('#c-body').value;
+  openModal(`<div class="modal-head"><div><h3>Preview</h3><div class="sub">${esc(subject || '(no subject)')}</div></div><button class="close-x" data-x>&times;</button></div>
+    <div class="modal-body"><div style="background:#fff;color:#333;border-radius:8px;padding:20px;font-family:Georgia,serif;line-height:1.7">${body ? esc(body).replace(/\n/g, '<br>') : '<span style="color:#999">Empty body</span>'}</div></div>
+    <div class="modal-foot"><button class="btn btn-secondary" data-x>Close</button></div>`, true);
+  $$('[data-x]').forEach(b => b.onclick = closeModal);
+}
+
+/** Send an email via Resend and log the result. */
+async function sendComposerEmail() {
+  const to = $('#c-to').value.trim(), subject = $('#c-subject').value.trim(), body = $('#c-body').value.trim();
+  const schedule = $('#c-schedule').value;
+  if (!validEmail(to)) { showToast('Enter a valid recipient email.', 'error'); return; }
+  if (!subject || !body) { showToast('Subject and body are required.', 'error'); return; }
+
+  if (schedule) {
+    if (CDP.supabase) { try { await CDP.supabase.from('caredesk_email_log').insert({ recipient_email: to, subject, body_preview: body.slice(0, 200), status: 'scheduled', sent_at: new Date(schedule).toISOString() }); } catch (e) { console.error(e); } }
+    await loadEmailLog(); renderSendLog(); showToast('Scheduled.', 'success'); return;
+  }
+
+  const apiKey = lsGet(LS.resendKey);
+  if (!apiKey) { showToast('Resend API key not configured. Go to Settings.', 'error'); return; }
+  const btn = $('#c-send'); btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({ from: 'CareDesk Pro <joseph@caredesk.pro>', to: [to], subject, html: `<div style="font-family:Georgia,serif;max-width:600px;color:#333;line-height:1.7">${esc(body).replace(/\n/g, '<br>')}</div>` })
+    });
+    const data = await res.json();
+    const ok = !!data.id;
+    if (CDP.supabase) { try { await CDP.supabase.from('caredesk_email_log').insert({ recipient_email: to, subject, body_preview: body.slice(0, 200), status: ok ? 'sent' : 'failed', sent_at: new Date().toISOString(), resend_message_id: data.id || null }); } catch (e) { console.error(e); } }
+    await loadEmailLog(); renderSendLog();
+    if (ok) { showToast('Email sent to ' + to, 'success'); $('#c-subject').value = ''; $('#c-body').value = ''; }
+    else showToast('Send failed: ' + (data.message || 'unknown error'), 'error');
+  } catch (e) { showToast('Send failed: ' + (e.message || e), 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Send email'; }
+}
+
+function renderSendLog() {
+  const host = $('#sendlog-host'); if (!host) return;
+  if (!CDP.emailLog.length) { host.innerHTML = `<div class="table-wrap"><div class="empty" style="padding:30px"><h4>No emails sent</h4><p>Sent, failed, and scheduled emails appear here.</p></div></div>`; return; }
+  host.innerHTML = `<div class="table-wrap"><table class="data"><thead><tr><th>Recipient</th><th>Subject</th><th>Status</th><th>When</th><th>Resend ID</th></tr></thead><tbody>
+    ${CDP.emailLog.map(e => `<tr><td class="cell-strong">${esc(e.recipient_email)}</td><td>${esc(truncate(e.subject || '', 36))}</td><td><span class="badge ${e.status === 'sent' ? 'green' : e.status === 'failed' ? 'red' : 'blue'}">${esc(e.status)}</span></td><td class="cell-mono">${fmtDate(e.sent_at)}</td><td class="cell-mono dim">${esc(truncate(e.resend_message_id || '—', 16))}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+// ── Tab 4: Campaign Tracker ──
+const CAMPAIGNS = [
+  { id: 'audit', title: 'The Audit-Ready AFH', target: 'AFH Owners', msg: 'Eliminate the DSHS inspection scramble.', weeks: ['The pain', 'The cost', 'The solution', 'Social proof + CTA'] },
+  { id: 'delegate', title: 'Delegate with Confidence', target: 'RN Case Managers', msg: 'CareDesk facilities are organized before you arrive.', weeks: ['The problem', 'What a great AFH system looks like', 'How CareDesk bridges the gap', 'Direct outreach / referral ask'] },
+  { id: 'paper', title: 'Switch from Paper', target: 'Both', msg: 'Every paper-based AFH is one DSHS visit from a citation.', weeks: ['Shock awareness', 'Paper vs CareDesk comparison', 'Migration story', 'Urgency + trial offer'] }
+];
+function getCampaignState() { try { return JSON.parse(lsGet(LS.campaigns) || '{}'); } catch (e) { return {}; } }
+function setCampaignState(s) { lsSet(LS.campaigns, JSON.stringify(s)); }
+
+function renderCampaignsTab() {
+  const host = $('#mtab-campaigns'); const state = getCampaignState();
+  host.innerHTML = `<div class="panel-sub" style="margin-bottom:18px">Three campaign arcs, each a four-week sequence. Track progress per week and pre-fill the drafter with campaign context.</div>` +
+    CAMPAIGNS.map(c => `<div class="campaign" data-c="${c.id}">
+      <div class="c-head">
+        <svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <div><h4>${esc(c.title)}</h4><div class="c-target">Target: ${esc(c.target)}</div></div>
+      </div>
+      <div class="c-body">
+        <div class="c-msg">${esc(c.msg)}</div>
+        ${c.weeks.map((w, i) => { const key = c.id + '_' + i; const v = state[key] || 'Not Started'; return `<div class="week-row">
+          <span class="wk">Week ${i + 1}</span><span class="wk-title">${esc(w)}</span>
+          <select data-week="${key}"><option ${v === 'Not Started' ? 'selected' : ''}>Not Started</option><option ${v === 'In Progress' ? 'selected' : ''}>In Progress</option><option ${v === 'Complete' ? 'selected' : ''}>Complete</option></select>
+          <button class="btn btn-ghost btn-sm" data-draft="${c.id}|${i}">Draft this week</button>
+        </div>`; }).join('')}
+      </div>
+    </div>`).join('');
+
+  $$('#mtab-campaigns .c-head').forEach(h => h.onclick = () => h.parentElement.classList.toggle('open'));
+  $$('#mtab-campaigns [data-week]').forEach(sel => sel.onchange = () => { const st = getCampaignState(); st[sel.dataset.week] = sel.value; setCampaignState(st); showToast('Progress saved.', 'success'); });
+  $$('#mtab-campaigns [data-draft]').forEach(b => b.onclick = () => {
+    const [cid, wi] = b.dataset.draft.split('|'); const c = CAMPAIGNS.find(x => x.id === cid);
+    $$('.tab[data-mtab]').forEach(x => x.classList.toggle('on', x.dataset.mtab === 'drafter'));
+    $$('.tabpane').forEach(p => p.classList.toggle('on', p.id === 'mtab-drafter'));
+    setTimeout(() => {
+      $('#d-audience').value = c.target === 'Both' ? 'Both' : (c.target === 'AFH Owners' ? 'AFH Owners' : 'RN Case Managers');
+      $('#d-topic').value = `${c.title} — Week ${Number(wi) + 1}: ${c.weeks[wi]}. Core message: ${c.msg}`;
+      $('#d-goal').value = 'AWARENESS';
+      showToast('Drafter pre-filled with campaign context.', 'info');
+    }, 60);
+  });
+}
+
+// ── Tab 5: Social Accounts ──
+function renderSocialTab() {
+  const host = $('#mtab-social');
+  const acct = (name, glyph) => `<div class="card" style="display:flex;align-items:center;gap:16px">
+    <div style="width:44px;height:44px;border-radius:11px;background:var(--surface2);display:grid;place-items:center">${glyph}</div>
+    <div style="flex:1"><div class="cell-strong">${name}</div><div class="hint">Not connected · publish manually for now</div></div>
+    <span class="badge neutral">Manual</span></div>`;
+  host.innerHTML = `<div class="panel-sub" style="margin-bottom:18px">CareDesk Pro drafts and queues posts; publishing is manual today. Connect accounts when you're ready to automate.</div>
+    <div class="card-grid cols-3">
+      ${acct('LinkedIn', '<svg viewBox="0 0 24 24" fill="var(--blue)" width="22"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8 17v-7H6v7zM7 8a1 1 0 100-2 1 1 0 000 2zm11 9v-4c0-2-1-3-3-3a2.5 2.5 0 00-2 1v-1h-2v7h2v-4c0-1 .5-1.5 1.3-1.5S16 13 16 14v3z"/></svg>')}
+      ${acct('Facebook', '<svg viewBox="0 0 24 24" fill="var(--blue)" width="22"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z"/></svg>')}
+      ${acct('Twitter / X', '<svg viewBox="0 0 24 24" fill="var(--text)" width="20"><path d="M18 2h3l-7.5 8.6L22 22h-6.8l-5-6.5L4.5 22H1.5l8-9.2L2 2h7l4.5 6zM16 20h1.7L7 4H5.2z"/></svg>')}
+    </div>
+    <div class="card" style="margin-top:18px;background:var(--surface2);border-style:dashed">
+      <div class="eyebrow" style="margin-bottom:8px">How to link an account manually</div>
+      <div class="hint" style="line-height:1.7">1. Draft and approve a post in the AI Post Drafter.<br>2. Use “Copy” from the approval queue.<br>3. Paste into the platform and publish.<br>4. Return and mark the post as published.</div>
+    </div>`;
+}
+// ═══════════════════════════════════════════════════════════════
+// SCHEMAS & INTEGRATION SNIPPETS
+// ═══════════════════════════════════════════════════════════════
+
+const MASTER_SCHEMA_SQL = `-- CareDesk Pro Master Schema
+-- Run this in your Supabase SQL Editor once to initialize your master project
+
+create table if not exists caredesk_clients (
+  id                  uuid default gen_random_uuid() primary key,
+  client_id           text unique not null,
+  system_type         text check (system_type in ('home','rn')) not null,
+  official_name       text not null,
+  address             text,
+  phone               text,
+  admin_email         text,
+  billing_email       text,
+  supabase_url        text,
+  system_url          text,
+  plan_name           text,
+  plan_price          numeric(10,2),
+  setup_fee_paid      boolean default false,
+  subscription_status text default 'trial' check (subscription_status in ('trial','active','overdue','locked','cancelled')),
+  lockout_level       integer default 0 check (lockout_level between 0 and 3),
+  days_overdue        integer default 0,
+  last_payment_date   date,
+  next_payment_date   date,
+  ls_subscription_id  text,
+  license_number      text,
+  consent_given       boolean default false,
+  consent_date        timestamptz,
+  notes               text,
+  created_at          timestamptz default now()
+);
+
+create table if not exists caredesk_payments (
+  id              uuid default gen_random_uuid() primary key,
+  client_id       text references caredesk_clients(client_id),
+  amount          numeric(10,2) not null,
+  currency        text default 'USD',
+  status          text check (status in ('paid','failed','pending','refunded')),
+  payment_date    date,
+  payment_method  text,
+  ls_event_id     text,
+  notes           text,
+  created_at      timestamptz default now()
+);
+
+create table if not exists caredesk_contacts (
+  id              uuid default gen_random_uuid() primary key,
+  client_id       text,
+  email           text not null,
+  full_name       text,
+  role            text,
+  consent_given   boolean default false,
+  consent_date    timestamptz,
+  source          text,
+  tags            text[],
+  created_at      timestamptz default now()
+);
+
+create table if not exists caredesk_email_log (
+  id                uuid default gen_random_uuid() primary key,
+  recipient_email   text,
+  subject           text,
+  body_preview      text,
+  status            text check (status in ('sent','failed','scheduled')),
+  sent_at           timestamptz,
+  resend_message_id text,
+  created_at        timestamptz default now()
+);
+
+create table if not exists caredesk_webhook_log (
+  id              uuid default gen_random_uuid() primary key,
+  event_name      text,
+  client_id       text,
+  payload_preview text,
+  received_at     timestamptz default now(),
+  processed       boolean default false
+);
+
+-- IMPORTANT: enable Row Level Security so each distributed client system,
+-- which carries your master anon key, can read ONLY its own client row.
+alter table caredesk_clients enable row level security;
+create policy "client reads own row" on caredesk_clients
+  for select using ( true );
+-- Tighten the policy above to match on client_id once you wire client auth.`;
+
+const HOME_SCHEMA_SQL = `-- CareDesk Home — client Supabase schema
+create table if not exists residents (
+  id uuid default gen_random_uuid() primary key,
+  full_name text not null, dob date, room text, admission_date date,
+  primary_condition text, status text default 'active', created_at timestamptz default now()
+);
+create table if not exists adl_logs (
+  id uuid default gen_random_uuid() primary key,
+  resident text, log_date date, bathing text, dressing text, grooming text,
+  toileting text, mobility text, eating text, notes text, created_at timestamptz default now()
+);
+create table if not exists vitals (
+  id uuid default gen_random_uuid() primary key,
+  resident text, log_date date, bp text, pulse text, temp text, weight text,
+  o2 text, notes text, created_at timestamptz default now()
+);
+create table if not exists payments (
+  id uuid default gen_random_uuid() primary key,
+  resident text, pay_date date, amount numeric(10,2), method text,
+  description text, created_at timestamptz default now()
+);
+create table if not exists staff (
+  id uuid default gen_random_uuid() primary key,
+  full_name text, role text, wage numeric(10,2), hours numeric(10,2),
+  pay_period text, created_at timestamptz default now()
+);
+create table if not exists appointments (
+  id uuid default gen_random_uuid() primary key,
+  resident text, doctor text, appt_at timestamptz, location text,
+  notes text, status text default 'scheduled', created_at timestamptz default now()
+);
+create table if not exists contacts (
+  id uuid default gen_random_uuid() primary key,
+  resident text, contact_name text, relationship text, phone text,
+  email text, created_at timestamptz default now()
+);
+create table if not exists incidents (
+  id uuid default gen_random_uuid() primary key,
+  resident text, incident_date date, type text, severity text,
+  description text, action_taken text, reported_by text, created_at timestamptz default now()
+);`;
+
+const RN_SCHEMA_SQL = `-- CareDesk RN — client Supabase schema
+create table if not exists afh_clients (
+  id uuid default gen_random_uuid() primary key,
+  facility_name text not null, address text, contact_person text, phone text,
+  delegation_status text default 'active', last_visit date, created_at timestamptz default now()
+);
+create table if not exists delegations (
+  id uuid default gen_random_uuid() primary key,
+  facility text, resident text, care_task text, delegation_date date,
+  expiry_date date, caregiver text, status text default 'active', created_at timestamptz default now()
+);
+create table if not exists credentials (
+  id uuid default gen_random_uuid() primary key,
+  facility text, caregiver text, credential_type text, issue_date date,
+  expiry_date date, created_at timestamptz default now()
+);
+create table if not exists notes (
+  id uuid default gen_random_uuid() primary key,
+  facility text, note_date date, note_type text, body text,
+  authored_by text, created_at timestamptz default now()
+);
+create table if not exists reminders (
+  id uuid default gen_random_uuid() primary key,
+  title text, due_date date, category text, done boolean default false,
+  created_at timestamptz default now()
+);`;
+
+const LEMON_EDGE_FN = `// Supabase Edge Function — paste into your master Supabase project
+// Deploy as: supabase functions deploy caredesk-webhook
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+Deno.serve(async (req) => {
+  const payload = await req.json()
+  const eventName = req.headers.get('x-event-name')
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL'),
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  )
+
+  await supabase.from('caredesk_webhook_log').insert({
+    event_name: eventName,
+    payload_preview: JSON.stringify(payload).substring(0, 500),
+    processed: false
+  })
+
+  const billingEmail = payload?.data?.attributes?.user_email
+  if (billingEmail) {
+    if (eventName === 'subscription_created' || eventName === 'subscription_renewed') {
+      await supabase.from('caredesk_clients')
+        .update({ subscription_status: 'active', days_overdue: 0, lockout_level: 0 })
+        .eq('billing_email', billingEmail)
+    }
+    if (eventName === 'subscription_payment_failed') {
+      await supabase.from('caredesk_clients')
+        .update({ subscription_status: 'overdue' })
+        .eq('billing_email', billingEmail)
+    }
+    if (eventName === 'subscription_cancelled') {
+      await supabase.from('caredesk_clients')
+        .update({ subscription_status: 'cancelled' })
+        .eq('billing_email', billingEmail)
+    }
+  }
+
+  return new Response('ok', { status: 200 })
+})`;
+
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS PANEL
+// ═══════════════════════════════════════════════════════════════
+
+/** A masked-or-input row for an API credential stored in localStorage. */
+function keyField(label, lsKey, hint) {
+  const saved = lsGet(lsKey);
+  const masked = saved ? '•'.repeat(Math.min(saved.length, 18)) : '';
+  return `<div class="field" data-keyfield="${lsKey}">
+    <label>${esc(label)}</label>
+    <div class="key-row">
+      <div class="field" style="margin-bottom:0">
+        <input type="${saved ? 'text' : 'password'}" data-k-input value="${esc(saved ? masked : '')}" placeholder="${saved ? '' : 'Paste key…'}" ${saved ? 'readonly' : ''}>
+      </div>
+      ${saved
+      ? `<button class="btn btn-secondary btn-sm" data-k-change>Change</button><button class="btn btn-ghost btn-sm" data-k-clear>Clear</button>`
+      : `<button class="btn btn-primary btn-sm" data-k-save>Save</button>`}
+    </div>
+    ${hint ? `<div class="hint">${hint}</div>` : ''}
+  </div>`;
+}
+
+function renderSettings() {
+  const host = $('#settings-host'); if (!host) return;
+  host.innerHTML = `
+    <div class="card set-card">
+      <h3>API keys</h3>
+      <div class="panel-sub">Stored only in this browser's localStorage — never written into any file or sent anywhere except the service each key belongs to.</div>
+      ${keyField('Master Supabase URL', LS.masterUrl, 'Your master project, e.g. https://xxxx.supabase.co')}
+      ${keyField('Master Supabase anon key', LS.masterKey, 'Public anon key for the master project.')}
+      ${keyField('Lemon Squeezy API key', LS.lemonKey)}
+      ${keyField('Resend API key', LS.resendKey, 'Used to send outreach email from Engine 3.')}
+      ${keyField('Claude API key', LS.claudeKey, 'Used for AI drafting and outreach generation.')}
+      <div class="divider"></div>
+      <button class="btn btn-primary btn-sm" id="set-reconnect">Save &amp; reconnect master Supabase</button>
+    </div>
+
+    <div class="card set-card">
+      <h3>Operator profile</h3>
+      <div class="panel-sub">Shown in the header. Country: Kenya · Serving: Washington State, USA.</div>
+      <div class="field-row">
+        <div class="field"><label>Name</label><input type="text" id="set-opname" value="${esc(lsGet(LS.opName) || 'Joseph')}"></div>
+        <div class="field"><label>Email</label><input type="email" id="set-opemail" value="${esc(lsGet(LS.opEmail))}" placeholder="you@caredesk.pro"></div>
+      </div>
+      <button class="btn btn-secondary btn-sm" id="set-saveprofile">Save profile</button>
+      <div class="divider"></div>
+      <div class="kv"><div class="k">Platform version</div><div class="v">CareDesk Pro v${CDP.version}</div></div>
+      <div class="kv"><div class="k">Build date</div><div class="v">${CDP.buildDate}</div></div>
+    </div>
+
+    <div class="card set-card">
+      <h3>Master database schema</h3>
+      <div class="panel-sub">Run this once in your master Supabase project's SQL editor.</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <button class="btn btn-primary btn-sm" id="copy-master">Copy master schema</button>
+      </div>
+      <div class="codeblock" id="master-sql">${esc(MASTER_SCHEMA_SQL)}</div>
+    </div>
+
+    <div class="card set-card">
+      <h3>Client database schemas</h3>
+      <div class="panel-sub">Run the matching schema in each new client's Supabase project.</div>
+      <div class="pill-tabs" id="client-schema-tabs">
+        <button class="on" data-cs="home">CareDesk Home</button>
+        <button data-cs="rn">CareDesk RN</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <button class="btn btn-secondary btn-sm" id="copy-home-schema">Copy Home schema</button>
+        <button class="btn btn-secondary btn-sm" id="copy-rn-schema">Copy RN schema</button>
+      </div>
+      <div class="codeblock" id="client-sql">${esc(HOME_SCHEMA_SQL)}</div>
+    </div>
+
+    <div class="card set-card">
+      <h3>Webhook setup</h3>
+      <div class="panel-sub">Deploy this Supabase Edge Function as your Lemon Squeezy webhook endpoint.</div>
+      <button class="btn btn-secondary btn-sm" id="copy-edge" style="margin-bottom:12px">Copy function code</button>
+      <div class="codeblock" id="edge-fn">${esc(LEMON_EDGE_FN)}</div>
+    </div>
+
+    <div class="card set-card">
+      <h3>Data export</h3>
+      <div class="panel-sub">Download your master data for backup or analysis.</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-secondary btn-sm" id="exp-clients">Export clients (JSON)</button>
+        <button class="btn btn-secondary btn-sm" id="exp-contacts">Export contact pool (CSV)</button>
+      </div>
+    </div>`;
+
+  // key field wiring
+  $$('#settings-host [data-keyfield]').forEach(row => {
+    const lsKey = row.dataset.keyfield;
+    const input = $('[data-k-input]', row);
+    $('[data-k-save]', row) && ($('[data-k-save]', row).onclick = () => { const v = input.value.trim(); if (!v) return; lsSet(lsKey, v); renderSettings(); showToast('Saved.', 'success'); });
+    $('[data-k-change]', row) && ($('[data-k-change]', row).onclick = () => { input.readOnly = false; input.type = 'text'; input.value = lsGet(lsKey); input.focus(); $('[data-k-change]', row).outerHTML = '<button class="btn btn-primary btn-sm" data-k-save2>Save</button>'; $('[data-k-save2]', row).onclick = () => { lsSet(lsKey, input.value.trim()); renderSettings(); showToast('Updated.', 'success'); }; });
+    $('[data-k-clear]', row) && ($('[data-k-clear]', row).onclick = () => { lsDel(lsKey); renderSettings(); showToast('Cleared.', 'info'); });
+  });
+
+  $('#set-reconnect').onclick = () => { if (initMasterSupabase()) { showToast('Connected to master Supabase.', 'success'); loadClients().then(updateStatusBar); loadContacts(); } else showToast('Add the master URL and key first.', 'error'); };
+  $('#set-saveprofile').onclick = () => { lsSet(LS.opName, $('#set-opname').value.trim() || 'Joseph'); lsSet(LS.opEmail, $('#set-opemail').value.trim()); refreshOperatorChip(); showToast('Profile saved.', 'success'); };
+  $('#copy-master').onclick = () => copyText(MASTER_SCHEMA_SQL, 'Master schema');
+  $('#copy-home-schema').onclick = () => copyText(HOME_SCHEMA_SQL, 'Home schema');
+  $('#copy-rn-schema').onclick = () => copyText(RN_SCHEMA_SQL, 'RN schema');
+  $('#copy-edge').onclick = () => copyText(LEMON_EDGE_FN, 'Function code');
+  $$('#client-schema-tabs button').forEach(b => b.onclick = () => { $$('#client-schema-tabs button').forEach(x => x.classList.remove('on')); b.classList.add('on'); $('#client-sql').textContent = b.dataset.cs === 'home' ? HOME_SCHEMA_SQL : RN_SCHEMA_SQL; });
+  $('#exp-clients').onclick = exportClientsJSON;
+  $('#exp-contacts').onclick = exportContactsCSV;
+}
+
+function exportClientsJSON() {
+  if (!CDP.clients.length) { showToast('No client data to export.', 'error'); return; }
+  const blob = new Blob([JSON.stringify(CDP.clients, null, 2)], { type: 'application/json' });
+  (window.saveAs || dl)(blob, 'caredesk-clients.json');
+}
+function exportContactsCSV() {
+  if (!CDP.contacts.length) { showToast('No contacts to export.', 'error'); return; }
+  const cols = ['email', 'full_name', 'role', 'source', 'consent_given', 'consent_date'];
+  const csv = [cols.join(',')].concat(CDP.contacts.map(c => cols.map(k => `"${String(c[k] ?? '').replace(/"/g, '""')}"`).join(','))).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  (window.saveAs || dl)(blob, 'caredesk-contacts.csv');
+}
+function dl(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); }
+
+// ═══════════════════════════════════════════════════════════════
+// EMBEDDED SYSTEM TEMPLATES — generation engine
+// Generated files use plain JS (no backticks/template-literals)
+// so they embed cleanly. Closing script tags are written <\/script>.
+// ═══════════════════════════════════════════════════════════════
+
+/** Replace all {{TOKENS}} in a string from a token map. */
+function replaceTokens(str, tokens) {
+  let out = str;
+  Object.entries(tokens).forEach(([k, v]) => { out = out.split(k).join(v == null ? '' : String(v)); });
+  return out;
+}
+
+/** config.js — the only file tokens are injected into. */
+function buildConfigJs(tokens, navJson) {
+  const tpl = [
+    '// CareDesk client configuration — generated by CareDesk Pro',
+    '// Edit values below before deploying if anything changed.',
+    'window.CONFIG = {',
+    '  CLIENT_ID: "{{CLIENT_ID}}",',
+    '  CLIENT_NAME: "{{CLIENT_NAME}}",',
+    '  CLIENT_ADDRESS: "{{CLIENT_ADDRESS}}",',
+    '  CLIENT_PHONE: "{{CLIENT_PHONE}}",',
+    '  CLIENT_EMAIL: "{{CLIENT_EMAIL}}",',
+    '  BILLING_EMAIL: "{{BILLING_EMAIL}}",',
+    '  LICENSE_NUMBER: "{{LICENSE_NUMBER}}",',
+    '  LOGO_BASE64: "{{LOGO_BASE64}}",',
+    '  PRIMARY_COLOR: "{{PRIMARY_COLOR}}",',
+    '  SECONDARY_COLOR: "{{SECONDARY_COLOR}}",',
+    '  TAGLINE: "{{TAGLINE}}",',
+    '  SUPABASE_URL: "{{SUPABASE_URL}}",',
+    '  SUPABASE_KEY: "{{SUPABASE_KEY}}",',
+    '  MASTER_SUPABASE_URL: "{{MASTER_SUPABASE_URL}}",',
+    '  MASTER_SUPABASE_KEY: "{{MASTER_SUPABASE_KEY}}",',
+    '  ADMIN_EMAIL: "{{ADMIN_EMAIL}}",',
+    '  PAY_URL: "https://caredesk.lemonsqueezy.com",',
+    '  NAV: ' + navJson,
+    '};'
+  ].join('\n');
+  return replaceTokens(tpl, tokens);
+}
+
+/** Shared CSS for generated client systems. Brand colors injected at runtime. */
+function buildClientCss() {
+  return [
+    ':root{--brand:#c8a96e;--brand2:#4ec9b0;--bg:#0e1014;--surface:#171a21;--surface2:#1f242e;--border:#272d39;--text:#e6e8ee;--dim:#8a91a0;--green:#7ec97e;--amber:#e5c07b;--red:#e06c75}',
+    '*{box-sizing:border-box;margin:0;padding:0}',
+    'body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px}',
+    'a{color:var(--brand);text-decoration:none}',
+    '.app{display:flex;min-height:100vh}',
+    '.side{width:230px;background:var(--surface);border-right:1px solid var(--border);padding:18px 14px;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;overflow-y:auto}',
+    '.side .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid var(--border);margin-bottom:12px}',
+    '.side .brand img{width:34px;height:34px;border-radius:8px;object-fit:contain}',
+    '.side .brand .mk{width:34px;height:34px;border-radius:8px;background:var(--brand);color:#0e1014;display:grid;place-items:center;font-weight:700}',
+    '.side .brand .nm{font-weight:600;font-size:14px;line-height:1.2}',
+    '.navlink{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;color:var(--dim);cursor:pointer;font-size:13.5px;margin-bottom:2px}',
+    '.navlink:hover{background:var(--surface2);color:var(--text)}',
+    '.navlink.active{background:rgba(200,169,110,.14);color:var(--brand)}',
+    '.side .sp{flex:1}',
+    '.logout{padding:9px 11px;border-radius:8px;color:var(--dim);cursor:pointer;font-size:13.5px;border:1px solid var(--border)}',
+    '.logout:hover{color:var(--red);border-color:var(--red)}',
+    '.main{flex:1;margin-left:230px;padding:28px 34px 60px}',
+    '.pagehead{margin-bottom:22px}',
+    '.pagehead h1{font-size:26px;font-weight:600}',
+    '.pagehead p{color:var(--dim);font-size:13px;margin-top:3px}',
+    '.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}',
+    '@media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.main{margin-left:64px;padding:20px}.side{width:64px}.side .nm,.side .navlink span,.side .logout{font-size:0}}',
+    '.metric{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px 18px}',
+    '.metric .l{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)}',
+    '.metric .v{font-size:30px;font-weight:600;margin-top:6px}',
+    '.btn{font-family:inherit;font-size:13px;font-weight:500;padding:9px 16px;border-radius:8px;border:1px solid transparent;cursor:pointer;background:var(--brand);color:#0e1014}',
+    '.btn.sec{background:transparent;border-color:var(--border);color:var(--text)}',
+    '.btn.sec:hover{border-color:var(--brand)}',
+    '.btn.sm{padding:6px 12px;font-size:12px}',
+    '.toolbar{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap}',
+    '.toolbar input,.toolbar select{flex:0 0 auto}',
+    'input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:13px}',
+    'input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}',
+    'label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin:0 0 6px}',
+    '.field{margin-bottom:14px}',
+    'table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;font-size:13px}',
+    'th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);padding:11px 14px;background:var(--surface2);border-bottom:1px solid var(--border)}',
+    'td{padding:11px 14px;border-bottom:1px solid var(--border)}',
+    'tr:last-child td{border-bottom:none}',
+    'tr:hover td{background:var(--surface2)}',
+    '.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;background:var(--surface2);color:var(--dim)}',
+    '.badge.green{background:rgba(126,201,126,.14);color:var(--green)}.badge.amber{background:rgba(229,192,123,.14);color:var(--amber)}.badge.red{background:rgba(224,108,117,.14);color:var(--red)}',
+    '.empty{text-align:center;padding:48px;color:var(--dim)}',
+    '.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}',
+    '.modal-bg.open{display:flex}',
+    '.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:100%;max-width:520px;max-height:88vh;overflow:auto;padding:22px}',
+    '.modal h3{margin-bottom:14px}',
+    '.modal .foot{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}',
+    '.toast-host{position:fixed;top:18px;right:18px;z-index:80;display:flex;flex-direction:column;gap:8px}',
+    '.toast{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--brand);border-radius:8px;padding:11px 15px;font-size:13px;min-width:220px}',
+    '.toast.err{border-left-color:var(--red)}',
+    '.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}',
+    '.login-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:34px;width:100%;max-width:380px;text-align:center}',
+    '.login-card .mk{width:54px;height:54px;border-radius:12px;background:var(--brand);color:#0e1014;display:grid;place-items:center;font-size:24px;font-weight:700;margin:0 auto 16px}',
+    '.login-card img{width:54px;height:54px;border-radius:12px;object-fit:contain;margin:0 auto 16px;display:block}',
+    '.login-card h2{font-size:22px;margin-bottom:4px}',
+    '.login-card .tag{color:var(--dim);font-size:13px;margin-bottom:22px}',
+    '.banner{background:rgba(229,192,123,.14);border-bottom:1px solid var(--amber);color:var(--amber);padding:11px 18px;font-size:13px;display:flex;align-items:center;gap:12px;justify-content:center}',
+    '.lockout-bg{position:fixed;inset:0;background:rgba(8,10,14,.55);backdrop-filter:blur(8px);z-index:90;display:grid;place-items:center;padding:20px}',
+    '.lockout-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:440px;text-align:center}',
+    '.print-only{display:none}',
+    '@media print{.side,.toolbar,.btn{display:none!important}.main{margin:0}.print-only{display:block}}'
+  ].join('\n');
+}
+
+/** Shared caredesk-core.js — auth, lockout, consent, nav, generic CRUD. */
+function buildCoreJs() {
+  // NOTE: plain JS only (no template literals / backticks) so it embeds cleanly.
+  return [
+"// CareDesk Core — shared runtime for all client pages",
+"var CD = (function(){",
+"  var cfg = window.CONFIG || {};",
+"  var sb = null, master = null;",
+"  function esc(s){ if(s==null) return ''; return String(s).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c];}); }",
+"  function applyBrand(){ var r=document.documentElement.style; if(cfg.PRIMARY_COLOR) r.setProperty('--brand',cfg.PRIMARY_COLOR); if(cfg.SECONDARY_COLOR) r.setProperty('--brand2',cfg.SECONDARY_COLOR); }",
+"  function getSb(){ if(!sb && window.supabase && cfg.SUPABASE_URL && cfg.SUPABASE_KEY){ try{ sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_KEY); }catch(e){} } return sb; }",
+"  function getMaster(){ if(!master && window.supabase && cfg.MASTER_SUPABASE_URL && cfg.MASTER_SUPABASE_KEY){ try{ master = window.supabase.createClient(cfg.MASTER_SUPABASE_URL, cfg.MASTER_SUPABASE_KEY); }catch(e){} } return master; }",
+"  function toast(msg, err){ var h=document.querySelector('.toast-host'); if(!h){ h=document.createElement('div'); h.className='toast-host'; document.body.appendChild(h);} var t=document.createElement('div'); t.className='toast'+(err?' err':''); t.textContent=msg; h.appendChild(t); setTimeout(function(){ t.remove(); },3200); }",
+"",
+"  // 1. AUTH",
+"  function initAuth(){",
+"    var s=getSb();",
+"    var form=document.getElementById('login-form');",
+"    if(form){",
+"      form.addEventListener('submit', function(e){ e.preventDefault();",
+"        var email=document.getElementById('li-email').value.trim();",
+"        var pass=document.getElementById('li-pass').value;",
+"        if(!s){ toast('Supabase not configured in config.js', true); return; }",
+"        s.auth.signInWithPassword({email:email,password:pass}).then(function(r){",
+"          if(r.error){ toast(r.error.message, true); } else { localStorage.setItem('cd_authed','1'); location.href='dashboard.html'; }",
+"        });",
+"      });",
+"      return;",
+"    }",
+"    // non-login page: guard",
+"    if(s){ s.auth.getSession().then(function(r){ if(!r.data || !r.data.session){ if(localStorage.getItem('cd_authed')!=='1'){ location.href='index.html'; } } }); }",
+"  }",
+"  function logout(){ var s=getSb(); localStorage.removeItem('cd_authed'); if(s){ s.auth.signOut(); } location.href='index.html'; }",
+"",
+"  // 2. LOCKOUT — reads lockout_level from master DB by CLIENT_ID",
+"  var lvl1Timer=null;",
+"  function checkLockoutStatus(){",
+"    var m=getMaster(); if(!m) return;",
+"    m.from('caredesk_clients').select('lockout_level,days_overdue').eq('client_id', cfg.CLIENT_ID).maybeSingle().then(function(r){",
+"      if(r.error || !r.data) return;",
+"      renderLockout(r.data.lockout_level||0, r.data.days_overdue||0);",
+"    }).catch(function(){});",
+"  }",
+"  function payBtn(){ return '<a class=\"btn\" href=\"'+esc(cfg.PAY_URL||'#')+'\" target=\"_blank\" rel=\"noopener\">Pay now</a>'; }",
+"  function renderLockout(level, days){",
+"    if(level>=1){",
+"      if(lvl1Timer) clearInterval(lvl1Timer);",
+"      var fire=function(){ toast('Hi '+(cfg.CLIENT_NAME||'')+', your CareDesk subscription payment is overdue. No rush — your system is fully active.'); };",
+"      fire(); lvl1Timer=setInterval(fire, 600000);",
+"    }",
+"    if(level>=2){",
+"      if(!document.querySelector('.banner')){",
+"        var b=document.createElement('div'); b.className='banner';",
+"        b.innerHTML='Your CareDesk subscription is '+(days||'a few')+' days overdue. Your data is safe and your system remains active. Please update your payment when you can. '+payBtn();",
+"        document.body.insertBefore(b, document.body.firstChild);",
+"      }",
+"      var mainEl=document.querySelector('.main'); if(mainEl) mainEl.style.opacity='0.9';",
+"    }",
+"    if(level>=3){",
+"      if(sessionStorage.getItem('cd_lockout_dismissed')==='1') return;",
+"      var bg=document.createElement('div'); bg.className='lockout-bg';",
+"      bg.innerHTML='<div class=\"lockout-card\"><h2 style=\"margin-bottom:10px\">A quick note about your account</h2>'+",
+"        '<p style=\"color:var(--dim);line-height:1.6;margin-bottom:18px\">Your CareDesk subscription needs attention. All your data is safe and secure. Please update your payment to restore full clarity, or reach out to Joseph.</p>'+",
+"        '<div style=\"display:flex;gap:10px;justify-content:center\">'+payBtn()+'<a class=\"btn sec\" href=\"mailto:'+esc(cfg.ADMIN_EMAIL||'')+'\">Contact Joseph</a></div>'+",
+"        '<div style=\"margin-top:14px\"><a href=\"#\" id=\"cd-dismiss\" style=\"color:var(--dim);font-size:12px\">Continue to my data</a></div></div>';",
+"      document.body.appendChild(bg);",
+"      var dz=document.getElementById('cd-dismiss'); if(dz) dz.addEventListener('click', function(e){ e.preventDefault(); sessionStorage.setItem('cd_lockout_dismissed','1'); bg.remove(); });",
+"    }",
+"  }",
+"",
+"  // 3. CONSENT — first-login marketing opt-in, writes to master caredesk_contacts",
+"  function showConsentPrompt(){",
+"    if(localStorage.getItem('cd_consent_asked')==='1') return;",
+"    var bg=document.createElement('div'); bg.className='modal-bg open';",
+"    bg.innerHTML='<div class=\"modal\" style=\"max-width:440px;text-align:center\"><h3>Stay in the loop?</h3>'+",
+"      '<p style=\"color:var(--dim);line-height:1.6;margin-bottom:18px\">CareDesk occasionally shares helpful resources and updates with care facility operators in our network. May we add your email to our professional communications list? Your information is never sold or shared with third parties.</p>'+",
+"      '<div class=\"foot\" style=\"justify-content:center\"><button class=\"btn sec\" id=\"cs-no\">No thanks</button><button class=\"btn\" id=\"cs-yes\">Yes, add me</button></div></div>';",
+"    document.body.appendChild(bg);",
+"    function record(yes){",
+"      localStorage.setItem('cd_consent_asked','1'); bg.remove();",
+"      var m=getMaster(); if(!m) return;",
+"      m.from('caredesk_contacts').insert({ client_id: cfg.CLIENT_ID, email: cfg.CLIENT_EMAIL, full_name: '', role: (cfg.CLIENT_ID.indexOf('rn')>-1?'RN':'AFH Owner'), consent_given: yes, consent_date: new Date().toISOString(), source: cfg.CLIENT_ID }).then(function(){});",
+"      if(yes){ m.from('caredesk_clients').update({ consent_given:true, consent_date:new Date().toISOString() }).eq('client_id', cfg.CLIENT_ID).then(function(){}); toast('Thanks — you are on the list.'); }",
+"    }",
+"    document.getElementById('cs-yes').addEventListener('click', function(){ record(true); });",
+"    document.getElementById('cs-no').addEventListener('click', function(){ record(false); });",
+"  }",
+"",
+"  // 4. NAV",
+"  function renderNav(active){",
+"    var host=document.querySelector('.side'); if(!host) return;",
+"    var logo = cfg.LOGO_BASE64 ? '<img src=\"'+cfg.LOGO_BASE64+'\">' : '<div class=\"mk\">'+esc((cfg.CLIENT_NAME||'C').charAt(0))+'</div>';",
+"    var html='<div class=\"brand\">'+logo+'<div class=\"nm\">'+esc(cfg.CLIENT_NAME||'CareDesk')+'</div></div>';",
+"    (cfg.NAV||[]).forEach(function(n){ html += '<div class=\"navlink'+(n.page===active?' active':'')+'\" onclick=\"location.href=\\''+n.page+'\\'\"><span>'+esc(n.label)+'</span></div>'; });",
+"    html += '<div class=\"sp\"></div><div class=\"logout\" id=\"cd-logout\">Log out</div>';",
+"    host.innerHTML=html;",
+"    var lo=document.getElementById('cd-logout'); if(lo) lo.addEventListener('click', logout);",
+"  }",
+"",
+"  // GENERIC CRUD PAGE",
+"  function dataPage(opts){",
+"    // opts: {table, columns:[{key,label}], fields:[{key,label,type,options}], title}",
+"    var s=getSb();",
+"    var host=document.getElementById('cd-table'); if(!host) return;",
+"    function load(){",
+"      if(!s){ host.innerHTML='<div class=\"empty\">Connect Supabase in config.js to load '+esc(opts.table)+'.</div>'; return; }",
+"      host.innerHTML='<div class=\"empty\">Loading…</div>';",
+"      s.from(opts.table).select('*').order('created_at',{ascending:false}).then(function(r){",
+"        if(r.error){ host.innerHTML='<div class=\"empty\">'+esc(r.error.message)+'</div>'; return; }",
+"        var rows=r.data||[];",
+"        if(!rows.length){ host.innerHTML='<div class=\"empty\"><h3 style=\"margin-bottom:6px\">Nothing here yet</h3><p>Use “Add” to create the first record.</p></div>'; return; }",
+"        var h='<table><thead><tr>'; opts.columns.forEach(function(c){ h+='<th>'+esc(c.label)+'</th>'; }); h+='<th></th></tr></thead><tbody>';",
+"        rows.forEach(function(row){ h+='<tr>'; opts.columns.forEach(function(c){ var v=row[c.key]; if(c.badge && v){ h+='<td><span class=\"badge '+(c.badge(v)||'')+'\">'+esc(v)+'</span></td>'; } else { h+='<td>'+esc(v==null?'—':v)+'</td>'; } }); h+='<td style=\"text-align:right\"><button class=\"btn sec sm\" data-del=\"'+row.id+'\">Delete</button></td></tr>'; });",
+"        h+='</tbody></table>'; host.innerHTML=h;",
+"        Array.prototype.forEach.call(host.querySelectorAll('[data-del]'), function(b){ b.addEventListener('click', function(){ if(!confirm('Delete this record?')) return; s.from(opts.table).delete().eq('id', b.getAttribute('data-del')).then(function(){ toast('Deleted'); load(); }); }); });",
+"      });",
+"    }",
+"    var addBtn=document.getElementById('cd-add');",
+"    if(addBtn){ addBtn.addEventListener('click', function(){ openForm(); }); }",
+"    function openForm(){",
+"      var bg=document.createElement('div'); bg.className='modal-bg open';",
+"      var fh='<div class=\"modal\"><h3>Add to '+esc(opts.title||opts.table)+'</h3>';",
+"      opts.fields.forEach(function(f){",
+"        fh+='<div class=\"field\"><label>'+esc(f.label)+'</label>';",
+"        if(f.type==='select'){ fh+='<select id=\"ff-'+f.key+'\">'+(f.options||[]).map(function(o){return '<option>'+esc(o)+'</option>';}).join('')+'</select>'; }",
+"        else if(f.type==='textarea'){ fh+='<textarea id=\"ff-'+f.key+'\"></textarea>'; }",
+"        else { fh+='<input id=\"ff-'+f.key+'\" type=\"'+(f.type||'text')+'\">'; }",
+"        fh+='</div>';",
+"      });",
+"      fh+='<div class=\"foot\"><button class=\"btn sec\" id=\"ff-cancel\">Cancel</button><button class=\"btn\" id=\"ff-save\">Save</button></div></div>';",
+"      bg.innerHTML=fh; document.body.appendChild(bg);",
+"      document.getElementById('ff-cancel').addEventListener('click', function(){ bg.remove(); });",
+"      document.getElementById('ff-save').addEventListener('click', function(){",
+"        var rec={}; opts.fields.forEach(function(f){ var elx=document.getElementById('ff-'+f.key); if(elx) rec[f.key]=elx.value; });",
+"        if(!s){ toast('Supabase not configured', true); return; }",
+"        s.from(opts.table).insert(rec).then(function(r){ if(r.error){ toast(r.error.message, true); } else { toast('Saved'); bg.remove(); load(); } });",
+"      });",
+"    }",
+"    load();",
+"  }",
+"",
+"  // page bootstrap",
+"  function start(active){ applyBrand(); initAuth(); renderNav(active); checkLockoutStatus(); if(active==='dashboard') showConsentPrompt(); }",
+"  return { start:start, dataPage:dataPage, toast:toast, getSb:getSb, esc:esc, logout:logout, cfg:cfg, metrics:renderMetrics };",
+"  function renderMetrics(items){ var host=document.getElementById('cd-metrics'); if(!host) return; host.innerHTML=items.map(function(m){ return '<div class=\"metric\"><div class=\"l\">'+esc(m.label)+'</div><div class=\"v\">'+esc(m.value)+'</div></div>'; }).join(''); }",
+"})();"
+  ].join('\n');
+}
+
+/** HTML page shell shared by all generated pages. */
+function clientPage(opts) {
+  // opts: {title, active, body, bootstrap}
+  // bootstrap is plain JS string (no template literals). Closing tags escaped.
+  const head =
+    '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+    '<title>' + opts.title + ' · CareDesk</title>' +
+    '<link rel="stylesheet" href="caredesk-style.css">' +
+    '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>' +
+    '<script src="config.js"><\/script></head><body>';
+  const foot =
+    '<script src="caredesk-core.js"><\/script>' +
+    '<script>' + (opts.bootstrap || ("CD.start('" + opts.active + "');")) + '<\/script>' +
+    '</body></html>';
+  if (opts.active === 'index') return head + opts.body + foot; // login: no app chrome
+  return head +
+    '<div class="app"><nav class="side"></nav><div class="main">' + opts.body + '</div></div>' +
+    '<div class="toast-host"></div>' + foot;
+}
+
+function loginPage() {
+  const body =
+    '<div class="login-wrap"><div class="login-card">' +
+    '<div id="brand-slot"></div>' +
+    '<h2 id="brand-name">CareDesk</h2>' +
+    '<div class="tag" id="brand-tag"></div>' +
+    '<form id="login-form">' +
+    '<div class="field"><label>Email</label><input id="li-email" type="email" required></div>' +
+    '<div class="field"><label>Password</label><input id="li-pass" type="password" required></div>' +
+    '<button class="btn" style="width:100%" type="submit">Sign in</button>' +
+    '</form></div></div>';
+  const bootstrap =
+    "(function(){var c=window.CONFIG||{};" +
+    "var slot=document.getElementById('brand-slot');" +
+    "slot.innerHTML=c.LOGO_BASE64?('<img src=\"'+c.LOGO_BASE64+'\">'):('<div class=\"mk\">'+(c.CLIENT_NAME||'C').charAt(0)+'</div>');" +
+    "document.getElementById('brand-name').textContent=c.CLIENT_NAME||'CareDesk';" +
+    "document.getElementById('brand-tag').textContent=c.TAGLINE||'';})();" +
+    "CD.start('index');";
+  return clientPage({ title: 'Sign in', active: 'index', body: body, bootstrap: bootstrap });
+}
+
+function pageHead(title, sub, withAdd) {
+  return '<div class="pagehead" style="display:flex;justify-content:space-between;align-items:flex-end">' +
+    '<div><h1>' + title + '</h1><p>' + sub + '</p></div>' +
+    (withAdd ? '<button class="btn" id="cd-add">+ Add</button>' : '') + '</div>';
+}
+
+function dataPageHtml(active, title, sub, schemaJs) {
+  const body = pageHead(title, sub, true) + '<div class="toolbar"></div><div id="cd-table"></div>';
+  const bootstrap = "CD.start('" + active + "');CD.dataPage(" + schemaJs + ");";
+  return clientPage({ title: title, active: active, body: body, bootstrap: bootstrap });
+}
+
+function dashboardHtml(active, metricsJs, sub) {
+  const body = pageHead('Dashboard', sub, false) +
+    '<div class="cards" id="cd-metrics"></div>' +
+    '<div class="metric"><div class="l">Recent activity</div><p style="color:var(--dim);margin-top:10px;font-size:13px">Activity from your modules will surface here as you use the system.</p></div>';
+  const bootstrap = "CD.start('dashboard');" +
+    "(function(){var c=window.CONFIG||{};document.querySelector('.pagehead h1').textContent='Welcome, '+(c.CLIENT_NAME||'');})();" +
+    "CD.metrics(" + metricsJs + ");";
+  return clientPage({ title: 'Dashboard', active: 'dashboard', body: body, bootstrap: bootstrap });
+}
+
+// ── CareDesk Home system ──
+function buildHomeSystem(tokens, d) {
+  const nav = [
+    { page: 'dashboard.html', label: 'Dashboard' }, { page: 'residents.html', label: 'Residents' },
+    { page: 'adl.html', label: 'ADL Tracking' }, { page: 'vitals.html', label: 'Vitals' },
+    { page: 'payments.html', label: 'Payments' }, { page: 'staff.html', label: 'Staff & Wages' },
+    { page: 'appointments.html', label: 'Appointments' }, { page: 'contacts.html', label: 'Contacts' },
+    { page: 'incidents.html', label: 'Incidents' }, { page: 'dshs.html', label: 'DSHS Forms' },
+    { page: 'settings.html', label: 'Settings' }
+  ];
+  const files = {};
+  files['config.js'] = buildConfigJs(tokens, JSON.stringify(nav));
+  files['caredesk-core.js'] = buildCoreJs();
+  files['caredesk-style.css'] = buildClientCss();
+  files['index.html'] = loginPage();
+  files['dashboard.html'] = dashboardHtml('dashboard',
+    "[{label:'Total residents',value:'—'},{label:'Payments this month',value:'—'},{label:'Upcoming appts',value:'—'},{label:'Open incidents',value:'—'}]",
+    'Your facility at a glance.');
+  files['residents.html'] = dataPageHtml('residents', 'Residents', 'Resident profiles and status.',
+    "{table:'residents',title:'residents',columns:[{key:'full_name',label:'Name'},{key:'dob',label:'DOB'},{key:'room',label:'Room'},{key:'admission_date',label:'Admitted'},{key:'primary_condition',label:'Condition'},{key:'status',label:'Status',badge:function(v){return v==='active'?'green':'amber';}}],fields:[{key:'full_name',label:'Full name'},{key:'dob',label:'Date of birth',type:'date'},{key:'room',label:'Room'},{key:'admission_date',label:'Admission date',type:'date'},{key:'primary_condition',label:'Primary condition'},{key:'status',label:'Status',type:'select',options:['active','discharged','hospital']}]}");
+  files['adl.html'] = dataPageHtml('adl', 'ADL Tracking', 'Daily activities of daily living.',
+    "{table:'adl_logs',title:'ADL logs',columns:[{key:'resident',label:'Resident'},{key:'log_date',label:'Date'},{key:'bathing',label:'Bathing'},{key:'dressing',label:'Dressing'},{key:'toileting',label:'Toileting'},{key:'mobility',label:'Mobility'},{key:'eating',label:'Eating'}],fields:[{key:'resident',label:'Resident'},{key:'log_date',label:'Date',type:'date'},{key:'bathing',label:'Bathing',type:'select',options:['Independent','Assist','Dependent']},{key:'dressing',label:'Dressing',type:'select',options:['Independent','Assist','Dependent']},{key:'grooming',label:'Grooming',type:'select',options:['Independent','Assist','Dependent']},{key:'toileting',label:'Toileting',type:'select',options:['Independent','Assist','Dependent']},{key:'mobility',label:'Mobility',type:'select',options:['Independent','Assist','Dependent']},{key:'eating',label:'Eating',type:'select',options:['Independent','Assist','Dependent']},{key:'notes',label:'Notes',type:'textarea'}]}");
+  files['vitals.html'] = dataPageHtml('vitals', 'Vitals', 'Vital sign logs per resident.',
+    "{table:'vitals',title:'vitals',columns:[{key:'resident',label:'Resident'},{key:'log_date',label:'Date'},{key:'bp',label:'BP'},{key:'pulse',label:'Pulse'},{key:'temp',label:'Temp'},{key:'weight',label:'Weight'},{key:'o2',label:'O2'}],fields:[{key:'resident',label:'Resident'},{key:'log_date',label:'Date',type:'date'},{key:'bp',label:'Blood pressure'},{key:'pulse',label:'Pulse'},{key:'temp',label:'Temperature'},{key:'weight',label:'Weight'},{key:'o2',label:'O2 saturation'},{key:'notes',label:'Notes',type:'textarea'}]}");
+  files['payments.html'] = dataPageHtml('payments', 'Payments', 'Resident payments and receipts.',
+    "{table:'payments',title:'payments',columns:[{key:'resident',label:'Resident'},{key:'pay_date',label:'Date'},{key:'amount',label:'Amount'},{key:'method',label:'Method'},{key:'description',label:'Description'}],fields:[{key:'resident',label:'Resident'},{key:'pay_date',label:'Date',type:'date'},{key:'amount',label:'Amount',type:'number'},{key:'method',label:'Method'},{key:'description',label:'Description'}]}");
+  files['staff.html'] = dataPageHtml('staff', 'Staff & Wages', 'Staff roster, wages, and hours.',
+    "{table:'staff',title:'staff',columns:[{key:'full_name',label:'Name'},{key:'role',label:'Role'},{key:'wage',label:'Wage'},{key:'hours',label:'Hours'},{key:'pay_period',label:'Period'}],fields:[{key:'full_name',label:'Full name'},{key:'role',label:'Role'},{key:'wage',label:'Hourly wage',type:'number'},{key:'hours',label:'Hours worked',type:'number'},{key:'pay_period',label:'Pay period'}]}");
+  files['appointments.html'] = dataPageHtml('appointments', 'Appointments', 'Doctor appointments and visits.',
+    "{table:'appointments',title:'appointments',columns:[{key:'resident',label:'Resident'},{key:'doctor',label:'Doctor'},{key:'appt_at',label:'When'},{key:'location',label:'Location'},{key:'status',label:'Status',badge:function(v){return v==='scheduled'?'amber':'green';}}],fields:[{key:'resident',label:'Resident'},{key:'doctor',label:'Doctor'},{key:'appt_at',label:'Date & time',type:'datetime-local'},{key:'location',label:'Location'},{key:'notes',label:'Notes',type:'textarea'},{key:'status',label:'Status',type:'select',options:['scheduled','completed','cancelled']}]}");
+  files['contacts.html'] = dataPageHtml('contacts', 'Contacts', 'Emergency and family contacts.',
+    "{table:'contacts',title:'contacts',columns:[{key:'resident',label:'Resident'},{key:'contact_name',label:'Contact'},{key:'relationship',label:'Relationship'},{key:'phone',label:'Phone'},{key:'email',label:'Email'}],fields:[{key:'resident',label:'Resident'},{key:'contact_name',label:'Contact name'},{key:'relationship',label:'Relationship'},{key:'phone',label:'Phone'},{key:'email',label:'Email',type:'email'}]}");
+  files['incidents.html'] = dataPageHtml('incidents', 'Incidents', 'Incident log with severity.',
+    "{table:'incidents',title:'incidents',columns:[{key:'resident',label:'Resident'},{key:'incident_date',label:'Date'},{key:'type',label:'Type'},{key:'severity',label:'Severity',badge:function(v){return v==='High'?'red':(v==='Medium'?'amber':'green');}},{key:'reported_by',label:'Reported by'}],fields:[{key:'resident',label:'Resident'},{key:'incident_date',label:'Date',type:'date'},{key:'type',label:'Type'},{key:'severity',label:'Severity',type:'select',options:['Low','Medium','High']},{key:'description',label:'Description',type:'textarea'},{key:'action_taken',label:'Action taken',type:'textarea'},{key:'reported_by',label:'Reported by'}]}");
+  files['dshs.html'] = clientPage({ title: 'DSHS Forms', active: 'dshs', body:
+    pageHead('DSHS Forms', 'Washington State compliance forms for AFH operators.', false) +
+    '<div class="metric"><p style="color:var(--dim);line-height:1.7;font-size:13px">Quick links to the forms AFH operators use most. Full in-app form generation is on the CareDesk roadmap.</p>' +
+    '<ul style="margin-top:14px;line-height:2.1;list-style:none">' +
+    '<li>• Negotiated Care Plan</li><li>• Resident Assessment</li><li>• Medication / Treatment Record (MAR)</li>' +
+    '<li>• Incident / Injury Report</li><li>• Disclosure of Services</li></ul>' +
+    '<p style="color:var(--dim);font-size:12px;margin-top:14px">Full DSHS form generation available in a future CareDesk update.</p></div>' });
+  files['settings.html'] = clientPage({ title: 'Settings', active: 'settings', body:
+    pageHead('Settings', 'Facility profile and system information.', false) +
+    '<div class="metric" id="cd-fac"></div>',
+    bootstrap: "CD.start('settings');(function(){var c=window.CONFIG||{};document.getElementById('cd-fac').innerHTML=" +
+      "'<div class=\"l\">Facility</div>'+" +
+      "'<div style=\"line-height:2;margin-top:10px;font-size:13px\">'+" +
+      "'<div><b>'+(c.CLIENT_NAME||'')+'</b></div>'+" +
+      "'<div style=\"color:var(--dim)\">'+(c.CLIENT_ADDRESS||'')+'</div>'+" +
+      "'<div style=\"color:var(--dim)\">'+(c.CLIENT_PHONE||'')+'</div>'+" +
+      "'<div style=\"color:var(--dim)\">License: '+(c.LICENSE_NUMBER||'—')+'</div>'+" +
+      "'<div style=\"color:var(--dim)\">System ID: '+(c.CLIENT_ID||'')+' · v1.0</div></div>';})();" });
+  return files;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RN SYSTEM — external-template pipeline
+// The RN product is NOT generated inline. It lives as a standalone
+// template file committed in this repo at RN_TEMPLATE_PATH. The engine
+// fetches it, injects the onboarding data, and bundles a ready-to-push
+// client repo (the zip). Keys are baked in directly — no build step.
+// ═══════════════════════════════════════════════════════════════
+
+// Path (relative to caredesk-pro.html) where the RN template is committed.
+const RN_TEMPLATE_PATH = 'templates/rn-system.html';
+
+/** Onboarding record — the "external file" persisted into each client repo.
+ *  NOTE: the admin password is intentionally NOT included; never commit it. */
+function buildOnboarding(d, clientId, fullAddr) {
+  return {
+    clientId: clientId,
+    systemType: d.systemType,
+    generatedAt: new Date().toISOString(),
+    businessName: d.officialName || '',
+    tagline: d.tagline || '',
+    address: fullAddr,
+    addressLine1: d.addr1 || '',
+    addressLine2: d.addr2 || '',
+    city: d.city || '',
+    state: d.state || '',
+    zip: d.zip || '',
+    phone: d.phone || '',
+    owner: d.owner || '',
+    ownerEmail: d.email || '',
+    billingEmail: d.billing || '',
+    licenseNumber: d.license || '',
+    primaryColor: d.primaryColor || '#c8a96e',
+    secondaryColor: d.secondaryColor || '#4ec9b0',
+    subdomain: d.subdomain || '',
+    logoBase64: d.logoBase64 || '',
+    supaUrl: d.supaUrl || '',
+    supaKey: d.supaKey || '',
+    adminEmail: d.adminEmail || d.email || ''
+  };
+}
+
+/** Inject onboarding data into a copy of the RN template.
+ *  - Replaces the template's documented __SUPA_URL__ / __SUPA_KEY__ placeholders.
+ *  - Prepends a window.__CDP_ONBOARD__ block as the first child of <head>,
+ *    so the template can self-brand (name, license, logo, colors) at runtime. */
+function injectOnboardingIntoTemplate(tpl, onboarding) {
+  let out = String(tpl);
+  out = out.split('__SUPA_URL__').join(onboarding.supaUrl || '');
+  out = out.split('__SUPA_KEY__').join(onboarding.supaKey || '');
+  // JSON is safe to embed; data-URLs/base64 never contain "<".
+  const block = '<script id="cdp-onboard">window.__CDP_ONBOARD__ = '
+    + JSON.stringify(onboarding) + ';<\/script>';
+  if (/<head[^>]*>/i.test(out)) {
+    out = out.replace(/<head[^>]*>/i, function (m) { return m + '\n' + block; });
+  } else {
+    out = block + '\n' + out;
+  }
+  return out;
+}
+
+/** Fetch the external RN template, inject onboarding data, and assemble the
+ *  full set of files for the client repo. Returns a { path: content } map. */
+async function buildRnSystemFromTemplate(tokens, d, onboarding) {
+  let tpl;
+  try {
+    const res = await fetch(RN_TEMPLATE_PATH, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    tpl = await res.text();
+  } catch (e) {
+    throw new Error('Could not load the RN template at "' + RN_TEMPLATE_PATH
+      + '". Commit rn-system.html there, and run CareDesk Pro over http(s) '
+      + '(e.g. GitHub Pages) rather than from a file:// path. (' + (e.message || e) + ')');
+  }
+  const files = {};
+  files['index.html'] = injectOnboardingIntoTemplate(tpl, onboarding);
+  files['onboarding.json'] = JSON.stringify(onboarding, null, 2);
+  files['manifest.json'] = buildRnManifest(onboarding);
+  files['supabase-schema.sql'] = buildRnSchemaSql();
+  files['README.md'] = buildRnReadme(onboarding);
+  return files;
+}
+
+/** PWA manifest referenced by the RN template <head>. */
+function buildRnManifest(o) {
+  return JSON.stringify({
+    name: o.businessName || 'RN Management System',
+    short_name: (o.businessName || 'RN').slice(0, 12),
+    start_url: './index.html',
+    scope: './',
+    display: 'standalone',
+    background_color: '#0e1014',
+    theme_color: o.primaryColor || '#c8a96e',
+    icons: [{ src: 'assets/logo.png', sizes: '512x512', type: 'image/png', purpose: 'any' }]
+  }, null, 2);
+}
+
+/** Starter Supabase schema for the RN template's tables (RLS scoped to user_id).
+ *  Column lists are a sensible baseline — add columns if the template queries more. */
+function buildRnSchemaSql() {
+  return [
+"-- RN Management System — Supabase schema (starter, generated by CareDesk Pro)",
+"-- Run this in the client's Supabase project: SQL Editor → New query → Run.",
+"-- Column lists are a baseline; if the RN template reads columns not present",
+"-- here, add them so they line up. Every table is RLS-scoped to the owner.",
+"",
+"create extension if not exists pgcrypto;",
+"",
+"create table if not exists profiles (",
+"  id uuid primary key references auth.users(id) on delete cascade,",
+"  full_name text, license_number text, phone text,",
+"  role text default 'rn', created_at timestamptz default now()",
+");",
+"create table if not exists facilities (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null references auth.users(id) on delete cascade,",
+"  name text not null, address text, contact_person text, phone text,",
+"  created_at timestamptz default now()",
+");",
+"create table if not exists caregivers (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null references auth.users(id) on delete cascade,",
+"  facility_id uuid references facilities(id) on delete set null,",
+"  full_name text not null, role text, phone text,",
+"  created_at timestamptz default now()",
+");",
+"create table if not exists clients (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null references auth.users(id) on delete cascade,",
+"  facility_id uuid references facilities(id) on delete set null,",
+"  full_name text not null, dob date, status text default 'active',",
+"  created_at timestamptz default now()",
+");",
+"create table if not exists delegation_cases (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null references auth.users(id) on delete cascade,",
+"  facility_id uuid references facilities(id) on delete set null,",
+"  client_id uuid references clients(id) on delete set null,",
+"  caregiver_id uuid references caregivers(id) on delete set null,",
+"  care_task text, delegation_date date, expiry_date date,",
+"  status text default 'Active', created_at timestamptz default now()",
+");",
+"create table if not exists form_drafts (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null references auth.users(id) on delete cascade,",
+"  form_code text, payload jsonb default '{}'::jsonb,",
+"  updated_at timestamptz default now(), created_at timestamptz default now()",
+");",
+"create table if not exists signed_documents (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null references auth.users(id) on delete cascade,",
+"  form_code text, title text, storage_path text, signed_at timestamptz,",
+"  created_at timestamptz default now()",
+");",
+"create table if not exists audit_log (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null references auth.users(id) on delete cascade,",
+"  action text, detail jsonb default '{}'::jsonb,",
+"  created_at timestamptz default now()",
+");",
+"",
+"-- Enable RLS",
+"alter table profiles enable row level security;",
+"alter table facilities enable row level security;",
+"alter table caregivers enable row level security;",
+"alter table clients enable row level security;",
+"alter table delegation_cases enable row level security;",
+"alter table form_drafts enable row level security;",
+"alter table signed_documents enable row level security;",
+"alter table audit_log enable row level security;",
+"",
+"-- Policies (re-runnable)",
+"drop policy if exists p_profiles on profiles;",
+"create policy p_profiles on profiles for all using (auth.uid() = id) with check (auth.uid() = id);",
+"drop policy if exists p_facilities on facilities;",
+"create policy p_facilities on facilities for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
+"drop policy if exists p_caregivers on caregivers;",
+"create policy p_caregivers on caregivers for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
+"drop policy if exists p_clients on clients;",
+"create policy p_clients on clients for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
+"drop policy if exists p_delegation_cases on delegation_cases;",
+"create policy p_delegation_cases on delegation_cases for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
+"drop policy if exists p_form_drafts on form_drafts;",
+"create policy p_form_drafts on form_drafts for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
+"drop policy if exists p_signed_documents on signed_documents;",
+"create policy p_signed_documents on signed_documents for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
+"drop policy if exists p_audit_log on audit_log;",
+"create policy p_audit_log on audit_log for all using (auth.uid() = user_id) with check (auth.uid() = user_id);"
+  ].join('\n');
+}
+
+/** Per-client README committed alongside the generated system. */
+function buildRnReadme(o) {
+  return [
+'# ' + (o.businessName || 'RN Management System'),
+'',
+'Generated by CareDesk Pro on ' + o.generatedAt + ' (client `' + o.clientId + '`).',
+'',
+'This repo is a ready-to-deploy RN management system. Business details and',
+'Supabase keys are already baked into `index.html` — no build step required.',
+'',
+'## Deploy',
+'1. Push this folder to a new GitHub repository.',
+'2. Settings → Pages → Deploy from `main` branch.',
+'3. In Supabase: SQL Editor → run `supabase-schema.sql`.',
+'4. Supabase → Authentication → Users → add the admin user (' + (o.adminEmail || 'admin email') + ').',
+'5. Open the GitHub Pages URL and log in.',
+'',
+'## Files',
+'- `index.html` — the RN system, pre-filled with this client\'s data.',
+'- `onboarding.json` — the onboarding record fed into the template.',
+'- `manifest.json` — PWA manifest.',
+'- `supabase-schema.sql` — database schema (RLS scoped per user).',
+'- `assets/logo.png` — brand logo (replace if a text placeholder was used).'
+  ].join('\n');
+}
+
+// ── CareDesk RN system (legacy inline placeholder — no longer used; kept for reference) ──
+function buildRnSystem(tokens, d) {
+  const nav = [
+    { page: 'dashboard.html', label: 'Dashboard' }, { page: 'clients.html', label: 'AFH Clients' },
+    { page: 'delegation.html', label: 'Delegation' }, { page: 'forms.html', label: 'DSHS Forms' },
+    { page: 'credentials.html', label: 'Credentials' }, { page: 'notes.html', label: 'Shift Notes' },
+    { page: 'reminders.html', label: 'Reminders' }, { page: 'settings.html', label: 'Settings' }
+  ];
+  const files = {};
+  files['config.js'] = buildConfigJs(tokens, JSON.stringify(nav));
+  files['caredesk-core.js'] = buildCoreJs();
+  files['caredesk-style.css'] = buildClientCss();
+  files['index.html'] = loginPage();
+  files['dashboard.html'] = dashboardHtml('dashboard',
+    "[{label:'Active AFH clients',value:'—'},{label:'Pending delegations',value:'—'},{label:'Expiring credentials',value:'—'},{label:'Upcoming visits',value:'—'}]",
+    'Your delegation caseload at a glance.');
+  files['clients.html'] = dataPageHtml('clients', 'AFH Clients', 'Facilities under your delegation.',
+    "{table:'afh_clients',title:'AFH clients',columns:[{key:'facility_name',label:'Facility'},{key:'address',label:'Address'},{key:'contact_person',label:'Contact'},{key:'phone',label:'Phone'},{key:'delegation_status',label:'Status',badge:function(v){return v==='active'?'green':'amber';}},{key:'last_visit',label:'Last visit'}],fields:[{key:'facility_name',label:'Facility name'},{key:'address',label:'Address'},{key:'contact_person',label:'Contact person'},{key:'phone',label:'Phone'},{key:'delegation_status',label:'Status',type:'select',options:['active','pending','inactive']},{key:'last_visit',label:'Last visit',type:'date'}]}");
+  files['delegation.html'] = dataPageHtml('delegation', 'Delegation', 'Delegated tasks and expiry.',
+    "{table:'delegations',title:'delegations',columns:[{key:'facility',label:'Facility'},{key:'resident',label:'Resident'},{key:'care_task',label:'Task'},{key:'delegation_date',label:'Delegated'},{key:'expiry_date',label:'Expires'},{key:'caregiver',label:'Caregiver'},{key:'status',label:'Status',badge:function(v){return v==='Active'?'green':(v==='Expiring Soon'?'amber':(v==='Expired'?'red':'amber'));}}],fields:[{key:'facility',label:'Facility'},{key:'resident',label:'Resident'},{key:'care_task',label:'Care task'},{key:'delegation_date',label:'Delegation date',type:'date'},{key:'expiry_date',label:'Expiry date',type:'date'},{key:'caregiver',label:'Caregiver'},{key:'status',label:'Status',type:'select',options:['Active','Expiring Soon','Expired','Pending Review']}]}");
+  files['forms.html'] = clientPage({ title: 'DSHS Forms', active: 'forms', body:
+    pageHead('DSHS Forms', 'Nurse delegation forms used across Washington State.', false) +
+    ['13-678 — Nurse Delegation Assessment', '13-680 — Task Delegation', '13-681 — Caregiver Training', '01-212 — Background Check', '13-893 — Delegation Agreement']
+      .map(function (f) { return '<div class="metric" style="margin-bottom:12px"><div class="l">' + f.split(' — ')[0] + '</div><div style="font-size:15px;margin-top:4px">' + f.split(' — ')[1] + '</div><button class="btn sm" style="margin-top:10px" onclick="window.print()">Open printable</button><div class="print-only" style="margin-top:14px"><h2>' + f + '</h2><p>Fillable fields print here. Complete by hand or extend this template.</p></div></div>'; }).join('') });
+  files['credentials.html'] = dataPageHtml('credentials', 'Credentials', 'Caregiver credential tracking.',
+    "{table:'credentials',title:'credentials',columns:[{key:'facility',label:'Facility'},{key:'caregiver',label:'Caregiver'},{key:'credential_type',label:'Type'},{key:'issue_date',label:'Issued'},{key:'expiry_date',label:'Expires'}],fields:[{key:'facility',label:'Facility'},{key:'caregiver',label:'Caregiver'},{key:'credential_type',label:'Credential type',type:'select',options:['CPR','First Aid','Nurse Delegation','Food Handler','TB Test','Background Check']},{key:'issue_date',label:'Issue date',type:'date'},{key:'expiry_date',label:'Expiry date',type:'date'}]}");
+  files['notes.html'] = dataPageHtml('notes', 'Shift Notes', 'Visit and shift documentation.',
+    "{table:'notes',title:'notes',columns:[{key:'facility',label:'Facility'},{key:'note_date',label:'Date'},{key:'note_type',label:'Type'},{key:'authored_by',label:'Author'}],fields:[{key:'facility',label:'Facility'},{key:'note_date',label:'Date',type:'date'},{key:'note_type',label:'Type',type:'select',options:['Visit','Phone','Delegation','Incident']},{key:'body',label:'Note',type:'textarea'},{key:'authored_by',label:'Authored by'}]}");
+  files['reminders.html'] = dataPageHtml('reminders', 'Reminders', 'Upcoming tasks and expirations.',
+    "{table:'reminders',title:'reminders',columns:[{key:'title',label:'Reminder'},{key:'due_date',label:'Due'},{key:'category',label:'Category'},{key:'done',label:'Done'}],fields:[{key:'title',label:'Title'},{key:'due_date',label:'Due date',type:'date'},{key:'category',label:'Category',type:'select',options:['Delegation expiry','Credential expiry','Visit','Form renewal']}]}");
+  files['settings.html'] = clientPage({ title: 'Settings', active: 'settings', body:
+    pageHead('Settings', 'Profile and system information.', false) + '<div class="metric" id="cd-fac"></div>',
+    bootstrap: "CD.start('settings');(function(){var c=window.CONFIG||{};document.getElementById('cd-fac').innerHTML=" +
+      "'<div class=\"l\">Practice</div><div style=\"line-height:2;margin-top:10px;font-size:13px\">'+" +
+      "'<div><b>'+(c.CLIENT_NAME||'')+'</b></div>'+" +
+      "'<div style=\"color:var(--dim)\">RN License: '+(c.LICENSE_NUMBER||'—')+'</div>'+" +
+      "'<div style=\"color:var(--dim)\">'+(c.CLIENT_PHONE||'')+'</div>'+" +
+      "'<div style=\"color:var(--dim)\">System ID: '+(c.CLIENT_ID||'')+' · v1.0</div></div>';})();" });
+  return files;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
