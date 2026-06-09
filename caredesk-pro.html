@@ -1039,7 +1039,7 @@ function renderStep4() {
       <div class="field"><label>Admin password <span class="opt">(min 8 chars)</span></label><input type="password" id="f-adminpass" placeholder="••••••••"></div>
     </div>
     <div class="card" style="background:var(--surface2);border-style:dashed;">
-      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">You'll set up the Supabase project separately. This config is baked into the generated system's <span class="mono" style="color:var(--gold2)">config.js</span>. You can edit it later before pushing to GitHub.</div>
+      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">You'll set up the Supabase project separately. For <b>CareDesk Home</b> systems, config is baked into <span class="mono" style="color:var(--gold2)">config.js</span>. For <b>CareDesk RN</b> systems, it is injected directly into the template's <span class="mono" style="color:var(--gold2)">index.html</span>. You can update either before pushing to GitHub.</div>
     </div>`;
 }
 
@@ -1164,10 +1164,13 @@ async function generateSystem() {
     };
 
     // 3. assemble files via the template engine
-    const onboarding = buildOnboarding(d, clientId, fullAddr);
-    const files = (d.systemType === 'home')
-      ? buildHomeSystem(tokens, d)
-      : await buildRnSystemFromTemplate(tokens, d, onboarding);
+    let files;
+    if (d.systemType === 'home') {
+      files = buildHomeSystem(tokens, d);
+    } else {
+      const onboarding = buildOnboardingData(d, clientId, fullAddr);
+      files = await buildRnSystemFromTemplate(tokens, d, onboarding);
+    }
 
     // 4. zip
     const zip = new JSZip();
@@ -1178,7 +1181,7 @@ async function generateSystem() {
       const b64 = d.logoBase64.split(',')[1];
       root.folder('assets').file('logo.png', b64, { base64: true });
     } else {
-      root.folder('assets').file('logo.txt', 'Text logo generated from business initials. Replace with logo.png if desired.');
+      root.folder('assets').file('logo.txt', 'Replace this file with logo.png to show your logo in the app and on printed DSHS forms.');
     }
     const blob = await zip.generateAsync({ type: 'blob' });
     saveAs(blob, folder + '.zip');
@@ -1221,7 +1224,20 @@ async function registerClient(d, clientId, fullAddr) {
 }
 
 function showSuccessScreen(d, clientId) {
-  const homeSteps = [
+  const isRn = d.systemType === 'rn';
+  const steps = isRn ? [
+    'Unzip the downloaded file',
+    `Create a new GitHub repository named: ${d.subdomain || 'client'}-rn`,
+    'Push all files to the repository (keep the assets/ folder)',
+    'Go to Settings → Pages → Deploy from the main branch',
+    'Open your new Supabase project at supabase.com',
+    'SQL Editor → New query → paste and run supabase-schema.sql (included in the zip)',
+    `Authentication → Users → Invite → add the admin user: ${d.adminEmail || d.email || 'admin email'}` +
+      (d.adminPass ? ` with password: ${d.adminPass}` : ' (set a password when prompted)'),
+    'Open the GitHub Pages URL — Supabase keys and business details are already baked in',
+    'Sign in and verify all pages load correctly',
+    'Share the GitHub Pages URL with your client'
+  ] : [
     'Unzip the downloaded file',
     'Open config.js and verify all details are correct',
     'Make any additional personalizations (colors, content, modules)',
@@ -1236,20 +1252,6 @@ function showSuccessScreen(d, clientId) {
     'Set up the Lemon Squeezy subscription for this client',
     'Update the system URL in the CareDesk Pro Client CRM'
   ];
-  const rnSteps = [
-    'Unzip the downloaded file',
-    `Create a GitHub repository named: ${d.subdomain || 'client'}-rn`,
-    'Push all files to the repository (include the assets/ folder)',
-    'Settings → Pages → Deploy from main branch',
-    'Create a new Supabase project at supabase.com',
-    'SQL Editor → run supabase-schema.sql (included in the zip)',
-    `Authentication → Users → add the admin user: ${d.adminEmail || d.email || 'admin email'}` +
-      (d.adminPass ? ` · password: ${d.adminPass}` : ''),
-    'Open the GitHub Pages URL — Supabase keys and business details are already baked in',
-    'Confirm login works, then share the URL with your client',
-    'Update the system URL in the CareDesk Pro Client CRM'
-  ];
-  const steps = d.systemType === 'rn' ? rnSteps : homeSteps;
   $('#wpane-success').innerHTML = `
     <div class="success-hero">
       <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
@@ -2093,31 +2095,156 @@ create table if not exists incidents (
 );`;
 
 const RN_SCHEMA_SQL = `-- CareDesk RN — client Supabase schema
-create table if not exists afh_clients (
-  id uuid default gen_random_uuid() primary key,
-  facility_name text not null, address text, contact_person text, phone text,
-  delegation_status text default 'active', last_visit date, created_at timestamptz default now()
+-- Run this in the client's new Supabase project: SQL Editor → New query → Run.
+-- All tables use RLS scoped to auth.uid() so each RN's data stays private.
+
+create extension if not exists pgcrypto;
+
+-- Profiles (one row per auth user, auto-created on first login)
+create table if not exists profiles (
+  id             uuid primary key references auth.users(id) on delete cascade,
+  full_name      text,
+  license_number text,
+  phone          text,
+  role           text default 'rn',
+  created_at     timestamptz default now()
 );
-create table if not exists delegations (
-  id uuid default gen_random_uuid() primary key,
-  facility text, resident text, care_task text, delegation_date date,
-  expiry_date date, caregiver text, status text default 'active', created_at timestamptz default now()
+
+-- AFH Facilities under delegation
+create table if not exists facilities (
+  id             uuid default gen_random_uuid() primary key,
+  user_id        uuid not null references auth.users(id) on delete cascade,
+  name           text not null,
+  address        text,
+  contact_person text,
+  phone          text,
+  license_number text,
+  status         text default 'active',
+  created_at     timestamptz default now()
 );
-create table if not exists credentials (
-  id uuid default gen_random_uuid() primary key,
-  facility text, caregiver text, credential_type text, issue_date date,
-  expiry_date date, created_at timestamptz default now()
+
+-- Clients / residents across facilities
+create table if not exists clients (
+  id                uuid default gen_random_uuid() primary key,
+  user_id           uuid not null references auth.users(id) on delete cascade,
+  full_name         text not null,
+  facility          text,
+  dob               date,
+  room              text,
+  primary_condition text,
+  status            text default 'active',
+  created_at        timestamptz default now()
 );
-create table if not exists notes (
-  id uuid default gen_random_uuid() primary key,
-  facility text, note_date date, note_type text, body text,
-  authored_by text, created_at timestamptz default now()
-);
-create table if not exists reminders (
-  id uuid default gen_random_uuid() primary key,
-  title text, due_date date, category text, done boolean default false,
+
+-- Caregivers
+create table if not exists caregivers (
+  id         uuid default gen_random_uuid() primary key,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  full_name  text not null,
+  facility   text,
+  role       text,
+  phone      text,
+  email      text,
+  hire_date  date,
+  status     text default 'active',
   created_at timestamptz default now()
-);`;
+);
+
+-- Delegation cases
+create table if not exists delegation_cases (
+  id              uuid default gen_random_uuid() primary key,
+  user_id         uuid not null references auth.users(id) on delete cascade,
+  facility        text,
+  client_name     text,
+  care_task       text,
+  caregiver       text,
+  delegation_date date,
+  expiry_date     date,
+  status          text default 'Active',
+  notes           text,
+  created_at      timestamptz default now()
+);
+
+-- Credentials / certifications
+create table if not exists credentials (
+  id              uuid default gen_random_uuid() primary key,
+  user_id         uuid not null references auth.users(id) on delete cascade,
+  caregiver       text,
+  facility        text,
+  credential_type text,
+  issue_date      date,
+  expiry_date     date,
+  status          text default 'valid',
+  notes           text,
+  created_at      timestamptz default now()
+);
+
+-- Shift notes / visit documentation
+create table if not exists shift_notes (
+  id           uuid default gen_random_uuid() primary key,
+  user_id      uuid not null references auth.users(id) on delete cascade,
+  facility     text,
+  client_name  text,
+  note_date    date,
+  note_type    text default 'Visit',
+  authored_by  text,
+  body         text,
+  created_at   timestamptz default now()
+);
+
+-- Reminders / expiry notices
+create table if not exists reminders (
+  id         uuid default gen_random_uuid() primary key,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  title      text not null,
+  due_date   date,
+  category   text,
+  notes      text,
+  done       boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Enable RLS on all tables
+alter table profiles        enable row level security;
+alter table facilities      enable row level security;
+alter table clients         enable row level security;
+alter table caregivers      enable row level security;
+alter table delegation_cases enable row level security;
+alter table credentials     enable row level security;
+alter table shift_notes     enable row level security;
+alter table reminders       enable row level security;
+
+-- RLS Policies (re-runnable)
+drop policy if exists rn_profiles        on profiles;
+drop policy if exists rn_facilities      on facilities;
+drop policy if exists rn_clients         on clients;
+drop policy if exists rn_caregivers      on caregivers;
+drop policy if exists rn_delegation      on delegation_cases;
+drop policy if exists rn_credentials     on credentials;
+drop policy if exists rn_shift_notes     on shift_notes;
+drop policy if exists rn_reminders       on reminders;
+
+create policy rn_profiles        on profiles        for all using (auth.uid() = id)      with check (auth.uid() = id);
+create policy rn_facilities      on facilities      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy rn_clients         on clients         for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy rn_caregivers      on caregivers      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy rn_delegation      on delegation_cases for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy rn_credentials     on credentials     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy rn_shift_notes     on shift_notes     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy rn_reminders       on reminders       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Auto-create profile row on first sign-up
+create or replace function handle_new_user()
+returns trigger language plpgsql security definer as $$
+begin
+  insert into public.profiles (id) values (new.id) on conflict do nothing;
+  return new;
+end;
+$$;
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure handle_new_user();`;
 
 const LEMON_EDGE_FN = `// Supabase Edge Function — paste into your master Supabase project
 // Deploy as: supabase functions deploy caredesk-webhook
@@ -2662,222 +2789,157 @@ function buildHomeSystem(tokens, d) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RN SYSTEM — external-template pipeline
-// The RN product is NOT generated inline. It lives as a standalone
-// template file committed in this repo at RN_TEMPLATE_PATH. The engine
-// fetches it, injects the onboarding data, and bundles a ready-to-push
-// client repo (the zip). Keys are baked in directly — no build step.
+// RN SYSTEM — external template pipeline
+// ─────────────────────────────────────────────────────────────
+// How it works:
+//   1. The RN system HTML lives as  templates/rn-system.html
+//      in the same repo as caredesk-pro.html. It is NOT inlined.
+//   2. generateSystem() fetches it, injects the client's onboarding
+//      data (Supabase keys, business name, colours, etc.) directly
+//      into the HTML, then zips everything for the client's repo.
+//   3. Each client zip contains:
+//        index.html          ← template + injected data
+//        onboarding.json     ← human-readable record (no password)
+//        supabase-schema.sql ← run once in the client's Supabase
+//        manifest.json       ← PWA manifest
+//        README.md           ← deploy checklist
+//        assets/             ← logo (if uploaded)
 // ═══════════════════════════════════════════════════════════════
 
-// Path (relative to caredesk-pro.html) where the RN template is committed.
+/** Path to the RN template, relative to caredesk-pro.html. */
 const RN_TEMPLATE_PATH = 'templates/rn-system.html';
 
-/** Onboarding record — the "external file" persisted into each client repo.
- *  NOTE: the admin password is intentionally NOT included; never commit it. */
-function buildOnboarding(d, clientId, fullAddr) {
+/** Build the onboarding data object written to onboarding.json.
+ *  The admin password is intentionally excluded — never commit it. */
+function buildOnboardingData(d, clientId, fullAddr) {
   return {
-    clientId: clientId,
-    systemType: d.systemType,
-    generatedAt: new Date().toISOString(),
-    businessName: d.officialName || '',
-    tagline: d.tagline || '',
-    address: fullAddr,
-    addressLine1: d.addr1 || '',
-    addressLine2: d.addr2 || '',
-    city: d.city || '',
-    state: d.state || '',
-    zip: d.zip || '',
-    phone: d.phone || '',
-    owner: d.owner || '',
-    ownerEmail: d.email || '',
-    billingEmail: d.billing || '',
-    licenseNumber: d.license || '',
-    primaryColor: d.primaryColor || '#c8a96e',
-    secondaryColor: d.secondaryColor || '#4ec9b0',
-    subdomain: d.subdomain || '',
-    logoBase64: d.logoBase64 || '',
-    supaUrl: d.supaUrl || '',
-    supaKey: d.supaKey || '',
-    adminEmail: d.adminEmail || d.email || ''
+    clientId:      clientId,
+    systemType:    'rn',
+    generatedAt:   new Date().toISOString(),
+    businessName:  d.officialName  || '',
+    tagline:       d.tagline       || '',
+    address:       fullAddr,
+    addressLine1:  d.addr1         || '',
+    addressLine2:  d.addr2         || '',
+    city:          d.city          || '',
+    state:         d.state         || '',
+    zip:           d.zip           || '',
+    phone:         d.phone         || '',
+    owner:         d.owner         || '',
+    ownerEmail:    d.email         || '',
+    billingEmail:  d.billing       || '',
+    licenseNumber: d.license       || '',
+    primaryColor:  d.primaryColor  || '#c8a96e',
+    secondaryColor:d.secondaryColor|| '#4ec9b0',
+    subdomain:     d.subdomain     || '',
+    logoBase64:    d.logoBase64    || '',
+    supaUrl:       d.supaUrl       || '',
+    supaKey:       d.supaKey       || '',
+    adminEmail:    d.adminEmail    || d.email || ''
   };
 }
 
-/** Inject onboarding data into a copy of the RN template.
- *  - Replaces the template's documented __SUPA_URL__ / __SUPA_KEY__ placeholders.
- *  - Prepends a window.__CDP_ONBOARD__ block as the first child of <head>,
- *    so the template can self-brand (name, license, logo, colors) at runtime. */
+/** Replace __SUPA_URL__ / __SUPA_KEY__ placeholders in the template
+ *  and inject a window.__CDP_ONBOARD__ block at the top of <head>
+ *  so the app can self-brand on load without any build step. */
 function injectOnboardingIntoTemplate(tpl, onboarding) {
-  let out = String(tpl);
-  out = out.split('__SUPA_URL__').join(onboarding.supaUrl || '');
-  out = out.split('__SUPA_KEY__').join(onboarding.supaKey || '');
-  // JSON is safe to embed; data-URLs/base64 never contain "<".
-  const block = '<script id="cdp-onboard">window.__CDP_ONBOARD__ = '
-    + JSON.stringify(onboarding) + ';<\/script>';
+  let out = tpl
+    .split('__SUPA_URL__').join(onboarding.supaUrl || '')
+    .split('__SUPA_KEY__').join(onboarding.supaKey || '');
+
+  // JSON.stringify is safe to embed; base64 data-URIs never contain "<"
+  const block = `<script id="cdp-onboard">window.__CDP_ONBOARD__ = ${JSON.stringify(onboarding)};<\/script>`;
+
+  // Insert immediately after the opening <head> tag
   if (/<head[^>]*>/i.test(out)) {
-    out = out.replace(/<head[^>]*>/i, function (m) { return m + '\n' + block; });
+    out = out.replace(/<head[^>]*>/i, m => m + '\n' + block);
   } else {
     out = block + '\n' + out;
   }
   return out;
 }
 
-/** Fetch the external RN template, inject onboarding data, and assemble the
- *  full set of files for the client repo. Returns a { path: content } map. */
+/** Fetch the external RN template, inject onboarding data, and return
+ *  the complete file map for the client zip. */
 async function buildRnSystemFromTemplate(tokens, d, onboarding) {
   let tpl;
   try {
     const res = await fetch(RN_TEMPLATE_PATH, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' — ' + res.statusText);
     tpl = await res.text();
   } catch (e) {
-    throw new Error('Could not load the RN template at "' + RN_TEMPLATE_PATH
-      + '". Commit rn-system.html there, and run CareDesk Pro over http(s) '
-      + '(e.g. GitHub Pages) rather than from a file:// path. (' + (e.message || e) + ')');
+    throw new Error(
+      'Could not load the RN template from "' + RN_TEMPLATE_PATH + '". ' +
+      'Make sure templates/rn-system.html is committed in the same repo as caredesk-pro.html, ' +
+      'and that you are running CareDesk Pro over https:// (GitHub Pages) ' +
+      'rather than from a local file:// path. (' + (e.message || e) + ')'
+    );
   }
+
   const files = {};
-  files['index.html'] = injectOnboardingIntoTemplate(tpl, onboarding);
-  files['onboarding.json'] = JSON.stringify(onboarding, null, 2);
-  files['manifest.json'] = buildRnManifest(onboarding);
-  files['supabase-schema.sql'] = buildRnSchemaSql();
-  files['README.md'] = buildRnReadme(onboarding);
+  files['index.html']          = injectOnboardingIntoTemplate(tpl, onboarding);
+  files['onboarding.json']     = JSON.stringify(onboarding, null, 2);
+  files['supabase-schema.sql'] = RN_SCHEMA_SQL;   // reuse the schema constant above
+  files['manifest.json']       = buildRnManifest(onboarding);
+  files['README.md']           = buildRnReadme(onboarding);
   return files;
 }
 
-/** PWA manifest referenced by the RN template <head>. */
+/** PWA manifest.json bundled with each generated RN client repo. */
 function buildRnManifest(o) {
   return JSON.stringify({
-    name: o.businessName || 'RN Management System',
-    short_name: (o.businessName || 'RN').slice(0, 12),
-    start_url: './index.html',
-    scope: './',
-    display: 'standalone',
+    name:             o.businessName || 'RN Management System',
+    short_name:       (o.businessName || 'RN System').slice(0, 12),
+    start_url:        './index.html',
+    scope:            './',
+    display:          'standalone',
     background_color: '#0e1014',
-    theme_color: o.primaryColor || '#c8a96e',
-    icons: [{ src: 'assets/logo.png', sizes: '512x512', type: 'image/png', purpose: 'any' }]
+    theme_color:      o.primaryColor || '#c8a96e',
+    icons: [
+      { src: 'assets/logo.png', sizes: '192x192', type: 'image/png' },
+      { src: 'assets/logo.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
   }, null, 2);
 }
 
-/** Starter Supabase schema for the RN template's tables (RLS scoped to user_id).
- *  Column lists are a sensible baseline — add columns if the template queries more. */
-function buildRnSchemaSql() {
-  return [
-"-- RN Management System — Supabase schema (starter, generated by CareDesk Pro)",
-"-- Run this in the client's Supabase project: SQL Editor → New query → Run.",
-"-- Column lists are a baseline; if the RN template reads columns not present",
-"-- here, add them so they line up. Every table is RLS-scoped to the owner.",
-"",
-"create extension if not exists pgcrypto;",
-"",
-"create table if not exists profiles (",
-"  id uuid primary key references auth.users(id) on delete cascade,",
-"  full_name text, license_number text, phone text,",
-"  role text default 'rn', created_at timestamptz default now()",
-");",
-"create table if not exists facilities (",
-"  id uuid primary key default gen_random_uuid(),",
-"  user_id uuid not null references auth.users(id) on delete cascade,",
-"  name text not null, address text, contact_person text, phone text,",
-"  created_at timestamptz default now()",
-");",
-"create table if not exists caregivers (",
-"  id uuid primary key default gen_random_uuid(),",
-"  user_id uuid not null references auth.users(id) on delete cascade,",
-"  facility_id uuid references facilities(id) on delete set null,",
-"  full_name text not null, role text, phone text,",
-"  created_at timestamptz default now()",
-");",
-"create table if not exists clients (",
-"  id uuid primary key default gen_random_uuid(),",
-"  user_id uuid not null references auth.users(id) on delete cascade,",
-"  facility_id uuid references facilities(id) on delete set null,",
-"  full_name text not null, dob date, status text default 'active',",
-"  created_at timestamptz default now()",
-");",
-"create table if not exists delegation_cases (",
-"  id uuid primary key default gen_random_uuid(),",
-"  user_id uuid not null references auth.users(id) on delete cascade,",
-"  facility_id uuid references facilities(id) on delete set null,",
-"  client_id uuid references clients(id) on delete set null,",
-"  caregiver_id uuid references caregivers(id) on delete set null,",
-"  care_task text, delegation_date date, expiry_date date,",
-"  status text default 'Active', created_at timestamptz default now()",
-");",
-"create table if not exists form_drafts (",
-"  id uuid primary key default gen_random_uuid(),",
-"  user_id uuid not null references auth.users(id) on delete cascade,",
-"  form_code text, payload jsonb default '{}'::jsonb,",
-"  updated_at timestamptz default now(), created_at timestamptz default now()",
-");",
-"create table if not exists signed_documents (",
-"  id uuid primary key default gen_random_uuid(),",
-"  user_id uuid not null references auth.users(id) on delete cascade,",
-"  form_code text, title text, storage_path text, signed_at timestamptz,",
-"  created_at timestamptz default now()",
-");",
-"create table if not exists audit_log (",
-"  id uuid primary key default gen_random_uuid(),",
-"  user_id uuid not null references auth.users(id) on delete cascade,",
-"  action text, detail jsonb default '{}'::jsonb,",
-"  created_at timestamptz default now()",
-");",
-"",
-"-- Enable RLS",
-"alter table profiles enable row level security;",
-"alter table facilities enable row level security;",
-"alter table caregivers enable row level security;",
-"alter table clients enable row level security;",
-"alter table delegation_cases enable row level security;",
-"alter table form_drafts enable row level security;",
-"alter table signed_documents enable row level security;",
-"alter table audit_log enable row level security;",
-"",
-"-- Policies (re-runnable)",
-"drop policy if exists p_profiles on profiles;",
-"create policy p_profiles on profiles for all using (auth.uid() = id) with check (auth.uid() = id);",
-"drop policy if exists p_facilities on facilities;",
-"create policy p_facilities on facilities for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
-"drop policy if exists p_caregivers on caregivers;",
-"create policy p_caregivers on caregivers for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
-"drop policy if exists p_clients on clients;",
-"create policy p_clients on clients for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
-"drop policy if exists p_delegation_cases on delegation_cases;",
-"create policy p_delegation_cases on delegation_cases for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
-"drop policy if exists p_form_drafts on form_drafts;",
-"create policy p_form_drafts on form_drafts for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
-"drop policy if exists p_signed_documents on signed_documents;",
-"create policy p_signed_documents on signed_documents for all using (auth.uid() = user_id) with check (auth.uid() = user_id);",
-"drop policy if exists p_audit_log on audit_log;",
-"create policy p_audit_log on audit_log for all using (auth.uid() = user_id) with check (auth.uid() = user_id);"
-  ].join('\n');
-}
-
-/** Per-client README committed alongside the generated system. */
+/** README.md bundled with each generated RN client repo. */
 function buildRnReadme(o) {
   return [
-'# ' + (o.businessName || 'RN Management System'),
-'',
-'Generated by CareDesk Pro on ' + o.generatedAt + ' (client `' + o.clientId + '`).',
-'',
-'This repo is a ready-to-deploy RN management system. Business details and',
-'Supabase keys are already baked into `index.html` — no build step required.',
-'',
-'## Deploy',
-'1. Push this folder to a new GitHub repository.',
-'2. Settings → Pages → Deploy from `main` branch.',
-'3. In Supabase: SQL Editor → run `supabase-schema.sql`.',
-'4. Supabase → Authentication → Users → add the admin user (' + (o.adminEmail || 'admin email') + ').',
-'5. Open the GitHub Pages URL and log in.',
-'',
-'## Files',
-'- `index.html` — the RN system, pre-filled with this client\'s data.',
-'- `onboarding.json` — the onboarding record fed into the template.',
-'- `manifest.json` — PWA manifest.',
-'- `supabase-schema.sql` — database schema (RLS scoped per user).',
-'- `assets/logo.png` — brand logo (replace if a text placeholder was used).'
+    '# ' + (o.businessName || 'RN Management System'),
+    '',
+    'CareDesk RN system generated on ' + o.generatedAt + '.',
+    'Client ID: `' + o.clientId + '`',
+    '',
+    'This repository is a ready-to-deploy RN delegation management system.',
+    'The Supabase project URL and anon key are already baked into `index.html`.',
+    '**No build step is required.** Push and deploy.',
+    '',
+    '## Quick Deploy',
+    '',
+    '1. Push this folder to a new GitHub repository.',
+    '2. **Settings → Pages → Source: Deploy from branch `main` → Save.**',
+    '3. In your Supabase project: **SQL Editor → New query** → paste `supabase-schema.sql` → **Run**.',
+    '4. **Authentication → Users → Invite user** → add `' + (o.adminEmail || 'admin email') + '` and set a password.',
+    '5. Open the GitHub Pages URL and sign in.',
+    '',
+    '## Files',
+    '',
+    '| File | Purpose |',
+    '|------|---------|',
+    '| `index.html` | The full RN app — pre-filled with this client\'s data. |',
+    '| `onboarding.json` | Business details record from the onboarding wizard. |',
+    '| `supabase-schema.sql` | Run once in the client\'s Supabase project. |',
+    '| `manifest.json` | PWA manifest for home-screen installation. |',
+    '| `assets/logo.png` | Brand logo (replace if placeholder text was used). |',
+    '',
+    '## Managed by',
+    '',
+    'CareDesk Pro operator: ' + (o.owner || '') + ' · ' + (o.ownerEmail || ''),
+    'Billing: ' + (o.billingEmail || '')
   ].join('\n');
 }
 
-// ── CareDesk RN system (legacy inline placeholder — no longer used; kept for reference) ──
+// ── Legacy inline RN builder — no longer called, kept for reference ──
 function buildRnSystem(tokens, d) {
   const nav = [
     { page: 'dashboard.html', label: 'Dashboard' }, { page: 'clients.html', label: 'AFH Clients' },
