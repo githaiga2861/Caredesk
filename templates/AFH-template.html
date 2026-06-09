@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Harmony Living House — Admin</title>
+<title>__CLIENT_NAME__ — Admin</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="favicon.ico">
@@ -1064,7 +1064,7 @@
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
-  <img src="harmony_living_house_logo.png" 
+  <img src="__LOGO_SRC__" 
        style="width:140px; height:140px; object-fit:contain; display:block; margin:0 auto 12px;">
 </div>
     <h2>Staff Login</h2>
@@ -1081,7 +1081,7 @@
     </button>
     <div class="auth-error" id="auth-error">Invalid credentials. Please try again.</div>
     <p style="margin-top:20px; font-size:12px; color:var(--text3); text-align:center;">
-      Capture every progress
+      __TAGLINE__
     </p>
   </div>
 </div>
@@ -1090,7 +1090,7 @@
   background:#ffffff; flex-direction:column; align-items:center;
   justify-content:center; padding:32px; text-align:center;">
 
-  <img src="harmony_living_house_logo.png"
+  <img src="__LOGO_SRC__"
        style="width:110px; height:110px; object-fit:contain;
               mix-blend-mode:normal; margin-bottom:32px;">
 
@@ -1115,7 +1115,7 @@
 
   <div style="margin-top:28px; font-size:12px; color:rgba(0,0,0,0.35);
               font-family:'Georgia',serif;">
-    Harmony Living House Adult Family LLC
+    __CLIENT_NAME__
   </div>
 
 </div>
@@ -1126,7 +1126,7 @@
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-brand">
-        <img src="harmony_living_house_logo.png" alt="Harmony Living House" class="sidebar-logo">
+        <img src="__LOGO_SRC__" alt="__CLIENT_NAME__" class="sidebar-logo">
         <div class="sidebar-portal-label">Admin Portal</div>
       </div>
       <div class="sidebar-nav">
@@ -1848,7 +1848,7 @@
         <div class="page" id="page-alerts">
           <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
             <div>
-              <div style="font-size:13px;color:var(--text3);margin-top:3px;">Automated alerts are checked every time this page loads and sent to <strong>hello@harmonylivinghouse.com</strong></div>
+              <div style="font-size:13px;color:var(--text3);margin-top:3px;">Automated alerts are checked every time this page loads and sent to <strong>__ALERT_EMAIL__</strong></div>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
               <button onclick="runAllAlertChecks(true)" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;">
@@ -1921,7 +1921,7 @@
             <div class="card-header"><h3>⚙️ Alert Configuration</h3></div>
             <div class="card-body">
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
-                <div class="field"><label>Alert Email Address</label><input type="email" id="alert-email-config" value="hello@harmonylivinghouse.com" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;"></div>
+                <div class="field"><label>Alert Email Address</label><input type="email" id="alert-email-config" value="__ALERT_EMAIL__" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;"></div>
                 <div class="field"><label>Notes Reminder Interval (hours)</label><input type="number" id="alert-notes-interval" value="48" min="12" max="168" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;"></div>
                 <div class="field"><label>Vitals Reminder Interval (hours)</label><input type="number" id="alert-vitals-interval" value="48" min="12" max="168" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;"></div>
               </div>
@@ -2011,7 +2011,7 @@
     <div class="modal-body">
       <div class="field">
         <label>Recipient Email</label>
-        <input type="email" id="manual-alert-to" value="hello@harmonylivinghouse.com">
+        <input type="email" id="manual-alert-to" value="__ALERT_EMAIL__">
       </div>
       <div class="field">
         <label>Subject *</label>
@@ -2084,7 +2084,7 @@
             <div class="card-header" style="background:linear-gradient(135deg,#1a1a1a,#b8860b);border-radius:10px 10px 0 0;padding:16px 22px;">
               <div>
                 <div style="color:#fff;font-family:'DM Serif Display',serif;font-size:17px;">Staff New Employee Orientation Checklist</div>
-                <div style="color:rgba(255,255,255,0.6);font-size:11px;margin-top:2px;">Harmony Living House Adult Family LLC · 120 Newaukum Village Dr, Chehalis, WA 98532</div>
+                <div style="color:rgba(255,255,255,0.6);font-size:11px;margin-top:2px;">__CLIENT_NAME__ · __CLIENT_ADDRESS__</div>
               </div>
               <div style="display:flex;gap:8px;">
                 <button onclick="printOrientationForm()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🖨️ Print</button>
@@ -2184,7 +2184,7 @@
             <div class="card-header" style="background:linear-gradient(135deg,#1a2a6b,#2563eb);border-radius:10px 10px 0 0;padding:16px 22px;">
               <div>
                 <div style="color:#fff;font-family:'DM Serif Display',serif;font-size:17px;">Caregiver Credentials Checklist</div>
-                <div style="color:rgba(255,255,255,0.6);font-size:11px;margin-top:2px;">Harmony Living House Adult Family LLC · 120 Newaukum Village Dr, Chehalis, WA 98532</div>
+                <div style="color:rgba(255,255,255,0.6);font-size:11px;margin-top:2px;">__CLIENT_NAME__ · __CLIENT_ADDRESS__</div>
               </div>
               <div style="display:flex;gap:8px;">
                 <button onclick="printCredentialsForm()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🖨️ Print</button>
@@ -4196,11 +4196,85 @@
 </button>
 <div id="toast"></div>
 <script>
- const SUPABASE_URL = 'https://gkmvglzjrsneqkrlvohp.supabase.co';
- const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrbXZnbHpqcnNuZXFrcmx2b2hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTU0NTMsImV4cCI6MjA5MDI3MTQ1M30.bcGB06-v9xmJmgkY-4KbnHPgi13qP7_ng-BJHifd0UY';
+ const SUPABASE_URL = '__SUPA_URL__';
+ const SUPABASE_KEY = '__SUPA_KEY__';
+ const MASTER_SUPABASE_URL = '__MASTER_SUPA_URL__';
+ const MASTER_SUPABASE_KEY = '__MASTER_SUPA_KEY__';
+ const CLIENT_ID = '__CLIENT_ID__';
  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+ const masterDb = (MASTER_SUPABASE_URL && MASTER_SUPABASE_URL !== '__MASTER_SUPA_URL__')
+   ? supabase.createClient(MASTER_SUPABASE_URL, MASTER_SUPABASE_KEY) : null;
 
-  // ══════════════════════════════════
+  
+// ══════════════════════════════════
+// LOCKOUT POLLER — reads from CareDesk Pro master DB
+// ══════════════════════════════════
+async function fetchLockoutState() {
+  if (!masterDb || !CLIENT_ID || CLIENT_ID === '__CLIENT_ID__') return;
+  try {
+    const { data } = await masterDb
+      .from('caredesk_clients')
+      .select('lockout_level, days_overdue, subscription_status')
+      .eq('client_id', CLIENT_ID)
+      .maybeSingle();
+    if (!data) return;
+    applyLockout(data.lockout_level || 0, data.days_overdue || 0);
+  } catch (e) { /* silent — system works offline */ }
+}
+
+function applyLockout(level, daysOverdue) {
+  const prev = document.getElementById('cd-lockout-overlay');
+  if (prev) prev.remove();
+  if (level === 0) return;
+
+  if (level >= 1) {
+    if (!window._cdLockToastFired) {
+      window._cdLockToastFired = true;
+      toast('Hi — your CareDesk subscription needs attention. Your system is fully active.');
+      setInterval(() => {
+        toast('Friendly reminder: your CareDesk subscription payment is overdue. All your data is safe.');
+      }, 600000);
+    }
+  }
+
+  if (level >= 2) {
+    if (!document.getElementById('cd-overdue-banner')) {
+      const b = document.createElement('div');
+      b.id = 'cd-overdue-banner';
+      b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(90deg,#5a3a00,#d68910);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:12px;font-family:inherit;font-size:13px;font-weight:600;';
+      b.innerHTML = '<span>⚠️</span><span>Your CareDesk subscription is ' + (daysOverdue || 'a few') + ' days overdue. Your data is safe.</span>';
+      document.body.insertBefore(b, document.body.firstChild);
+      const main = document.querySelector('.main');
+      if (main) main.style.paddingTop = '44px';
+    }
+  }
+
+  if (level >= 3 && !sessionStorage.getItem('cd_lock3_dismissed')) {
+    const bg = document.createElement('div');
+    bg.id = 'cd-lockout-overlay';
+    bg.style.cssText = 'position:fixed;inset:0;background:rgba(10,12,16,0.55);backdrop-filter:blur(8px);z-index:99998;display:grid;place-items:center;padding:20px;';
+    bg.innerHTML = '<div style="background:#fff;border-radius:16px;padding:32px 28px;max-width:440px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.3);text-align:center;">'
+      + '<div style="font-size:40px;margin-bottom:12px;">💳</div>'
+      + '<div style="font-size:18px;font-weight:700;color:#1a2332;margin-bottom:10px;">A note about your account</div>'
+      + '<div style="font-size:13px;color:#555;line-height:1.7;margin-bottom:22px;">Your CareDesk subscription needs attention. All your data is safe and secure.</div>'
+      + '<div style="display:flex;gap:10px;justify-content:center;">'
+      + '<a href="https://caredesk.lemonsqueezy.com" target="_blank" rel="noopener" style="background:#b8860b;color:#fff;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;text-decoration:none;">Pay now</a>'
+      + '<button id="cd-dismiss-lock3" style="background:#f0f2f5;color:#555;border:none;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer;font-family:inherit;">Continue to my data</button>'
+      + '</div></div>';
+    document.body.appendChild(bg);
+    document.getElementById('cd-dismiss-lock3').onclick = () => {
+      sessionStorage.setItem('cd_lock3_dismissed', '1');
+      bg.remove();
+    };
+  }
+}
+
+function startLockoutPoller() {
+  fetchLockoutState();
+  setInterval(fetchLockoutState, 60000);
+}
+
+// ══════════════════════════════════
 // MAINTENANCE BANNER — Supabase synced
 // ══════════════════════════════════
 
@@ -4269,10 +4343,7 @@ function subscribeMaintenanceRealtime() {
 // ══════════════════════════════════
 // DATA LAYER — localStorage
 // ══════════════════════════════════
-const USERS = [
-  { email: 'hello@harmonylivinghouse.com', password: 'harmony2026', name: 'Penninah Nyandia' },
-  { email: 'josegithaigajose6218@gmail.com', password: 'staff2026', name: 'Githaiga Njoroge' }
-];
+const USERS = __ADMIN_USERS_JSON__;
 
 let currentUser = null;
 let currentResidentId = null;
@@ -4400,6 +4471,9 @@ function initApp() {
   startMaintenancePoller();
   subscribeMaintenanceRealtime();
   seedExistingStaff();
+  if (masterDb && CLIENT_ID && CLIENT_ID !== '__CLIENT_ID__') {
+    startLockoutPoller();
+  }
 }
 
 async function seedExistingStaff() {
@@ -5883,7 +5957,7 @@ function buildIncidentHTML(r) {
 </style></head><body>
 <div class="header">
   <img src="harmony_living_house_logo.png" alt="Logo">
-  <div class="org-name">Harmony Living House Adult Family LLC</div>
+  <div class="org-name">__CLIENT_NAME__</div>
   <div class="doc-title">Incident Report</div>
 </div>
 
@@ -6241,8 +6315,8 @@ async function printVitalsSheet() {
 </style></head><body>
 <div class="header">
   <img src="harmony_living_house_logo.png" alt="Logo">
-  <div class="org">Harmony Living House Adult Family LLC</div>
-  <div class="addr">120 Newaukum Village Dr &nbsp;|&nbsp; Chehalis, WA 98532</div>
+  <div class="org">__CLIENT_NAME__</div>
+  <div class="addr">__CLIENT_ADDRESS__</div>
   <div class="title">Vitals Sheet</div>
 </div>
 <table>
@@ -8045,7 +8119,7 @@ async function printMonthlyDetailedReport(monthKey) {
       <tbody>${rows}</tbody>
       <tfoot><tr class="total-row"><td colspan="8" style="text-align:right;">TOTAL INCOME — ${monthLabel.toUpperCase()}</td><td style="text-align:right;">${fmt2(total)}</td></tr></tfoot>
     </table>
-    <div class="footer-note">Harmony Living House Adult Family LLC · 120 Newaukum Village Dr, Chehalis, WA 98532 · WAC 388-76 / RCW 70.128</div>`;
+    <div class="footer-note">__CLIENT_NAME__ · __CLIENT_ADDRESS__ · WAC 388-76 / RCW 70.128</div>`;
   openReportWindow(html, `Income Report — ${monthLabel}`);
 }
 
@@ -8076,7 +8150,7 @@ async function printMonthlyExpenseReport(monthKey) {
       <tbody>${rows}</tbody>
       <tfoot><tr class="total-row"><td colspan="7" style="text-align:right;">TOTAL EXPENSES — ${monthLabel.toUpperCase()}</td><td style="text-align:right;">${fmt2(total)}</td></tr></tfoot>
     </table>
-    <div class="footer-note">Harmony Living House Adult Family LLC · 120 Newaukum Village Dr, Chehalis, WA 98532 · WAC 388-76 / RCW 70.128</div>`;
+    <div class="footer-note">__CLIENT_NAME__ · __CLIENT_ADDRESS__ · WAC 388-76 / RCW 70.128</div>`;
   openReportWindow(html, `Expense Report — ${monthLabel}`);
 }
 
@@ -8182,8 +8256,8 @@ async function printReceipt(id) {
 </style></head><body>
 <div class="header">
   <img src="harmony_living_house_logo.png" alt="Harmony Living House Logo">
-  <div class="org-name">Harmony Living House Adult Family LLC</div>
-  <div class="org-sub">120 Newaukum Village Dr &nbsp;·&nbsp; Chehalis, WA 98532</div>
+  <div class="org-name">__CLIENT_NAME__</div>
+  <div class="org-sub">__CLIENT_ADDRESS__</div>
   <div class="org-sub">Washington State Licensed Adult Family Home</div>
 </div>
 
@@ -8410,7 +8484,7 @@ async function printIncomeReport() {
       }).join('')}
       <div class="summary-row"><span><strong>GRAND TOTAL</strong></span><span class="net-positive"><strong>$${total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span></div>
     </div>
-    <div class="footer-note">Maintained per RCW 70.128.130(15) &amp; WAC 388-76. Retain 5+ years. Harmony Living House Adult Family LLC · 120 Newaukum Village Dr, Chehalis, WA 98532</div>`;
+    <div class="footer-note">Maintained per RCW 70.128.130(15) &amp; WAC 388-76. Retain 5+ years. __CLIENT_NAME__ · __CLIENT_ADDRESS__</div>`;
   openReportWindow(html, 'Income Register — Harmony Living House');
 }
 
@@ -8448,7 +8522,7 @@ async function printExpenseReport() {
       }).join('')}
       <div class="summary-row"><span><strong>TOTAL EXPENSES</strong></span><span class="net-negative"><strong>$${total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span></div>
     </div>
-    <div class="footer-note">Maintained per RCW 70.128.130(15) &amp; WAC 388-76. Retain 5+ years. Harmony Living House Adult Family LLC · 120 Newaukum Village Dr, Chehalis, WA 98532</div>`;
+    <div class="footer-note">Maintained per RCW 70.128.130(15) &amp; WAC 388-76. Retain 5+ years. __CLIENT_NAME__ · __CLIENT_ADDRESS__</div>`;
   openReportWindow(html, 'Expense Register — Harmony Living House');
 }
 
@@ -8502,7 +8576,7 @@ async function printPLSummary() {
       <div class="summary-row"><span>Total Expenses</span><span class="net-negative">($${totalExp.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})})</span></div>
       <div class="summary-row"><span><strong>NET INCOME</strong></span><span style="color:${netTotal>=0?'#1e7e34':'#c0392b'};font-size:15px;"><strong>${netTotal<0?'-$':'$'}${Math.abs(netTotal).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span></div>
     </div>
-    <div class="footer-note">Prepared per RCW 70.128.130(15) &amp; WAC 388-76. Harmony Living House Adult Family LLC · 120 Newaukum Village Dr, Chehalis, WA 98532</div>`;
+    <div class="footer-note">Prepared per RCW 70.128.130(15) &amp; WAC 388-76. __CLIENT_NAME__ · __CLIENT_ADDRESS__</div>`;
   openReportWindow(html, 'P&L Summary — Harmony Living House');
 }
 
@@ -9616,9 +9690,9 @@ function buildOrientationHTML() {
   return `
     <div style="text-align:center;margin-bottom:14px;">
       <img src="harmony_living_house_logo.png" alt="Logo" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 6px;">
-      <div style="font-size:18px;font-weight:bold;text-transform:uppercase;letter-spacing:0.04em;">Harmony Living House Adult Family LLC</div>
-      <div style="font-size:13px;">120 Newaukum Village Dr</div>
-      <div style="font-size:13px;margin-bottom:14px;">Chehalis, WA 98532</div>
+      <div style="font-size:18px;font-weight:bold;text-transform:uppercase;letter-spacing:0.04em;">__CLIENT_NAME__</div>
+      <div style="font-size:13px;">__CLIENT_ADDRESS__</div>
+      <div style="font-size:13px;margin-bottom:14px;"></div>
     </div>
 
     <div style="margin-bottom:10px;font-size:12.5px;line-height:2.1;">
@@ -9738,7 +9812,7 @@ function buildCredentialsHTML() {
   return `
     <div style="text-align:center;margin-bottom:16px;">
       <img src="harmony_living_house_logo.png" alt="Logo" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 6px;">
-      <div style="font-size:18px;font-weight:bold;text-transform:uppercase;letter-spacing:0.04em;">Harmony Living House Adult Family LLC</div>
+      <div style="font-size:18px;font-weight:bold;text-transform:uppercase;letter-spacing:0.04em;">__CLIENT_NAME__</div>
       <div style="font-size:13px;">120 Newaukum Village Dr</div>
       <div style="font-size:13px;margin-bottom:12px;">Chehalis, WA 98532</div>
       <div style="font-size:15px;font-weight:bold;margin-bottom:14px;">Caregiver Credentials Checklist</div>
@@ -10972,12 +11046,12 @@ function togglePayTag(btn) {
 // ALERTS & AUTOMATED NOTIFICATIONS
 // ══════════════════════════════════
 
-const ALERT_EMAIL = 'hello@harmonylivinghouse.com';
+const ALERT_EMAIL = '__ALERT_EMAIL__';
 const ALERT_LOG_TABLE = 'alert_log';
 const ALERT_THROTTLE_HOURS = 6; // Min hours between same alert type emails
 
 // ── Supabase Edge Function URL ──
-const ALERT_EDGE_FN_URL = 'https://gkmvglzjrsneqkrlvohp.supabase.co/functions/v1/send-alert';
+const ALERT_EDGE_FN_URL = '__SUPA_URL__/functions/v1/send-alert';
 
 function getAlertConfig() {
   try { return JSON.parse(localStorage.getItem('hlh_alert_config')) || {}; } catch { return {}; }
@@ -11094,7 +11168,7 @@ function buildAlertEmailHtml(title, intro, items, color) {
         <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8dfc8;border-radius:8px;overflow:hidden;"><tbody>${itemRows}</tbody></table>
       </td></tr>
       <tr><td style="padding:20px 32px;border-top:1px solid #f0e8d0;background:#faf7f2;">
-        <div style="font-size:11px;color:#999;line-height:1.6;">Generated by Harmony Living House Admin Portal · 120 Newaukum Village Dr, Chehalis, WA 98532<br>
+        <div style="font-size:11px;color:#999;line-height:1.6;">Generated by __CLIENT_NAME__ Admin Portal · __CLIENT_ADDRESS__<br>
         <em>Sent: ${new Date().toLocaleDateString('en-US',{timeZone:'America/Los_Angeles',month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})} PT</em></div>
       </td></tr>
     </table></td></tr></table></body></html>`;

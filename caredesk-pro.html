@@ -587,7 +587,7 @@ table.data tbody tr:last-child td { border-bottom: none; }
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               <input type="text" id="crm-search" placeholder="Search by client name or email…">
             </div>
-            <select id="crm-filter-type"><option value="all">All types</option><option value="home">CareDesk Home</option><option value="rn">CareDesk RN</option></select>
+            <select id="crm-filter-type"><option value="all">All types</option><option value="home">CareDesk AFH Home</option><option value="rn">CareDesk RN</option></select>
             <select id="crm-filter-status"><option value="all">All statuses</option><option value="active">Active</option><option value="overdue">Overdue</option><option value="locked">Locked</option><option value="trial">Trial</option><option value="cancelled">Cancelled</option></select>
             <select id="crm-sort"><option value="name">Sort: Name</option><option value="overdue">Sort: Days overdue</option><option value="payment">Sort: Last payment</option><option value="mrr">Sort: MRR</option></select>
             <button class="btn btn-secondary btn-sm" id="crm-refresh">Refresh</button>
@@ -931,9 +931,9 @@ function renderStep1() {
         <div class="tc-check">✓</div>
         <div class="price">$49.99/mo</div>
         <div class="tc-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
-        <h3>CareDesk Home</h3>
-        <div class="tc-sub">Adult Family Home System</div>
-        <p>Full facility admin for AFH operators. Residents, ADLs, vitals, payments, staff wages, DSHS compliance, incidents.</p>
+        <h3>CareDesk AFH Home</h3>
+        <div class="tc-sub">Adult Family Home — Full System</div>
+        <p>Complete facility admin using the production-grade AFH template. Residents, ADLs, vitals, payments, staff wages, DSHS compliance, incidents, alerts, and more.</p>
       </div>
       <div class="type-card" data-type="rn">
         <div class="tc-check">✓</div>
@@ -1175,7 +1175,8 @@ async function generateSystem() {
     // 3. assemble files via the template engine
     let files;
     if (d.systemType === 'home') {
-      files = buildHomeSystem(tokens, d);
+      const onboarding = buildOnboardingData(d, clientId, fullAddr);
+      files = await buildAfhSystemFromTemplate(tokens, d, onboarding);
     } else {
       const onboarding = buildOnboardingData(d, clientId, fullAddr);
       files = await buildRnSystemFromTemplate(tokens, d, onboarding);
@@ -1183,7 +1184,7 @@ async function generateSystem() {
 
     // 4. zip
     const zip = new JSZip();
-    const folder = (d.systemType === 'home' ? 'caredesk-home-' : 'caredesk-rn-') + clientId;
+    const folder = (d.systemType === 'home' ? 'caredesk-afh-' : 'caredesk-rn-') + clientId;
     const root = zip.folder(folder);
     Object.entries(files).forEach(([path, content]) => root.file(path, content));
     if (d.logoBase64 && d.logoBase64.includes(',')) {
@@ -1214,7 +1215,7 @@ async function registerClient(d, clientId, fullAddr) {
   const sb = CDP.supabase;
   if (!sb) { showToast('Generated, but not registered — connect master Supabase in Settings.', 'info'); return; }
   try {
-    const planName = d.systemType === 'home' ? 'CareDesk Home' : 'CareDesk RN';
+    const planName = d.systemType === 'home' ? 'CareDesk AFH Home' : 'CareDesk RN';
     const planPrice = d.systemType === 'home' ? 49.99 : 29.99;
     const { error } = await sb.from('caredesk_clients').insert({
       client_id: clientId, system_type: d.systemType, official_name: d.officialName,
@@ -1234,6 +1235,7 @@ async function registerClient(d, clientId, fullAddr) {
 
 function showSuccessScreen(d, clientId) {
   const isRn = d.systemType === 'rn';
+  const isHome = d.systemType === 'home';
   const steps = isRn ? [
     'Unzip the downloaded file',
     `Create a new GitHub repository named: ${d.subdomain || 'client'}-rn`,
@@ -1246,6 +1248,19 @@ function showSuccessScreen(d, clientId) {
     'Open the GitHub Pages URL — Supabase keys and business details are already baked in',
     'Sign in and verify all pages load correctly',
     'Share the GitHub Pages URL with your client'
+  ] : isHome ? [
+    'Unzip the downloaded file',
+    `Create a new GitHub repository named: ${d.subdomain || 'client'}-home`,
+    'Push all files to the repository (keep the assets/ folder)',
+    'Go to Settings → Pages → Deploy from the main branch',
+    'Open your Supabase project at supabase.com',
+    'SQL Editor → New query → paste and run the HOME schema (CareDesk Pro → Settings → CareDesk Home)',
+    'The admin login credentials are already baked into index.html from your onboarding answers',
+    'Open the GitHub Pages URL — all business details, Supabase keys, and branding are pre-injected',
+    'Sign in and verify all modules load correctly',
+    'Set up the Lemon Squeezy subscription for this client',
+    'Share the GitHub Pages URL with your client',
+    'Update the system URL in the CareDesk Pro Client CRM'
   ] : [
     'Unzip the downloaded file',
     'Open config.js and verify all details are correct',
@@ -1354,7 +1369,7 @@ function statusBadge(s) {
   const map = { active: 'Active', overdue: 'Overdue', locked: 'Locked', trial: 'Trial', cancelled: 'Cancelled' };
   return `<span class="badge ${s || 'trial'}">${map[s] || 'Trial'}</span>`;
 }
-function typeBadge(t) { return t === 'home' ? '<span class="badge home">Home</span>' : '<span class="badge rn">RN</span>'; }
+function typeBadge(t) { return t === 'home' ? '<span class="badge home">AFH Home</span>' : '<span class="badge rn">RN</span>'; }
 function lockChip(level) { return `<span class="lockchip"><span class="lvl lvl-${level || 0}">${level || 0}</span></span>`; }
 
 /** Apply current search/filter/sort and render the client table. */
@@ -2359,11 +2374,11 @@ function renderSettings() {
       <h3>Client database schemas</h3>
       <div class="panel-sub">Run the matching schema in each new client's Supabase project.</div>
       <div class="pill-tabs" id="client-schema-tabs">
-        <button class="on" data-cs="home">CareDesk Home</button>
+        <button class="on" data-cs="home">CareDesk AFH Home</button>
         <button data-cs="rn">CareDesk RN</button>
       </div>
       <div style="display:flex;gap:10px;margin-bottom:12px">
-        <button class="btn btn-secondary btn-sm" id="copy-home-schema">Copy Home schema</button>
+        <button class="btn btn-secondary btn-sm" id="copy-home-schema">Copy AFH Home schema</button>
         <button class="btn btn-secondary btn-sm" id="copy-rn-schema">Copy RN schema</button>
       </div>
       <div class="codeblock" id="client-sql">${esc(HOME_SCHEMA_SQL)}</div>
@@ -2817,13 +2832,15 @@ function buildHomeSystem(tokens, d) {
 
 /** Path to the RN template, relative to caredesk-pro.html. */
 const RN_TEMPLATE_PATH = 'templates/rn-system.html';
+/** Path to the AFH template, relative to caredesk-pro.html. */
+const AFH_TEMPLATE_PATH = 'templates/AFH-template.html';
 
 /** Build the onboarding data object written to onboarding.json.
  *  The admin password is intentionally excluded — never commit it. */
 function buildOnboardingData(d, clientId, fullAddr) {
   return {
     clientId:      clientId,
-    systemType:    'rn',
+    systemType:    d.systemType || 'home',
     generatedAt:   new Date().toISOString(),
     businessName:  d.officialName  || '',
     tagline:       d.tagline       || '',
@@ -2844,7 +2861,13 @@ function buildOnboardingData(d, clientId, fullAddr) {
     logoBase64:    d.logoBase64    || '',
     supaUrl:       d.supaUrl       || '',
     supaKey:       d.supaKey       || '',
-    adminEmail:    d.adminEmail    || d.email || ''
+    adminEmail:    d.adminEmail    || d.email || '',
+    masterSupaUrl: lsGet(LS.masterUrl) || '',
+    masterSupaKey: lsGet(LS.masterKey) || '',
+    alertEmail:    d.billing || d.email || '',
+    adminUsers:    JSON.stringify([
+      { email: d.adminEmail || d.email, password: d.adminPass, name: d.owner || 'Admin' }
+    ])
   };
 }
 
@@ -2866,6 +2889,96 @@ function injectOnboardingIntoTemplate(tpl, onboarding) {
     out = block + '\n' + out;
   }
   return out;
+}
+
+/** Inject onboarding tokens into the AFH template and return the file map. */
+async function buildAfhSystemFromTemplate(tokens, d, onboarding) {
+  let tpl;
+  try {
+    const res = await fetch(AFH_TEMPLATE_PATH, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' — ' + res.statusText);
+    tpl = await res.text();
+  } catch (e) {
+    throw new Error(
+      'Could not load the AFH template from "' + AFH_TEMPLATE_PATH + '". ' +
+      'Make sure templates/AFH-template.html is committed in the same repo as caredesk-pro.html, ' +
+      'and that you are running CareDesk Pro over https:// (GitHub Pages) ' +
+      'rather than from a local file:// path. (' + (e.message || e) + ')'
+    );
+  }
+
+  const out = injectAfhTokens(tpl, onboarding);
+  const files = {};
+  files['index.html']      = out;
+  files['onboarding.json'] = JSON.stringify(
+    Object.assign({}, onboarding, { adminPass: '(excluded)', adminUsers: '(excluded)' }),
+    null, 2
+  );
+  files['README.md']       = buildAfhReadme(onboarding);
+  return files;
+}
+
+/** Replace all __TOKEN__ placeholders in the AFH template. */
+function injectAfhTokens(tpl, o) {
+  const nameUpper = (o.businessName || '').toUpperCase();
+  const map = {
+    '__SUPA_URL__':          o.supaUrl        || '',
+    '__SUPA_KEY__':          o.supaKey        || '',
+    '__MASTER_SUPA_URL__':   o.masterSupaUrl  || '',
+    '__MASTER_SUPA_KEY__':   o.masterSupaKey  || '',
+    '__CLIENT_ID__':         o.clientId       || '',
+    '__CLIENT_NAME__':       o.businessName   || 'Care Facility',
+    '__CLIENT_NAME_UPPER__': nameUpper,
+    '__CLIENT_ADDRESS__':    o.address        || '',
+    '__ALERT_EMAIL__':       o.alertEmail     || o.ownerEmail || '',
+    '__LOGO_SRC__':          o.logoBase64     || 'assets/logo.png',
+    '__TAGLINE__':           o.tagline        || 'Capture every progress',
+    '__ADMIN_USERS_JSON__':  o.adminUsers     ||
+      JSON.stringify([{ email: o.adminEmail || o.ownerEmail, password: '', name: o.owner || 'Admin' }])
+  };
+  let out = tpl;
+  Object.entries(map).forEach(([k, v]) => {
+    out = out.split(k).join(v == null ? '' : String(v));
+  });
+  return out;
+}
+
+/** README.md for each generated AFH client repo. */
+function buildAfhReadme(o) {
+  return [
+    '# ' + (o.businessName || 'CareDesk Home System'),
+    '',
+    'CareDesk Home system generated on ' + o.generatedAt + '.',
+    'Client ID: `' + o.clientId + '`',
+    '',
+    'This is a ready-to-deploy Adult Family Home management system.',
+    'The Supabase project URL and anon key are already injected into `index.html`.',
+    '**No build step is required.** Push and deploy.',
+    '',
+    '## Quick Deploy',
+    '',
+    '1. Push this folder to a new GitHub repository.',
+    '2. **Settings → Pages → Source: Deploy from branch `main` → Save.**',
+    '3. In your Supabase project: **SQL Editor → New query** → run the HOME schema',
+    '   (copy from CareDesk Pro → Settings → Client schemas → CareDesk Home).',
+    '4. The admin login is pre-filled from your onboarding answers —',
+    '   sign in at the GitHub Pages URL with the email + password you set.',
+    '5. Set up the Lemon Squeezy subscription for this client.',
+    '6. Update the system URL in the CareDesk Pro Client CRM.',
+    '',
+    '## Files',
+    '',
+    '| File | Purpose |',
+    '|------|---------|',
+    '| `index.html` | The full CareDesk Home app — pre-filled with this client\'s data. |',
+    '| `onboarding.json` | Business details record from the onboarding wizard. |',
+    '| `assets/logo.png` | Brand logo (replace if placeholder text was used). |',
+    '',
+    '## Managed by',
+    '',
+    'CareDesk Pro operator: ' + (o.owner || '') + ' · ' + (o.ownerEmail || ''),
+    'Billing: ' + (o.billingEmail || '')
+  ].join('\n');
 }
 
 /** Fetch the external RN template, inject onboarding data, and return
