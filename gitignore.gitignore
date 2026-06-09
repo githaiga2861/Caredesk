@@ -1,0 +1,28 @@
+# Environment / secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+*.local
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if you ever add tooling)
+node_modules/
+dist/
+build/
+
+# Generated zips (downloaded, not committed)
+*.zip
