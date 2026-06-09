@@ -2867,7 +2867,9 @@ function buildOnboardingData(d, clientId, fullAddr) {
     alertEmail:    d.billing || d.email || '',
     adminUsers:    JSON.stringify([
       { email: d.adminEmail || d.email, password: d.adminPass, name: d.owner || 'Admin' }
-    ])
+    ]),
+    clientInitials: (d.business || d.businessName || '').split(/\s+/).filter(Boolean)
+      .slice(0,3).map(w => w[0].toUpperCase()).join('')
   };
 }
 
@@ -2875,10 +2877,27 @@ function buildOnboardingData(d, clientId, fullAddr) {
  *  and inject a window.__CDP_ONBOARD__ block at the top of <head>
  *  so the app can self-brand on load without any build step. */
 function injectOnboardingIntoTemplate(tpl, onboarding) {
-  let out = tpl
-    .split('__SUPA_URL__').join(onboarding.supaUrl || '')
-    .split('__SUPA_KEY__').join(onboarding.supaKey || '');
-
+  const nameUpper = (onboarding.businessName || '').toUpperCase();
+  const initials  = onboarding.clientInitials ||
+    (onboarding.businessName || '').split(/\s+/).filter(Boolean)
+      .slice(0,3).map(w => w[0].toUpperCase()).join('');
+  const tokenMap = {
+    '__SUPA_URL__':          onboarding.supaUrl        || '',
+    '__SUPA_KEY__':          onboarding.supaKey        || '',
+    '__MASTER_SUPA_URL__':   onboarding.masterSupaUrl  || '',
+    '__MASTER_SUPA_KEY__':   onboarding.masterSupaKey  || '',
+    '__CLIENT_ID__':         onboarding.clientId       || '',
+    '__CLIENT_NAME__':       onboarding.businessName   || 'Care Facility',
+    '__CLIENT_NAME_UPPER__': nameUpper,
+    '__CLIENT_INITIALS__':   initials,
+    '__CLIENT_ADDRESS__':    onboarding.address        || '',
+    '__ALERT_EMAIL__':       onboarding.alertEmail     || onboarding.ownerEmail || '',
+    '__LOGO_SRC__':          onboarding.logoBase64     || 'assets/logo.png',
+    '__TAGLINE__':           onboarding.tagline        || 'Capture every progress',
+    '__ADMIN_USERS_JSON__':  onboarding.adminUsers     ||
+      JSON.stringify([{ email: onboarding.adminEmail || onboarding.ownerEmail,
+                        password: '', name: onboarding.owner || 'Admin' }])
+  };
   // JSON.stringify is safe to embed; base64 data-URIs never contain "<"
   const block = `<script id="cdp-onboard">window.__CDP_ONBOARD__ = ${JSON.stringify(onboarding)};<\/script>`;
 

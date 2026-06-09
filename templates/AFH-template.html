@@ -5148,9 +5148,9 @@ function printNote() {
 </style>
 </head><body>
 <div class="header">
-  <img src="harmony_living_house_logo.png" alt="Logo">
-  <div class="org-name">Harmony Living House Adult Family LLC</div>
-  <div class="org-address">120 Newaukum Village Dr &nbsp;|&nbsp; Chehalis, WA 98532</div>
+  <img src="__LOGO_SRC__" alt="Logo">
+  <div class="org-name">__CLIENT_NAME__</div>
+  <div class="org-address">__CLIENT_ADDRESS__</div>
   <div class="doc-title">Progress Notes</div>
 </div>
 <div class="meta-row">
@@ -5225,12 +5225,12 @@ async function exportPDF() {
 
     doc.setFont('times', 'bold');
     doc.setFontSize(16);
-    doc.text('HARMONY LIVING HOUSE ADULT FAMILY LLC', pageW / 2, y, { align: 'center' });
+    doc.text('__CLIENT_NAME_UPPER__', pageW / 2, y, { align: 'center' });
     y += 20;
 
     doc.setFont('times', 'normal');
     doc.setFontSize(11);
-    doc.text('120 Newaukum Village Dr  |  Chehalis, WA 98532', pageW / 2, y, { align: 'center' });
+    doc.text('__CLIENT_ADDRESS__', pageW / 2, y, { align: 'center' });
     y += 18;
 
     doc.setFont('times', 'bold');
@@ -5956,7 +5956,7 @@ function buildIncidentHTML(r) {
   @media print { body { padding: 24px 36px; } @page { size: letter; margin: 0.5in; } }
 </style></head><body>
 <div class="header">
-  <img src="harmony_living_house_logo.png" alt="Logo">
+  <img src="__LOGO_SRC__" alt="Logo">
   <div class="org-name">__CLIENT_NAME__</div>
   <div class="doc-title">Incident Report</div>
 </div>
@@ -6314,7 +6314,7 @@ async function printVitalsSheet() {
   @media print { body { padding:18px 24px; } @page { size:landscape; margin:0.4in; } }
 </style></head><body>
 <div class="header">
-  <img src="harmony_living_house_logo.png" alt="Logo">
+  <img src="__LOGO_SRC__" alt="Logo">
   <div class="org">__CLIENT_NAME__</div>
   <div class="addr">__CLIENT_ADDRESS__</div>
   <div class="title">Vitals Sheet</div>
@@ -6702,9 +6702,9 @@ function fireSystemNotif() {
   const { quote, sub } = getDailyQuote();
   const greeting = getShiftLabel();
   const n = new Notification(`${greeting}, ${currentUser ? currentUser.name.split(' ')[0] : 'there'} 🌿`, {
-    body: `"${quote}"\n\n${sub}\n\n— Time to update Harmony Living House records`,
-    icon: 'harmony_living_house_logo.png',
-    badge: 'harmony_living_house_logo.png',
+    body: `"${quote}"\n\n${sub}\n\n— Time to update __CLIENT_NAME__ records`,
+    icon: '__LOGO_SRC__',
+    badge: '__LOGO_SRC__',
     tag: 'hlh-daily',
     requireInteraction: false,
   });
@@ -6755,14 +6755,14 @@ function showNotifPrompt() {
         padding:28px 28px 20px;
         text-align:center;
       ">
-        <img src="harmony_living_house_logo.png"
+        <img src="__LOGO_SRC__"
           style="width:72px;height:72px;object-fit:contain;
                  background:#fff;border-radius:50%;
                  padding:6px;box-shadow:0 4px 16px rgba(0,0,0,0.3);
                  margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;">
         <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;
                     text-transform:uppercase;color:rgba(255,255,255,0.6);
-                    margin-bottom:4px;">Harmony Living House</div>
+                    margin-bottom:4px;">__CLIENT_NAME__</div>
         <div style="font-family:'Georgia',serif;font-size:20px;
                     font-weight:700;color:#fff;line-height:1.3;">
           ${greeting}, ${name} 👋
@@ -6785,7 +6785,7 @@ function showNotifPrompt() {
         </div>
 
         <div style="font-size:13.5px;color:#1a2332;line-height:1.7;margin-bottom:22px;">
-          Allow <strong>Harmony Living House</strong> to send you gentle morning &amp; evening reminders to keep your records current. You'll only be asked once.
+          Allow <strong>__CLIENT_NAME__</strong> to send you gentle morning &amp; evening reminders to keep your records current. You'll only be asked once.
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px;">
@@ -6866,7 +6866,7 @@ function showShortcutNudge() {
         padding:28px 28px 20px;
         text-align:center;
       ">
-        <img src="harmony_living_house_logo.png"
+        <img src="__LOGO_SRC__"
           style="width:72px;height:72px;object-fit:contain;
                  background:#fff;border-radius:50%;
                  padding:6px;box-shadow:0 4px 16px rgba(0,0,0,0.3);
@@ -6890,7 +6890,7 @@ function showShortcutNudge() {
             ❝ Your tools should be at your fingertips. ❞
           </div>
           <div style="font-size:12px;color:#4a5568;line-height:1.6;">
-            Add Harmony Living House Admin as a shortcut so you can open it instantly — no searching, no typing.
+            Add __CLIENT_NAME__ Admin as a shortcut so you can open it instantly — no searching, no typing.
           </div>
         </div>
 
@@ -6901,7 +6901,7 @@ function showShortcutNudge() {
           <strong>"Create shortcut"</strong> → tick "Open as window" → click <strong>Create</strong>.<br><br>
           <strong>On Safari (Mac):</strong><br>
           Click <strong>File</strong> → <strong>"Add to Dock"</strong>.<br><br>
-          The Harmony Living House logo will appear as the shortcut icon on your desktop or taskbar.
+          The __CLIENT_NAME__ logo will appear as the shortcut icon on your desktop or taskbar.
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px;">
@@ -6937,7 +6937,7 @@ function showShortcutNudge() {
   document.getElementById('shortcut-done').onclick = () => {
     localStorage.setItem(SHORTCUT_KEY, 'true');
     document.body.removeChild(overlay);
-    toast('🏠 Perfect! Look for the Harmony Living House icon on your desktop.');
+    toast('🏠 Perfect! Look for the __CLIENT_NAME__ icon on your desktop.');
   };
 
   document.getElementById('shortcut-later').onclick = () => {
@@ -7947,7 +7947,7 @@ async function selectSummaryMonth(monthKey) {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
       <div>
         <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);">${monthLabel}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px;">Financial Summary · Harmony Living House Adult Family LLC</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;">Financial Summary · __CLIENT_NAME__</div>
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="printMonthlyDetailedReport('${monthKey}')" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🖨️ Print Income Report</button>
@@ -8255,7 +8255,7 @@ async function printReceipt(id) {
   @media print { body { padding:28px 36px; } @page { size:letter; margin:0.6in; } }
 </style></head><body>
 <div class="header">
-  <img src="harmony_living_house_logo.png" alt="Harmony Living House Logo">
+  <img src="__LOGO_SRC__" alt="__CLIENT_NAME__">
   <div class="org-name">__CLIENT_NAME__</div>
   <div class="org-sub">__CLIENT_ADDRESS__</div>
   <div class="org-sub">Washington State Licensed Adult Family Home</div>
@@ -8298,9 +8298,9 @@ async function printReceipt(id) {
 </div>
 
 <div class="legal">
-  This receipt is an official record of payment to Harmony Living House Adult Family LLC.<br>
+  This receipt is an official record of payment to __CLIENT_NAME__.<br>
   Please retain this document for your records. This receipt confirms payment only and does not constitute a contract.<br>
-  For questions regarding this payment, contact the facility administrator at 120 Newaukum Village Dr, Chehalis, WA 98532.
+  For questions regarding this payment, contact the facility administrator at __CLIENT_ADDRESS__.
 </div>
 </body></html>`);
   win.document.close();
@@ -8366,9 +8366,9 @@ function buildReportHeader(title, subtitle) {
   const printedAt = now.toLocaleDateString('en-US', { timeZone:'America/Los_Angeles', month:'long', day:'numeric', year:'numeric' });
   return `
     <div class="rpt-header">
-      <img src="harmony_living_house_logo.png" alt="Logo">
-      <div class="rpt-org">Harmony Living House Adult Family LLC</div>
-      <div class="rpt-addr">120 Newaukum Village Dr &nbsp;·&nbsp; Chehalis, WA 98532 &nbsp;·&nbsp; Licensed Adult Family Home — Washington State</div>
+      <img src="__LOGO_SRC__" alt="Logo">
+      <div class="rpt-org">__CLIENT_NAME__</div>
+      <div class="rpt-addr">__CLIENT_ADDRESS__ &nbsp;·&nbsp; Licensed Adult Family Home — Washington State</div>
       <div class="rpt-title">${title}</div>
       ${subtitle ? `<div class="rpt-subtitle">${subtitle}</div>` : ''}
       <div class="rpt-printed">Printed: ${printedAt} &nbsp;·&nbsp; WAC 388-76 / RCW 70.128 Compliant Financial Record</div>
@@ -8470,7 +8470,7 @@ async function printIncomeReport() {
   }).join('');
   const html = `
     ${buildReportHeader('Income Register — Payments Received', `Date Range: ${dateRange}`)}
-    <div class="rpt-meta"><span><strong>Facility:</strong> Harmony Living House Adult Family LLC</span><span><strong>Generated:</strong> ${period}</span></div>
+    <div class="rpt-meta"><span><strong>Facility:</strong> __CLIENT_NAME__</span><span><strong>Generated:</strong> ${period}</span></div>
     <table>
       <thead><tr><th>#</th><th>Date</th><th>Resident</th><th>Method</th><th>Period</th><th>Description</th><th>Received By</th><th>Receipt No.</th><th>Amount</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -8485,7 +8485,7 @@ async function printIncomeReport() {
       <div class="summary-row"><span><strong>GRAND TOTAL</strong></span><span class="net-positive"><strong>$${total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span></div>
     </div>
     <div class="footer-note">Maintained per RCW 70.128.130(15) &amp; WAC 388-76. Retain 5+ years. __CLIENT_NAME__ · __CLIENT_ADDRESS__</div>`;
-  openReportWindow(html, 'Income Register — Harmony Living House');
+  openReportWindow(html, 'Income Register — __CLIENT_NAME__');
 }
 
 async function printExpenseReport() {
@@ -8508,7 +8508,7 @@ async function printExpenseReport() {
   </tr>`).join('');
   const html = `
     ${buildReportHeader('Expense Register — Facility Operating Costs', `Date Range: ${dateRange}`)}
-    <div class="rpt-meta"><span><strong>Facility:</strong> Harmony Living House Adult Family LLC</span><span><strong>Generated:</strong> ${period}</span></div>
+    <div class="rpt-meta"><span><strong>Facility:</strong> __CLIENT_NAME__</span><span><strong>Generated:</strong> ${period}</span></div>
     <table>
       <thead><tr><th>#</th><th>Date</th><th>Category</th><th>Description</th><th>Vendor</th><th>Method</th><th>Paid By</th><th>Ref No.</th><th>Amount</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -8523,7 +8523,7 @@ async function printExpenseReport() {
       <div class="summary-row"><span><strong>TOTAL EXPENSES</strong></span><span class="net-negative"><strong>$${total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span></div>
     </div>
     <div class="footer-note">Maintained per RCW 70.128.130(15) &amp; WAC 388-76. Retain 5+ years. __CLIENT_NAME__ · __CLIENT_ADDRESS__</div>`;
-  openReportWindow(html, 'Expense Register — Harmony Living House');
+  openReportWindow(html, 'Expense Register — __CLIENT_NAME__');
 }
 
 async function printPLSummary() {
@@ -8559,7 +8559,7 @@ async function printPLSummary() {
   payments.forEach(p => { const n=(residents.find(r=>r.id===p.resident_id)||{}).name||'Unknown'; if(!byRes[n])byRes[n]=0; byRes[n]+=parseFloat(p.amount||0); });
   const html = `
     ${buildReportHeader('Financial Summary — Profit & Loss Statement', period)}
-    <div class="rpt-meta"><span><strong>Facility:</strong> Harmony Living House Adult Family LLC</span><span><strong>Prepared:</strong> ${now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span></div>
+    <div class="rpt-meta"><span><strong>Facility:</strong> __CLIENT_NAME__</span><span><strong>Prepared:</strong> ${now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span></div>
     <div class="section-hdr">Monthly Profit &amp; Loss — ${thisYear}</div>
     <table>
       <thead><tr><th>Month</th><th style="text-align:right;">Income</th><th style="text-align:right;">Expenses</th><th style="text-align:right;">Net</th></tr></thead>
@@ -8577,7 +8577,7 @@ async function printPLSummary() {
       <div class="summary-row"><span><strong>NET INCOME</strong></span><span style="color:${netTotal>=0?'#1e7e34':'#c0392b'};font-size:15px;"><strong>${netTotal<0?'-$':'$'}${Math.abs(netTotal).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></span></div>
     </div>
     <div class="footer-note">Prepared per RCW 70.128.130(15) &amp; WAC 388-76. __CLIENT_NAME__ · __CLIENT_ADDRESS__</div>`;
-  openReportWindow(html, 'P&L Summary — Harmony Living House');
+  openReportWindow(html, 'P&L Summary — __CLIENT_NAME__');
 }
 
 // ══════════════════════════════════
@@ -9689,7 +9689,7 @@ function buildOrientationHTML() {
 
   return `
     <div style="text-align:center;margin-bottom:14px;">
-      <img src="harmony_living_house_logo.png" alt="Logo" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 6px;">
+      <img src="__LOGO_SRC__" alt="Logo" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 6px;">
       <div style="font-size:18px;font-weight:bold;text-transform:uppercase;letter-spacing:0.04em;">__CLIENT_NAME__</div>
       <div style="font-size:13px;">__CLIENT_ADDRESS__</div>
       <div style="font-size:13px;margin-bottom:14px;"></div>
@@ -9811,7 +9811,7 @@ function buildCredentialsHTML() {
 
   return `
     <div style="text-align:center;margin-bottom:16px;">
-      <img src="harmony_living_house_logo.png" alt="Logo" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 6px;">
+      <img src="__LOGO_SRC__" alt="Logo" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 6px;">
       <div style="font-size:18px;font-weight:bold;text-transform:uppercase;letter-spacing:0.04em;">__CLIENT_NAME__</div>
       <div style="font-size:13px;">120 Newaukum Village Dr</div>
       <div style="font-size:13px;margin-bottom:12px;">Chehalis, WA 98532</div>
@@ -11159,7 +11159,7 @@ function buildAlertEmailHtml(title, intro, items, color) {
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1eb;padding:30px 0;"><tr><td align="center">
     <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
       <tr><td style="background:linear-gradient(135deg,#1a1a1a,${color});padding:28px 32px;text-align:center;">
-        <div style="font-family:Georgia,serif;font-size:22px;color:#fff;font-weight:bold;">Harmony Living House</div>
+        <div style="font-family:Georgia,serif;font-size:22px;color:#fff;font-weight:bold;">__CLIENT_NAME__</div>
         <div style="color:rgba(255,255,255,0.65);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Adult Family LLC — Alert System</div>
       </td></tr>
       <tr><td style="background:${color};padding:12px 32px;"><div style="color:#fff;font-size:16px;font-weight:bold;">${title}</div></td></tr>
@@ -11415,7 +11415,7 @@ async function sendManualAlert() {
 async function sendTestEmail() {
   const cfg = getAlertConfig();
   const recipient = cfg.email || ALERT_EMAIL;
-  const html = buildAlertEmailHtml('🧪 Test Alert — System Working', 'This is a test alert from your Harmony Living House Admin Portal. Your alert system is configured correctly.', ['✅ Appointment alerts: <strong>Enabled</strong> — fires for appointments within 3 days','✅ Progress notes: <strong>Enabled</strong> — fires if no note in 48h','✅ Vitals reminders: <strong>Enabled</strong> — fires if vitals not updated in 48h','✅ Overdue payments: <strong>Enabled</strong> — fires when bills or wages are past due'], '#b8860b');
+  const html = buildAlertEmailHtml('🧪 Test Alert — System Working', 'This is a test alert from your __CLIENT_NAME__ Admin Portal. Your alert system is configured correctly.', ['✅ Appointment alerts: <strong>Enabled</strong> — fires for appointments within 3 days','✅ Progress notes: <strong>Enabled</strong> — fires if no note in 48h','✅ Vitals reminders: <strong>Enabled</strong> — fires if vitals not updated in 48h','✅ Overdue payments: <strong>Enabled</strong> — fires when bills or wages are past due'], '#b8860b');
   await logAlert('test', `[HLH Test] Alert System Test — ${new Date().toLocaleTimeString()}`, 'Test alert logged successfully.', recipient);
   await loadAlertLog();
   toast('✅ Test alert logged. Check the Email Log below.');
