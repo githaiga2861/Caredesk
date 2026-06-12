@@ -1417,6 +1417,7 @@ function renderClientTable() {
         <button class="icon-btn" title="View" data-act="view" data-id="${c.client_id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         <button class="icon-btn" title="Adjust lockout" data-act="lock" data-id="${c.client_id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
         <button class="icon-btn" title="Payment log" data-act="pay" data-id="${c.client_id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></button>
+        <button class="icon-btn" title="Delete system" data-act="delete" data-id="${c.client_id}" style="color:var(--red);border-color:rgba(224,108,117,0.4)"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
       </div></td>
     </tr>`).join('')}</tbody></table></div>`;
 
@@ -1425,6 +1426,7 @@ function renderClientTable() {
     if (b.dataset.act === 'view') openClientDrawer(id);
     if (b.dataset.act === 'lock') openLockoutModal(id);
     if (b.dataset.act === 'pay') openClientDrawer(id, 'payments');
+    if (b.dataset.act === 'delete') deleteClient(id);
   });
 }
 
@@ -1474,6 +1476,34 @@ async function setLockout(clientId, level) {
     renderClientTable(); renderCRMMetrics(); updateStatusBar();
     showToast(`Access set to Level ${level}.`, 'success');
   } catch (e) { showToast('Could not update: ' + (e.message || e), 'error'); }
+}
+
+/** Permanently delete a client system (and its payment history) from the master DB. */
+async function deleteClient(clientId) {
+  const c = CDP.clients.find(x => x.client_id === clientId);
+  if (!c) { showToast('Client not found.', 'error'); return; }
+  confirmAction({
+    title: 'Delete this system?',
+    body: `This permanently removes <strong>${esc(c.official_name)}</strong> (<span class="mono" style="color:var(--gold2)">${esc(clientId)}</span>) and its logged payment history from your master database. It does <strong>not</strong> affect the client's own deployed system or their Supabase project — only the record inside CareDesk Pro. This cannot be undone.`,
+    confirmLabel: 'Delete permanently',
+    danger: true,
+    onConfirm: async () => {
+      const sb = requireSupabase(); if (!sb) return;
+      try {
+        // Remove dependent payment rows first — caredesk_payments.client_id
+        // references caredesk_clients(client_id), so the parent can't be deleted
+        // while payment rows still point at it.
+        await sb.from('caredesk_payments').delete().eq('client_id', clientId);
+        const { error } = await sb.from('caredesk_clients').delete().eq('client_id', clientId);
+        if (error) throw error;
+        CDP.clients = CDP.clients.filter(x => x.client_id !== clientId);
+        CDP.payments = CDP.payments.filter(p => p.client_id !== clientId);
+        if ($('#drawer').classList.contains('open')) closeDrawer();
+        renderClientTable(); renderCRMMetrics(); updateStatusBar();
+        showToast('System deleted from CareDesk Pro.', 'success');
+      } catch (e) { showToast('Could not delete: ' + (e.message || e), 'error'); }
+    }
+  });
 }
 
 // ── Client detail drawer ──
