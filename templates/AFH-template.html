@@ -1049,6 +1049,74 @@
     display: flex !important;
   }
 }
+
+/* ══════════ GUIDED TUTORIAL ══════════ */
+#tut-fab {
+  position: fixed; bottom: 24px; right: 24px; z-index: 99990;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, #d4a017, #b8860b);
+  color: #fff; font-size: 24px; border: 2px solid rgba(255,255,255,.35);
+  box-shadow: 0 6px 18px rgba(184,134,11,.45);
+  display: none; align-items: center; justify-content: center;
+  cursor: grab; user-select: none; touch-action: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+#tut-fab:hover { transform: scale(1.07); box-shadow: 0 8px 24px rgba(184,134,11,.6); }
+#tut-fab.dragging { cursor: grabbing; transform: scale(1.12); opacity: .9; transition: none; }
+.tut-fab-x {
+  position: absolute; top: -6px; right: -6px; width: 20px; height: 20px;
+  border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 11px;
+  line-height: 20px; text-align: center; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.4); display: block;
+}
+.tut-fab-x:hover { background: #c0392b; }
+#tut-blocker {
+  position: fixed; inset: 0; z-index: 99991; display: none; background: transparent;
+}
+#tut-spotlight {
+  position: fixed; z-index: 99992; display: none; pointer-events: none;
+  border: 3px solid #d4a017; border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(13,17,23,.74), 0 0 24px rgba(212,160,23,.65);
+  transition: top .45s ease, left .45s ease, width .45s ease, height .45s ease;
+}
+#tut-card {
+  position: fixed; z-index: 99993; display: none; width: 350px; max-width: calc(100vw - 24px);
+  background: #fff; color: #222; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0,0,0,.45); font-size: 14px;
+  border: 1px solid rgba(184,134,11,.4);
+}
+[data-theme="dark"] #tut-card { background: #1d2230; color: #e8e8e8; border-color: rgba(212,160,23,.5); }
+.tut-head {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  background: linear-gradient(135deg, #1a1a1a, var(--accent2, #b8860b)); color: #fff;
+}
+.tut-step-pill {
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35);
+  border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.tut-title { font-weight: 700; font-size: 14px; line-height: 1.25; }
+.tut-body { padding: 14px 16px 10px; line-height: 1.55; }
+.tut-body b { color: #b8860b; }
+[data-theme="dark"] .tut-body b { color: #d4a017; }
+#tut-progress-wrap { height: 4px; background: rgba(184,134,11,.18); margin: 0 16px; border-radius: 2px; overflow: hidden; }
+#tut-progress { height: 100%; width: 0%; background: linear-gradient(90deg, #d4a017, #b8860b); }
+.tut-foot { display: flex; align-items: center; gap: 8px; padding: 12px 16px; }
+.tut-btn-gold {
+  margin-left: auto; background: linear-gradient(135deg, #d4a017, #b8860b); color: #fff;
+  border: none; border-radius: 8px; padding: 8px 16px; font-weight: 700; cursor: pointer; font-size: 13px;
+}
+.tut-btn-gold:hover { filter: brightness(1.08); }
+.tut-btn-ghost {
+  background: transparent; border: 1px solid rgba(184,134,11,.5); color: inherit;
+  border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 13px;
+}
+.tut-btn-ghost:hover { background: rgba(184,134,11,.12); }
+#tut-never {
+  display: block; text-align: center; padding: 0 16px 12px; font-size: 11.5px;
+  color: #888; background: none; border: none; cursor: pointer; width: 100%;
+  text-decoration: underline;
+}
+#tut-never:hover { color: #c0392b; }
 </style>
 </head>
 <body>
@@ -4194,6 +4262,25 @@
          display:flex;align-items:center;justify-content:center;">
   ↑
 </button>
+<!-- ══════════ GUIDED TUTORIAL ══════════ -->
+<button id="tut-fab" title="Replay the guided tour">🎓<span class="tut-fab-x" id="tut-fab-x" title="Hide forever">✕</span></button>
+<div id="tut-blocker"></div>
+<div id="tut-spotlight"></div>
+<div id="tut-card">
+  <div class="tut-head">
+    <span class="tut-step-pill" id="tut-step-pill">1 / 40</span>
+    <span class="tut-title" id="tut-title"></span>
+  </div>
+  <div class="tut-body" id="tut-body"></div>
+  <div id="tut-progress-wrap"><div id="tut-progress"></div></div>
+  <div class="tut-foot">
+    <button class="tut-btn-ghost" id="tut-back">‹ Back</button>
+    <button class="tut-btn-ghost" id="tut-skip">Skip tour</button>
+    <button class="tut-btn-gold" id="tut-next">Next ›</button>
+  </div>
+  <button id="tut-never">Never show this tutorial again</button>
+</div>
+
 <div id="toast"></div>
 <script>
  const SUPABASE_URL = '__SUPA_URL__';
@@ -4471,6 +4558,8 @@ function initApp() {
   startMaintenancePoller();
   subscribeMaintenanceRealtime();
   seedExistingStaff();
+  initTutorialFab();
+  maybeAutoStartTutorial();
   if (masterDb && CLIENT_ID && CLIENT_ID !== '__CLIENT_ID__') {
     startLockoutPoller();
   }
@@ -11540,6 +11629,346 @@ async function renderDynamicContacts() {
       <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">${rows}</div>
     </div>`;
   }).join('');
+}
+
+// ══════════════════════════════════
+// GUIDED TUTORIAL
+// ══════════════════════════════════
+const TUT_NEVER_KEY = 'hlh_tut_never';
+const TUT_SEEN_KEY  = 'hlh_tut_seen';
+const TUT_POS_KEY   = 'hlh_tut_fab_pos';
+const TUT_STEP_MS   = 8000;
+
+let tutActive = false, tutIndex = 0, tutTimer = null, tutLastNav = null;
+
+const TUT_STEPS = [
+  { center: true, title: "Welcome to __CLIENT_NAME__! 👋",
+    body: "This quick guided tour will walk you through <b>every part of your system</b>, step by step. Each step advances automatically every <b>8 seconds</b> — or use <b>Next ›</b> and <b>‹ Back</b> to go at your own pace. You can <b>Skip</b> anytime and replay the tour later with the floating <b>🎓</b> button." },
+
+  { sel: ".sidebar-nav", title: "Your main menu",
+    body: "Everything lives here: <b>Dashboard, Residents, All Notes, Incidents, Analytics, Financials, Staff Docs, Alerts</b> and <b>Contacts</b>. Click any item to jump to that section — the tour will now visit each one for you." },
+
+  { nav: "dashboard", sel: "#page-dashboard .stats-grid", title: "Dashboard at a glance",
+    body: "These four cards give you a live pulse of the home: <b>resident count, notes today, open incidents</b> and <b>upcoming appointments</b>. They update automatically as your staff documents." },
+
+  { nav: "dashboard", sel: "#dash-financials-grid", title: "Money at a glance 💰",
+    body: "This strip shows this month's <b>income, expenses and net</b> without leaving the dashboard. Click any of these cards to jump straight into the full Financials page." },
+
+  { nav: "dashboard", sel: "#recent-notes-table", up: ".card", title: "Latest progress notes",
+    body: "The most recent notes from across all residents appear here, so each shift can instantly see what happened before they arrived." },
+
+  { nav: "dashboard", sel: "#page-dashboard button[onclick='openAddResident()']", up: ".card", title: "Quick Actions",
+    body: "Shortcuts for the things you do most — like <b>admitting a new resident</b> — right from the dashboard, no menu digging needed." },
+
+  { nav: "dashboard", sel: "#dark-mode-btn", title: "Dark mode 🌙",
+    body: "Click this to switch between light and dark themes. Your choice is remembered on this device — handy for night shifts." },
+
+  { nav: "dashboard", sel: "#maintenance-toggle-btn", title: "Maintenance switch",
+    body: "Need to pause record updates? Flip this and a <b>red banner broadcasts to every staff device</b> instantly, so everyone knows to hold off." },
+
+  { nav: "residents", sel: "#page-residents .card-header .btn-primary", title: "Admit a new resident",
+    body: "Click here to add a resident: name, date of birth, room, diagnosis and emergency contacts. They appear everywhere in the system immediately." },
+
+  { nav: "residents", sel: "#resident-search", title: "Find anyone fast 🔎",
+    body: "Type a name and the list filters <b>as you type</b> — no need to press Enter." },
+
+  { nav: "residents", sel: "#residents-table", up: ".card", title: "The resident list",
+    body: "Every resident with their room, status and key details. <b>Click a resident's name</b> to open their full profile — which is where the tour goes next." },
+
+  { nav: "profile", sel: "#profile-header", title: "The resident profile",
+    body: "The complete picture of one resident. Tap the <b>✏️ on the photo</b> to upload a picture, use <b>Edit</b> to update details, and the counter shows how many <b>days they've been in your care</b>." },
+
+  { nav: "profile", sel: "#profile-status-select", title: "Status dropdown",
+    body: "Change a resident's status (Active, Hospital, Discharged…) here — it updates <b>instantly across every page</b> of the system." },
+
+  { nav: "profile", sel: "#profile-emergency-contacts", title: "Emergency contacts 📞",
+    body: "Always visible at the top of the profile. <b>Call</b> dials directly from a phone or tablet, and <b>Copy</b> grabs the number for you." },
+
+  { nav: "profile", sel: "#ptab-notes", parent: true, title: "Six tabs, one resident",
+    body: "Everything about this resident is organized into <b>Progress Notes, Vitals, Medications, Daily Living, Appointments</b> and <b>Incidents</b>. The tour will open each one for you now." },
+
+  { nav: "profile", ptab: "notes", sel: "#profile-tab-notes", title: "Progress Notes 📝",
+    body: "Add a note for every shift. The <b>🎙️ Voice-to-Note</b> button lets staff dictate instead of typing, and the <b>Timeline</b> shows this resident's full history in order." },
+
+  { nav: "profile", ptab: "vitals", sel: "#profile-tab-vitals", title: "Vitals ❤️",
+    body: "Log <b>blood pressure, temperature, pulse, respiration, oxygen and weight</b>. The print button produces a clean DSHS-ready vitals sheet for inspections." },
+
+  { nav: "profile", ptab: "medications", sel: "#profile-tab-medications", title: "Medications 💊",
+    body: "Every prescription with <b>dosage, frequency, route, prescriber</b> and whether it's active or discontinued — your complete med record in one place." },
+
+  { nav: "profile", ptab: "adl", sel: "#profile-tab-adl", title: "Daily Living (ADL)",
+    body: "Quick-tap color pills for hygiene, meals, mood, sleep, mobility, continence and pain: <b>green</b> = all good, <b>amber</b> = needs attention, <b>red</b> = urgent. One tap logs it." },
+
+  { nav: "profile", ptab: "appointments", sel: "#profile-tab-appointments", title: "Appointments 📅",
+    body: "Doctor visits with dates, providers, transport and follow-up notes. The system <b>automatically alerts staff</b> when an appointment is within the next 3 days." },
+
+  { nav: "profile", ptab: "incidents", sel: "#profile-tab-incidents", title: "Incident Reports ⚠️",
+    body: "Full regulatory-style forms with a <b>clickable body map</b> to mark injury locations, plus witnesses, notifications and prevention plans. Everything prints or exports to <b>PDF</b>." },
+
+  { nav: "notes", sel: "#page-notes .search-bar", title: "All Notes, one place",
+    body: "Every progress note from every resident, searchable and filterable by <b>keyword, date or resident</b> — perfect for audits and handovers." },
+
+  { nav: "incidents", sel: "#page-incidents .search-bar", title: "All Incidents",
+    body: "The same idea for incidents: the whole home's incident history in one searchable view, so nothing slips through the cracks." },
+
+  { nav: "analytics", sel: "#chart-weekly", up: ".card", title: "Documentation trends 📈",
+    body: "An 8-week chart of how much your team is documenting — spot quiet weeks at a glance and keep records consistent." },
+
+  { nav: "analytics", sel: "#cal-days-grid", up: ".card", title: "Activity calendar",
+    body: "Color-coded dots show activity per day: <b>gold = notes</b>, <b>red = incidents</b>. Click any busy day to see exactly what happened." },
+
+  { nav: "analytics", sel: "#staff-table", up: ".card", title: "Staff activity",
+    body: "Who is documenting, how often, and when they were last active — a simple way to keep the whole team accountable." },
+
+  { nav: "payments", fin: "income", sel: "#fin-tab-income", parent: true, title: "Financials: two sides 💵",
+    body: "This toggle switches between <b>Income (green)</b> and <b>Expenses (red)</b>. The tour will show you the key buttons on both sides." },
+
+  { nav: "payments", fin: "income", sel: "#fin-section-income button[onclick='openAddPayment()']", title: "Record Payment",
+    body: "Log incoming money from residents: amount, method, period, and a source tag like <b>Medicaid</b> or <b>Private Pay</b>. A <b>printable receipt</b> is generated automatically." },
+
+  { nav: "payments", fin: "income", sel: "button[onclick='printIncomeReport()']", title: "Print the Income Register",
+    body: "One click produces a compliance-ready <b>Income Register and Profit &amp; Loss</b> summary, formatted for <b>WAC 388-76</b> record keeping." },
+
+  { nav: "payments", fin: "income", sel: "button[onclick='openMonthlySummary()']", title: "Monthly Summary",
+    body: "Pick any month to see <b>income by resident, expenses by category and net profit/loss</b> — and print the whole breakdown." },
+
+  { nav: "payments", fin: "expenses", sel: "#fin-section-expenses button[onclick='openAddExpense()']", title: "Add Expense",
+    body: "Three kinds of spending, each with its own tailored form: <b>general</b> (supplies, groceries), <b>staff wages</b>, and <b>bill payments</b>." },
+
+  { nav: "payments", fin: "expenses", sel: "button[onclick='openSalaryConfig()']", title: "Staff Salary Setup",
+    body: "Set each staff member's expected pay and frequency <b>once</b> — the system then tracks balances and warns you when wages are overdue." },
+
+  { nav: "payments", fin: "expenses", sel: "button[onclick='openAddBill()']", title: "Recurring Bills",
+    body: "Register monthly bills like <b>rent, utilities and internet</b> with due dates. They reset automatically each month so you never miss one." },
+
+  { nav: "payments", fin: "expenses", sel: "#expenses-list", title: "The expense register",
+    body: "All spending grouped into collapsible sections — <b>Wages, Bills and General</b> — so you can review any category in seconds." },
+
+  { nav: "staffdocs", sel: "#sdtab-orientation", parent: true, title: "Staff Documentation 📋",
+    body: "Orientation checklists, credential trackers and required forms (including <b>HCA 13-0126</b>) with <b>expiry tracking</b> so certifications never lapse unnoticed." },
+
+  { nav: "alerts", sel: "button[onclick='runAllAlertChecks(true)']", title: "Run all alert checks 🔔",
+    body: "One click scans the whole system — overdue wages, expiring credentials, upcoming appointments, unpaid bills — and shows everything that needs attention." },
+
+  { nav: "alerts", sel: "#alert-log-list", up: ".card", title: "Alert history",
+    body: "A log of every alert and email the system has sent, so you always know who was notified and when." },
+
+  { nav: "contacts", sel: "button[onclick='openAddContact()']", title: "Quick Contacts ☎️",
+    body: "Save your pharmacy, doctors, case managers and emergency services here, color-coded, with one-tap <b>Call</b> and <b>Copy</b> for the whole team." },
+
+  { sel: "#tut-fab", title: "Your tour button 🎓",
+    body: "This floating button replays the tour anytime. <b>Drag it</b> anywhere on screen (e.g. away from sensitive data) — its position is remembered. The tiny <b>✕</b> hides it forever, only if you choose." },
+
+  { center: true, title: "You're all set! 🎉",
+    body: "That's the whole of <b>__CLIENT_NAME__</b>. Explore freely — and remember, the <b>🎓</b> button is always there if you ever want this tour again. Welcome aboard!" }
+];
+
+function tutWait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+function tutEl(step){
+  if (!step.sel) return null;
+  const all = document.querySelectorAll(step.sel);
+  let el = null;
+  for (const c of all){
+    const r = c.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0){ el = c; break; }
+  }
+  if (!el && all.length) el = all[0];
+  if (!el) return null;
+  if (step.parent) el = el.parentElement || el;
+  if (step.up) el = el.closest(step.up) || el;
+  return el;
+}
+
+async function tutPrepare(step){
+  const nav = step.nav || tutLastNav;
+  if (!nav) return true;
+  try {
+    if (nav === 'profile'){
+      if (tutLastNav !== 'profile'){
+        let residents = [];
+        try { residents = await getResidents(); } catch(e){}
+        if (!residents || !residents.length) return false;
+        openProfile(residents[0].id);
+        await tutWait(600);
+      }
+      if (step.ptab){ switchProfileTab(step.ptab); await tutWait(350); }
+    } else {
+      if (tutLastNav !== nav){ showPage(nav); await tutWait(450); }
+      if (step.fin){ switchFinTab(step.fin); await tutWait(350); }
+    }
+  } catch(e){ return false; }
+  tutLastNav = nav;
+  await tutWait(80);
+  return true;
+}
+
+async function tutGoto(i, dir){
+  dir = dir || 1;
+  clearTimeout(tutTimer);
+  if (i < 0) i = 0;
+  if (i >= TUT_STEPS.length){ endTutorial(true); return; }
+  let guard = 0;
+  while (guard++ <= TUT_STEPS.length){
+    const step = TUT_STEPS[i];
+    const ok = await tutPrepare(step);
+    const el = step.center ? null : tutEl(step);
+    if (ok && (step.center || el)){
+      tutIndex = i;
+      renderTutStep(step, el);
+      return;
+    }
+    i += dir;
+    if (i < 0){ i = 0; dir = 1; }
+    if (i >= TUT_STEPS.length){ endTutorial(true); return; }
+  }
+  endTutorial(false);
+}
+
+function renderTutStep(step, el){
+  const card = document.getElementById('tut-card');
+  const spot = document.getElementById('tut-spotlight');
+  document.getElementById('tut-step-pill').textContent = (tutIndex + 1) + ' / ' + TUT_STEPS.length;
+  document.getElementById('tut-title').textContent = step.title;
+  document.getElementById('tut-body').innerHTML = step.body;
+  document.getElementById('tut-back').style.visibility = tutIndex === 0 ? 'hidden' : 'visible';
+  document.getElementById('tut-next').textContent = tutIndex === TUT_STEPS.length - 1 ? 'Finish ✓' : 'Next ›';
+
+  card.style.visibility = 'hidden';
+  card.style.display = 'block';
+  const cw = card.offsetWidth, ch = card.offsetHeight;
+  const vw = window.innerWidth, vh = window.innerHeight;
+
+  if (!el){
+    spot.style.display = 'none';
+    card.style.top  = Math.max(16, (vh - ch) / 2) + 'px';
+    card.style.left = Math.max(16, (vw - cw) / 2) + 'px';
+  } else {
+    el.scrollIntoView({ block: 'center' });
+    const r = el.getBoundingClientRect();
+    const pad = 6;
+    spot.style.display = 'block';
+    spot.style.top    = (r.top  - pad) + 'px';
+    spot.style.left   = (r.left - pad) + 'px';
+    spot.style.width  = (r.width  + pad * 2) + 'px';
+    spot.style.height = (r.height + pad * 2) + 'px';
+    let top = r.bottom + pad + 14;
+    if (top + ch > vh - 12) top = r.top - pad - ch - 14;
+    if (top < 12) top = Math.max(12, (vh - ch) / 2);
+    let left = r.left + r.width / 2 - cw / 2;
+    left = Math.max(12, Math.min(left, vw - cw - 12));
+    card.style.top = top + 'px';
+    card.style.left = left + 'px';
+  }
+  card.style.visibility = 'visible';
+
+  const bar = document.getElementById('tut-progress');
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+  void bar.offsetWidth;
+  bar.style.transition = 'width ' + TUT_STEP_MS + 'ms linear';
+  bar.style.width = '100%';
+  clearTimeout(tutTimer);
+  tutTimer = setTimeout(() => tutGoto(tutIndex + 1, 1), TUT_STEP_MS);
+}
+
+function startTutorial(){
+  if (tutActive) return;
+  tutActive = true;
+  tutLastNav = null;
+  localStorage.setItem(TUT_SEEN_KEY, '1');
+  document.getElementById('tut-blocker').style.display = 'block';
+  tutGoto(0, 1);
+}
+
+function endTutorial(completed){
+  clearTimeout(tutTimer);
+  tutActive = false;
+  document.getElementById('tut-blocker').style.display = 'none';
+  document.getElementById('tut-spotlight').style.display = 'none';
+  document.getElementById('tut-card').style.display = 'none';
+  try { showPage('dashboard'); } catch(e){}
+  if (completed) toast('Tour complete! Click the 🎓 button anytime to replay it.');
+}
+
+function tutNeverAgain(){
+  localStorage.setItem(TUT_NEVER_KEY, '1');
+  const fab = document.getElementById('tut-fab');
+  if (fab) fab.style.display = 'none';
+  endTutorial(false);
+}
+
+function wireTutorialControls(){
+  document.getElementById('tut-next').onclick  = () => tutGoto(tutIndex + 1, 1);
+  document.getElementById('tut-back').onclick  = () => tutGoto(tutIndex - 1, -1);
+  document.getElementById('tut-skip').onclick  = () => endTutorial(false);
+  document.getElementById('tut-never').onclick = () => tutNeverAgain();
+  window.addEventListener('resize', () => { if (tutActive) tutGoto(tutIndex, 1); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && tutActive) endTutorial(false); });
+}
+
+function initTutorialFab(){
+  const fab = document.getElementById('tut-fab');
+  if (!fab || fab.dataset.tutWired) return;
+  fab.dataset.tutWired = '1';
+  wireTutorialControls();
+  if (localStorage.getItem(TUT_NEVER_KEY)){ fab.style.display = 'none'; return; }
+  fab.style.display = 'flex';
+  try {
+    const pos = JSON.parse(localStorage.getItem(TUT_POS_KEY) || 'null');
+    if (pos){
+      fab.style.left = pos.x + 'px';
+      fab.style.top  = pos.y + 'px';
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+    }
+  } catch(e){}
+
+  let sx = 0, sy = 0, ox = 0, oy = 0, moved = false, down = false;
+  fab.addEventListener('pointerdown', e => {
+    if (e.target.id === 'tut-fab-x') return;
+    down = true; moved = false;
+    sx = e.clientX; sy = e.clientY;
+    const r = fab.getBoundingClientRect();
+    ox = r.left; oy = r.top;
+    fab.setPointerCapture(e.pointerId);
+  });
+  fab.addEventListener('pointermove', e => {
+    if (!down) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) moved = true;
+    if (moved){
+      fab.classList.add('dragging');
+      const nx = Math.max(4, Math.min(ox + dx, window.innerWidth  - fab.offsetWidth  - 4));
+      const ny = Math.max(4, Math.min(oy + dy, window.innerHeight - fab.offsetHeight - 4));
+      fab.style.left = nx + 'px';
+      fab.style.top  = ny + 'px';
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+    }
+  });
+  fab.addEventListener('pointerup', e => {
+    if (!down) return;
+    down = false;
+    fab.classList.remove('dragging');
+    if (moved){
+      const r = fab.getBoundingClientRect();
+      localStorage.setItem(TUT_POS_KEY, JSON.stringify({ x: r.left, y: r.top }));
+    } else if (e.target.id !== 'tut-fab-x'){
+      startTutorial();
+    }
+  });
+  const x = document.getElementById('tut-fab-x');
+  if (x) x.addEventListener('click', e => {
+    e.stopPropagation();
+    if (confirm('Hide the tutorial button forever? It will not come back unless browser data is cleared.')) tutNeverAgain();
+  });
+}
+
+function maybeAutoStartTutorial(){
+  if (localStorage.getItem(TUT_NEVER_KEY)) return;
+  if (localStorage.getItem(TUT_SEEN_KEY)) return;
+  setTimeout(() => { if (!tutActive) startTutorial(); }, 1200);
 }
 
 // ══════════════════════════════════
