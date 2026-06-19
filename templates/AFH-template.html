@@ -1841,33 +1841,7 @@
 
           <!-- EXPENSES SECTION (full width) -->
           <div id="fin-section-expenses" style="display:none;">
-          <!-- ══ BILLS & UTILITIES ══ (managed inline in expenses panel via Add Expense) ══ -->
-          <div id="bills-utilities-section" class="card" style="display:none;margin-bottom:24px;">
-            <div style="background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);border-radius:10px 10px 0 0;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-              <div>
-                <div style="color:#fff;font-family:'DM Serif Display',serif;font-size:18px;">🏠 Bills &amp; Utilities</div>
-                <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:3px;">Recurring monthly obligations — partial payments, overdue detection &amp; auto-reset</div>
-              </div>
-              <button onclick="openAddBill()" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add Bill
-              </button>
-            </div>
-            <div style="padding:20px 22px;">
-              <div id="bills-overdue-section" style="display:none;margin-bottom:16px;"></div>
-              <div id="bills-current-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                <div id="bills-month-label" style="font-size:15px;font-weight:700;color:var(--text);"></div>
-                <div id="bills-summary-badge" style="font-size:12px;font-weight:600;color:var(--text3);"></div>
-              </div>
-              <div id="bills-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;"></div>
-              <div id="bills-empty" style="display:none;text-align:center;padding:56px 24px;">
-                <div style="font-size:52px;margin-bottom:14px;">🏠</div>
-                <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;">No Bills Added Yet</div>
-                <div style="font-size:13px;color:var(--text3);margin-bottom:20px;">Track rent, power, water, internet and more — all in one place with overdue detection.</div>
-                <button onclick="openAddBill()" class="btn btn-primary">+ Add Your First Bill</button>
-              </div>
-            </div>
-          </div>
+          <!-- bills-utilities-section removed — bills are rendered inline via renderBillsInline() inside the expenses collapsible -->
 
           <!-- General Expenses Card -->
           <div class="card">
@@ -1916,17 +1890,16 @@
                 </div>
                 <!-- Wage balance alert strip -->
                 <div id="wage-balance-strip" style="display:none;margin-top:10px;"></div>
-                </div>
                 <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">
                   <span id="exp-stat-count">0</span> expense(s) &nbsp;·&nbsp; This month: <span id="exp-stat-month">$0</span>
                 </div>
                 <div id="expenses-list" class="notes-list" style="max-height:72vh;overflow-y:auto;"></div>
-              </div>
-            </div>
+              </div><!-- /card-body -->
+            </div><!-- /card -->
           </div><!-- /fin-section-expenses -->
 
         <!-- ALERTS PAGE -->
-        <div class="page" id="page-alerts">
+      <div class="page" id="page-alerts">
           <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
             <div>
               <div style="font-size:13px;color:var(--text3);margin-top:3px;">Automated alerts are checked every time this page loads and sent to <strong>__ALERT_EMAIL__</strong></div>
@@ -2010,7 +1983,9 @@
           </div>
       </div>
 
-        <!-- ADD CONTACT MODAL -->
+        </div><!-- /page-alerts end -->
+
+<!-- MODAL: Add Contact — moved to body level so it works on any page -->
 <div class="modal-overlay" id="modal-add-contact">
   <div class="modal" style="max-width:520px;">
     <div class="modal-header">
@@ -2080,7 +2055,7 @@
   </div>
 </div>
 
-        <!-- MODAL: Manual Custom Alert -->
+<!-- MODAL: Manual Custom Alert — moved to body level -->
 <div class="modal-overlay" id="modal-manual-alert">
   <div class="modal" style="max-width:540px;">
     <div class="modal-header">
@@ -2121,7 +2096,7 @@
 </div>
 
 <!-- ALL INCIDENTS -->
-        <div class="page" id="page-incidents">
+      <div class="page" id="page-incidents">
           <div class="card">
             <div class="card-header">
               <h3>All Incident Reports</h3>
@@ -7031,14 +7006,7 @@ function showCalPopup(event, dateStr, notes, incidents) {
   setTimeout(() => document.addEventListener('click', () => { if(calPopup) { calPopup.remove(); calPopup = null; } }, { once: true }), 100);
 }
 
-  function toLocalDateStr(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function getAllSundaysSince(startDateStr) {
+  function getAllSundaysSince(startDateStr) {
   const sundays = [];
   const start = new Date(startDateStr + 'T00:00:00');
   const today = new Date(); today.setHours(0,0,0,0);
@@ -9637,15 +9605,15 @@ function initStaffDocsPage() {
   renderSavedStaffDocs();
 }
 
-/** Open a document modal and initialise its form content on first open. */
-function openDocModal(type) {
+/** Open a document modal and initialise its form content. */
+async function openDocModal(type) {
   const id = 'modal-doc-' + type;
   const overlay = document.getElementById(id);
   if (!overlay) return;
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // One-time initialisation per modal
+  // One-time initialisation for orientation and credentials
   if (!overlay.dataset.initialised) {
     overlay.dataset.initialised = '1';
     if (type === 'orientation') {
@@ -9655,8 +9623,37 @@ function openDocModal(type) {
     if (type === 'credentials') {
       loadCredentialsDraft();
     }
-    if (type === 'cbhs') {
-      initCBHSForm();
+  }
+
+  // CBHS: always refresh the resident dropdown in case residents were added since last open
+  if (type === 'cbhs') {
+    const residents = await getResidents();
+    const sel = document.getElementById('cbhs-resident-select');
+    if (sel) {
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">— Select Resident —</option>';
+      residents.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id; opt.textContent = r.name;
+        if (r.id === currentVal) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+    // First-time only: init entries and load draft
+    if (!overlay.dataset.cbhsInitialised) {
+      overlay.dataset.cbhsInitialised = '1';
+      const raw = localStorage.getItem('hlh_cbhs_draft');
+      if (raw) {
+        try {
+          const d = JSON.parse(raw);
+          if (d.clientName) { const n = document.getElementById('cbhs-client-name'); if (n) n.value = d.clientName; }
+          if (d.dob) { const dob = document.getElementById('cbhs-client-dob'); if (dob) dob.value = d.dob; }
+          if (d.tier) { const radio = document.querySelector(`input[name="cbhs-tier"][value="${d.tier}"]`); if (radio) radio.checked = true; }
+          cbhsEntries = d.entries || [];
+        } catch { cbhsEntries = []; }
+      }
+      if (!cbhsEntries.length) cbhsEntries = [blankCBHSEntry(), blankCBHSEntry()];
+      renderCBHSEntries();
     }
   }
 }
@@ -10429,7 +10426,10 @@ async function loadOrientationRecord(id) {
     const checks = JSON.parse(r.checks || '[]');
     checks.forEach((v, i) => { const el = document.getElementById('ori-chk-' + i); if (el) el.checked = v; });
   } catch {}
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Scroll within the modal body, not the page
+  const modalBody = document.querySelector('#modal-doc-orientation [style*="overflow-y:auto"]');
+  if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
   toast('Record loaded — edit and save again to update');
 }
 
@@ -10538,7 +10538,10 @@ async function loadCredentialsRecord(id) {
       else el.value = val || '';
     });
   } catch {}
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Scroll within the modal body, not the page
+  const modalBody = document.querySelector('#modal-doc-credentials [style*="overflow-y:auto"]');
+  if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
   toast('Record loaded — edit and save again to update');
 }
 
@@ -10572,8 +10575,9 @@ function getSalaryConfig() {
   try { return JSON.parse(localStorage.getItem(SALARY_CONFIG_KEY)) || {}; } catch { return {}; }
 }
 
-function openSalaryConfig() {
+async function openSalaryConfig() {
   const cfg = getSalaryConfig();
+  // Restore the 4 hardcoded staff rows
   KNOWN_STAFF.forEach(name => {
     const key = name.toLowerCase();
     const amtEl = document.getElementById('salary-' + key + '-amount');
@@ -10581,6 +10585,39 @@ function openSalaryConfig() {
     if (amtEl) amtEl.value = cfg[key]?.amount || '';
     if (freqEl) freqEl.value = cfg[key]?.freq || 'monthly';
   });
+  // Restore dynamic staff cards from Supabase
+  const salaryGrid = document.querySelector('#modal-salary-config .modal-body > div[style*="flex-direction:column"]');
+  if (salaryGrid) {
+    // Remove any previously rendered dynamic cards to avoid duplication
+    salaryGrid.querySelectorAll('[id^="salary-card-"]').forEach(c => c.remove());
+    const { data: dynamicStaff } = await db.from('staff_members')
+      .select('name, salary_amount, salary_freq')
+      .eq('is_active', true);
+    const knownKeys = new Set(KNOWN_STAFF.map(n => n.toLowerCase()));
+    (dynamicStaff || []).forEach(s => {
+      if (!s.name || !s.salary_amount) return;
+      const firstName = s.name.split(' ')[0];
+      const key = firstName.toLowerCase();
+      if (knownKeys.has(key)) return; // skip the 4 hardcoded staff
+      const colors = ['#e8f0fe:#1a73e8','#f3e8fd:#7c3aed','#fce4ec:#e91e63','#e6f4ea:#1e7e34','#fff3cd:#d68910'];
+      const pick = colors[Math.floor(Math.random() * colors.length)].split(':');
+      const newCard = document.createElement('div');
+      newCard.id = `salary-card-${key}`;
+      newCard.style.cssText = `padding:16px 18px;border-top:1px solid var(--border);background:${pick[0]}22;`;
+      newCard.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:${pick[0]};border:2px solid ${pick[1]};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:${pick[1]};flex-shrink:0;">${firstName.charAt(0)}</div>
+          <div style="font-weight:700;font-size:15px;color:#1a2332;">${s.name}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="field" style="margin:0;"><label style="font-size:11px;">Expected Amount Per Period ($)</label><input type="number" id="salary-${key}-amount" value="${s.salary_amount || ''}" placeholder="e.g. 800.00" step="0.01" min="0"></div>
+          <div class="field" style="margin:0;"><label style="font-size:11px;">Pay Frequency</label><select id="salary-${key}-freq"><option value="monthly" ${(s.salary_freq||'monthly')==='monthly'?'selected':''}>Monthly</option><option value="biweekly" ${s.salary_freq==='biweekly'?'selected':''}>Bi-weekly</option><option value="weekly" ${s.salary_freq==='weekly'?'selected':''}>Weekly</option><option value="sunday_only" ${s.salary_freq==='sunday_only'?'selected':''}>Sunday Only</option></select></div>
+        </div>`;
+      // Insert before the last child (the add-staff-form div)
+      const lastChild = salaryGrid.lastElementChild;
+      salaryGrid.insertBefore(newCard, lastChild);
+    });
+  }
   openModal('modal-salary-config');
 }
 
@@ -12651,7 +12688,7 @@ async function openKettyManager(staffName) {
       const reason = daysOffMap[sunday].reason || 'Day off';
       const offId = daysOffMap[sunday].id;
       statusHtml = `<span style="background:#f0f2f5;color:#8a9ab0;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;">— ${reason}</span>`;
-      actionsHtml = `<button onclick="removeKettyDayOff('${offId}','${sunday}')" style="background:var(--surface2);color:var(--text2);border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Undo</button>`;
+      actionsHtml = `<button onclick="removeKettyDayOff('${offId}','${sunday}','${staffName}')" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;" title="Undo">Undo</button>`;
     } else if (isFuture) {
       statusHtml = `<span style="background:#f0f2f5;color:#8a9ab0;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;">Upcoming</span>`;
       actionsHtml = '';
@@ -12753,16 +12790,18 @@ async function markKettyDayOff(staffName, sunday) {
   renderExpensesPanel();
 }
 
-async function removeKettyDayOff(id, sunday) {
+async function removeKettyDayOff(id, sunday, staffName) {
   if (!confirm(`Remove the "day off" marking for ${fmtDate(sunday)}?`)) return;
   const { error } = await db.from('staff_days_off').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
   toast('Day off marking removed');
-  await openKettyManager(sunday.staffName); // re-open
-  // Since we don't have staffName here, reload via strip
   renderExpensesPanel();
-  closeModal('modal-ketty-manager');
-}  
+  if (staffName) {
+    await openKettyManager(staffName);
+  } else {
+    closeModal('modal-ketty-manager');
+  }
+} 
 </script>
 <!-- MODAL: Ketty Sunday Manager -->
 <div class="modal-overlay" id="modal-ketty-manager">
