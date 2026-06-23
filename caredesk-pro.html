@@ -2924,9 +2924,9 @@ function buildCoreJs() {
 "      return;",
 "    }",
 "    // non-login page: guard",
-"    if(s){ s.auth.getSession().then(function(r){ if(!r.data || !r.data.session){ if(localStorage.getItem('cd_authed')!=='1'){ location.href='index.html'; } } }); }",
+"    if(s){ s.auth.getSession().then(function(r){ if(!r.data || !r.data.session){ if(localStorage.getItem('cd_authed')!=='1'){ location.href='landing.html'; } } }); }",
 "  }",
-"  function logout(){ var s=getSb(); localStorage.removeItem('cd_authed'); if(s){ s.auth.signOut(); } location.href='index.html'; }",
+"  function logout(){ var s=getSb(); localStorage.removeItem('cd_authed'); if(s){ s.auth.signOut(); } location.href='landing.html'; }",
 "",
 "  // 2. LOCKOUT — reads lockout_level from master DB by CLIENT_ID",
 "  var lvl1Timer=null;",
@@ -3308,6 +3308,7 @@ async function buildAfhSystemFromTemplate(tokens, d, onboarding) {
   const pwaScript = buildAfhPwaScript(onboarding);
 
   const files = {};
+  files['landing.html']    = buildLandingPage(onboarding);
   files['index.html']      = injectedHtml;
   files['app.css']         = injectedCss + brandCss;
   files['app.js']          = injectedJs + '\n\n' + pwaScript;
@@ -3440,6 +3441,137 @@ function buildAfhPwaScript(o) {
     '    document.addEventListener("DOMContentLoaded",function(){setTimeout(waitForLogin,1500);});\n' +
     '  } else { setTimeout(waitForLogin,1500); }\n' +
     '})();';
+}
+
+
+/** Generate a beautiful personalised landing page for the client system. */
+function buildLandingPage(o) {
+  var name     = o.businessName   || 'CareDesk';
+  var tagline  = o.tagline        || 'Compassionate care, organized.';
+  var primary  = o.primaryColor   || '#b8860b';
+  var secondary= o.secondaryColor || '#4ec9b0';
+  var logo     = o.logoBase64     || '';
+  var type     = o.systemType     || 'home';
+  var subtitle = type === 'rn' ? 'RN Management System' : 'Care Management System';
+  var badge    = 'WA State \u00b7 DSHS Compliant \u00b7 ' + name;
+  var words    = name.trim().split(/\s+/);
+  var headMain = words.length > 1 ? words.slice(0, -1).join(' ') : '';
+  var headAccent = words[words.length - 1];
+  var abbr     = words.slice(0, 2).join(' ');
+
+  var logoHtml = logo
+    ? '<img src="' + logo + '" alt="' + name + '" style="width:54px;height:54px;border-radius:14px;object-fit:contain;background:#f5f5f7;">'
+    : '<div style="width:44px;height:44px;border-radius:12px;background:' + primary + ';color:#fff;display:grid;place-items:center;font-size:20px;font-weight:800;font-family:Georgia,serif;">' + (name[0]||'C') + '</div>';
+
+  var navLogoHtml = logo
+    ? '<img src="' + logo + '" alt="' + name + '" style="width:28px;height:28px;border-radius:8px;object-fit:contain;">'
+    : '<div style="width:28px;height:28px;border-radius:8px;background:' + primary + ';color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800;">' + (name[0]||'C') + '</div>';
+
+  var headHtml = headMain
+    ? headMain + ' <span style="color:' + primary + ';">' + headAccent + '</span>'
+    : '<span style="color:' + primary + ';">' + headAccent + '</span>';
+
+  var feat1h = type === 'rn' ? 'Client & Caregiver Tracking' : 'Resident Management';
+  var feat1p = type === 'rn' ? 'Track clients, caregivers, and facilities across your entire delegation caseload.' : 'Complete resident profiles, ADLs, vitals, medications, and incident logs in one view.';
+  var feat3h = type === 'rn' ? 'Credential Monitoring' : 'Payments & Wages';
+  var feat3p = type === 'rn' ? 'Track caregiver credentials, expiry dates, and delegation agreements with automated alerts.' : 'Resident billing, staff wages, and expense tracking with full payment history.';
+  var feat2p = type === 'rn' ? 'Forms 13-678, 13-680, 13-681, 01-212, and 13-893 \u2014 managed and tracked automatically.' : 'Stay inspection-ready with structured documentation that satisfies DSHS requirements.';
+
+  var lines = [
+    '<!DOCTYPE html>',
+    '<html lang="en">',
+    '<head>',
+    '<meta charset="UTF-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+    '<title>' + name + ' \u2014 ' + subtitle + '</title>',
+    '<link rel="preconnect" href="https://fonts.googleapis.com">',
+    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">',
+    '<style>',
+    '*{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}',
+    'body{font-family:"Inter",system-ui,sans-serif;background:#fff;color:#0f172a;-webkit-font-smoothing:antialiased;}',
+    ':root{--p:' + primary + ';--s:' + secondary + ';--pl:' + primary + '18;--pm:' + primary + '30;}',
+    '.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.93);backdrop-filter:blur(12px);border-bottom:1px solid #f1f5f9;}',
+    '.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:#0f172a;text-decoration:none;}',
+    '.nav-brand span{color:var(--p);}',
+    '.nav-btn{background:var(--p);color:#fff;border:none;padding:9px 22px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;transition:opacity 0.2s,transform 0.2s;display:inline-block;}',
+    '.nav-btn:hover{opacity:0.88;transform:translateY(-1px);}',
+    '.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 80px;position:relative;overflow:hidden;}',
+    '.hbg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,' + primary + '10 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 80% 100%,' + secondary + '0d 0%,transparent 60%);pointer-events:none;}',
+    '.hgrid{position:absolute;inset:0;background-image:linear-gradient(#e2e8f012 1px,transparent 1px),linear-gradient(90deg,#e2e8f012 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}',
+    '.badge{display:inline-flex;align-items:center;gap:8px;background:var(--pl);border:1px solid var(--pm);color:var(--p);padding:6px 16px;border-radius:50px;font-size:12px;font-weight:600;letter-spacing:0.3px;margin-bottom:32px;}',
+    '.badge .dot{width:6px;height:6px;border-radius:50%;background:var(--p);}',
+    '.hero h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(44px,7vw,86px);font-weight:700;line-height:1.08;letter-spacing:-1px;color:#0f172a;margin-bottom:8px;}',
+    '.hsub{font-size:clamp(20px,2.5vw,30px);font-weight:700;color:#334155;margin-bottom:24px;letter-spacing:-0.3px;}',
+    '.hdesc{font-size:clamp(15px,1.6vw,17px);color:#64748b;max-width:600px;line-height:1.7;margin:0 auto 44px;}',
+    '.cta{display:inline-flex;align-items:center;gap:10px;background:var(--p);color:#fff;padding:16px 36px;border-radius:50px;font-size:15px;font-weight:700;text-decoration:none;transition:all 0.2s;box-shadow:0 8px 32px ' + primary + '40;}',
+    '.cta:hover{transform:translateY(-2px);box-shadow:0 12px 40px ' + primary + '55;opacity:0.92;}',
+    '.cta-note{font-size:12px;font-weight:500;color:#94a3b8;margin-top:12px;}',
+    '.feats{padding:100px 40px;background:#f8fafc;}',
+    '.feats-inner{max-width:1100px;margin:0 auto;}',
+    '.slabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--p);margin-bottom:12px;}',
+    '.stitle{font-family:"Playfair Display",Georgia,serif;font-size:clamp(26px,3.2vw,40px);font-weight:700;color:#0f172a;margin-bottom:16px;line-height:1.2;}',
+    '.ssub{font-size:16px;color:#64748b;max-width:520px;line-height:1.7;margin-bottom:52px;}',
+    '.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}',
+    '@media(max-width:800px){.fgrid{grid-template-columns:1fr;}}',
+    '.fcard{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;transition:all 0.2s;}',
+    '.fcard:hover{border-color:var(--p);box-shadow:0 8px 32px ' + primary + '15;transform:translateY(-2px);}',
+    '.ficon{width:44px;height:44px;border-radius:12px;background:var(--pl);display:grid;place-items:center;margin-bottom:18px;}',
+    '.ficon svg{stroke:var(--p);}',
+    '.fcard h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;}',
+    '.fcard p{font-size:14px;color:#64748b;line-height:1.6;}',
+    '.trust{padding:52px 40px;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;text-align:center;}',
+    '.trust p{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#94a3b8;margin-bottom:24px;}',
+    '.titems{display:flex;align-items:center;justify-content:center;gap:44px;flex-wrap:wrap;}',
+    '.titem{font-size:13px;font-weight:600;color:#475569;display:flex;align-items:center;gap:8px;}',
+    '.tcheck{width:18px;height:18px;border-radius:50%;background:var(--pl);display:grid;place-items:center;}',
+    '.tcheck svg{stroke:var(--p);}',
+    '.footer{padding:36px 40px;text-align:center;background:#fff;}',
+    '.footer p{font-size:13px;color:#94a3b8;}',
+    '.footer a{color:var(--p);text-decoration:none;}',
+    '@media(max-width:600px){.nav{padding:0 20px;}.hero{padding:90px 20px 60px;}.feats{padding:60px 20px;}.titems{gap:20px;}}',
+    '</style>',
+    '</head>',
+    '<body>',
+    '<nav class="nav">',
+    '  <a class="nav-brand" href="landing.html">' + navLogoHtml + ' ' + abbr + ' <span>Mgmt</span></a>',
+    '  <a class="nav-btn" href="index.html">Sign In</a>',
+    '</nav>',
+    '<section class="hero">',
+    '  <div class="hbg"></div><div class="hgrid"></div>',
+    '  <div class="badge"><span class="dot"></span>' + badge + '</div>',
+    '  <div style="margin-bottom:28px;">' + logoHtml + '</div>',
+    '  <h1>' + headHtml + '</h1>',
+    '  <div class="hsub">' + subtitle + '</div>',
+    '  <p class="hdesc">' + tagline + '</p>',
+    '  <a class="cta" href="index.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Open Platform</a>',
+    '  <div class="cta-note">Secure sign-in required</div>',
+    '</section>',
+    '<section class="feats">',
+    '  <div class="feats-inner">',
+    '    <div class="slabel">Built for Washington State</div>',
+    '    <h2 class="stitle">Everything in one place</h2>',
+    '    <p class="ssub">A purpose-built platform that keeps your facility organized, compliant, and audit-ready at all times.</p>',
+    '    <div class="fgrid">',
+    '      <div class="fcard"><div class="ficon"><svg width="22" height="22" fill="none" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><h3>' + feat1h + '</h3><p>' + feat1p + '</p></div>',
+    '      <div class="fcard"><div class="ficon"><svg width="22" height="22" fill="none" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><h3>DSHS Compliance</h3><p>' + feat2p + '</p></div>',
+    '      <div class="fcard"><div class="ficon"><svg width="22" height="22" fill="none" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><h3>' + feat3h + '</h3><p>' + feat3p + '</p></div>',
+    '    </div>',
+    '  </div>',
+    '</section>',
+    '<div class="trust">',
+    '  <p>Built for confidence</p>',
+    '  <div class="titems">',
+    '    <div class="titem"><span class="tcheck"><svg width="10" height="10" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>WA State Compliant</div>',
+    '    <div class="titem"><span class="tcheck"><svg width="10" height="10" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>DSHS Audit Ready</div>',
+    '    <div class="titem"><span class="tcheck"><svg width="10" height="10" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Powered by CareDesk</div>',
+    '    <div class="titem"><span class="tcheck"><svg width="10" height="10" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>Secure & Private</div>',
+    '  </div>',
+    '</div>',
+    '<footer class="footer"><p>' + name + ' \u00b7 Powered by <a href="#">CareDesk</a> \u00b7 Washington State</p></footer>',
+    '</body>',
+    '</html>'
+  ];
+  return lines.join('\n');
 }
 
 /** PWA manifest.json for the generated AFH client repo. */
@@ -3744,6 +3876,7 @@ async function buildRnSystemFromTemplate(tokens, d, onboarding) {
   }
 
   const files = {};
+  files['landing.html']        = buildLandingPage(onboarding);
   files['index.html']          = injectOnboardingIntoTemplate(tpl, onboarding);
   files['onboarding.json']     = JSON.stringify(onboarding, null, 2);
   files['supabase-schema.sql'] = RN_SCHEMA_SQL;   // reuse the schema constant above
