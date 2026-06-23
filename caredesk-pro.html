@@ -2924,9 +2924,9 @@ function buildCoreJs() {
 "      return;",
 "    }",
 "    // non-login page: guard",
-"    if(s){ s.auth.getSession().then(function(r){ if(!r.data || !r.data.session){ if(localStorage.getItem('cd_authed')!=='1'){ location.href='landing.html'; } } }); }",
+"    if(s){ s.auth.getSession().then(function(r){ if(!r.data || !r.data.session){ if(localStorage.getItem('cd_authed')!=='1'){ location.href='index.html'; } } }); }",
 "  }",
-"  function logout(){ var s=getSb(); localStorage.removeItem('cd_authed'); if(s){ s.auth.signOut(); } location.href='landing.html'; }",
+"  function logout(){ var s=getSb(); localStorage.removeItem('cd_authed'); if(s){ s.auth.signOut(); } location.href='index.html'; }",
 "",
 "  // 2. LOCKOUT — reads lockout_level from master DB by CLIENT_ID",
 "  var lvl1Timer=null;",
@@ -3121,7 +3121,7 @@ function buildHomeSystem(tokens, d) {
   files['config.js'] = buildConfigJs(tokens, JSON.stringify(nav));
   files['caredesk-core.js'] = buildCoreJs();
   files['caredesk-style.css'] = buildClientCss();
-  files['index.html'] = loginPage();
+  files['signin.html'] = loginPage();
   files['dashboard.html'] = dashboardHtml('dashboard',
     "[{label:'Total residents',value:'—'},{label:'Payments this month',value:'—'},{label:'Upcoming appts',value:'—'},{label:'Open incidents',value:'—'}]",
     'Your facility at a glance.');
@@ -3262,7 +3262,7 @@ function injectOnboardingIntoTemplate(tpl, onboarding) {
 }
 
 /** Inject onboarding tokens into the AFH template and return the file map.
- *  Splits the single template file into index.html + app.css + app.js
+ *  Splits the single template file into signin.html + app.css + app.js
  *  so the generated system is editable without touching a minified blob. */
 async function buildAfhSystemFromTemplate(tokens, d, onboarding) {
   let tpl;
@@ -3308,8 +3308,8 @@ async function buildAfhSystemFromTemplate(tokens, d, onboarding) {
   const pwaScript = buildAfhPwaScript(onboarding);
 
   const files = {};
-  files['landing.html']    = buildLandingPage(onboarding);
-  files['index.html']      = injectedHtml;
+  files['index.html']      = buildLandingPage(onboarding);
+  files['signin.html']     = injectedHtml;
   files['app.css']         = injectedCss + brandCss;
   files['app.js']          = injectedJs + '\n\n' + pwaScript;
   files['onboarding.json'] = JSON.stringify(
@@ -3578,8 +3578,8 @@ function buildLandingPage(o) {
     '<body>',
 
     '<nav class="nav">',
-    '  <a class="nav-brand" href="landing.html">' + navLogoHtml + ' <span class="nb-name">' + abbr + '</span>&nbsp;<span class="nb-sub">Mgmt</span></a>',
-    '  <a class="nav-btn" href="index.html">Sign In</a>',
+    '  <a class="nav-brand" href="index.html">' + navLogoHtml + ' <span class="nb-name">' + abbr + '</span>&nbsp;<span class="nb-sub">Mgmt</span></a>',
+    '  <a class="nav-btn" href="signin.html">Sign In</a>',
     '</nav>',
 
     '<section class="hero">',
@@ -3595,8 +3595,8 @@ function buildLandingPage(o) {
     '    <p class="htag">' + tagline + '</p>',
     '    <p class="hdesc">' + sysDesc + '</p>',
     '    <div class="cta-wrap">',
-    '      <a class="cta" href="index.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Open Platform</a>',
-    '      <a class="cta2" href="index.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Sign In</a>',
+    '      <a class="cta" href="signin.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Open Platform</a>',
+    '      <a class="cta2" href="signin.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Sign In</a>',
     '    </div>',
     '    <div class="stats">',
     '      <div class="stat"><div class="stat-n">DSHS</div><div class="stat-l">Compliant</div></div>',
@@ -3663,7 +3663,7 @@ function buildAfhManifest(o) {
 /** vercel.json — single-page-app rewrite so all routes serve landing.html. */
 function buildAfhVercelJson() {
   return JSON.stringify({
-    rewrites: [{ source: '/(.*)', destination: '/landing.html' }],
+    rewrites: [{ source: '/(.*)', destination: '/index.html' }],
     headers: [{
       source: '/(.*)',
       headers: [
@@ -3875,7 +3875,7 @@ function buildAfhReadme(o) {
     'Client ID: `' + o.clientId + '`',
     '',
     'This is a ready-to-deploy Adult Family Home management system.',
-    'The Supabase project URL and anon key are already injected into `index.html`.',
+    'The Supabase project URL and anon key are already injected into `signin.html`.',
     '**No build step is required.** Push and deploy.',
     '',
     '## Deploy on Vercel (recommended — fastest, free)',
@@ -3943,8 +3943,8 @@ async function buildRnSystemFromTemplate(tokens, d, onboarding) {
   }
 
   const files = {};
-  files['landing.html']        = buildLandingPage(onboarding);
-  files['index.html']          = injectOnboardingIntoTemplate(tpl, onboarding);
+  files['index.html']          = buildLandingPage(onboarding);
+  files['signin.html']         = injectOnboardingIntoTemplate(tpl, onboarding);
   files['onboarding.json']     = JSON.stringify(onboarding, null, 2);
   files['supabase-schema.sql'] = RN_SCHEMA_SQL;   // reuse the schema constant above
   files['manifest.json']       = buildRnManifest(onboarding);
@@ -3993,7 +3993,7 @@ function buildRnReadme(o) {
     '',
     '| File | Purpose |',
     '|------|---------|',
-    '| `index.html` | The full RN app — pre-filled with this client\'s data. |',
+    '| `signin.html` | The full RN app — pre-filled with this client\'s data. |',
     '| `onboarding.json` | Business details record from the onboarding wizard. |',
     '| `supabase-schema.sql` | Run once in the client\'s Supabase project. |',
     '| `manifest.json` | PWA manifest for home-screen installation. |',
@@ -4018,7 +4018,7 @@ function buildRnSystem(tokens, d) {
   files['config.js'] = buildConfigJs(tokens, JSON.stringify(nav));
   files['caredesk-core.js'] = buildCoreJs();
   files['caredesk-style.css'] = buildClientCss();
-  files['index.html'] = loginPage();
+  files['signin.html'] = loginPage();
   files['dashboard.html'] = dashboardHtml('dashboard',
     "[{label:'Active AFH clients',value:'—'},{label:'Pending delegations',value:'—'},{label:'Expiring credentials',value:'—'},{label:'Upcoming visits',value:'—'}]",
     'Your delegation caseload at a glance.');
