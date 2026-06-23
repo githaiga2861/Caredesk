@@ -1,0 +1,23 @@
+{
+  "name": "The Precious Gift Adult Family Home",
+  "short_name": "The Precious Gift",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e1014",
+  "theme_color": "#630a21",
+  "description": "Adult Family Home management system powered by CareDesk.",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
