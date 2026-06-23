@@ -3660,10 +3660,10 @@ function buildAfhManifest(o) {
   }, null, 2);
 }
 
-/** vercel.json — single-page-app rewrite so all routes serve index.html. */
+/** vercel.json — single-page-app rewrite so all routes serve landing.html. */
 function buildAfhVercelJson() {
   return JSON.stringify({
-    rewrites: [{ source: '/(.*)', destination: '/index.html' }],
+    rewrites: [{ source: '/(.*)', destination: '/landing.html' }],
     headers: [{
       source: '/(.*)',
       headers: [
