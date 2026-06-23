@@ -9754,7 +9754,7 @@ function renderCBHSEntries() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div class="field" style="margin:0;">
           <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:5px;">Date</label>
-          <input type="date" value="${e.date}" onchange="cbhsEntries[${i}].date=this.value" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;">
+          <input type="date" value="${e.date || ''}" onchange="cbhsEntries[${i}].date=this.value" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;">
         </div>
         <div class="field" style="margin:0;">
           <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:5px;">Time or Duration of Services</label>
@@ -12387,502 +12387,9 @@ function maybeAutoStartTutorial(){
 // ══════════════════════════════════
 checkSession();
 
-async function exportCredentialsPDF() {
-  const html = buildCredentialsHTML();
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:'pt', format:'letter' });
-  const container = document.createElement('div');
-  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:816px;background:#fff;font-family:Times New Roman,serif;font-size:12px;';
-  container.innerHTML = html;
-  document.body.appendChild(container);
-  const name = (document.getElementById('cred-staff-name').value || 'Staff').replace(/\s+/g,'_');
-  doc.html(container, {
-    callback: function(d) {
-      document.body.removeChild(container);
-      d.save('CredentialsChecklist_' + name + '_' + new Date().toISOString().split('T')[0] + '.pdf');
-      setTimeout(function() { window.focus(); }, 300);
-    },
-    x:36, y:20, width:540, windowWidth:816
-  });
-}
-
-const SAVED_DOCS_KEY = 'hlh_saved_staff_docs';
-
-function saveToStaffDocsList(type, data) {
-  const existing = getSavedDocs();
-  const staffName = type === 'orientation' ? (data.name || 'Unknown') : (data['cred-staff-name'] || 'Unknown');
-  const entry = { id: uid(), type: type, staffName: staffName, savedAt: new Date().toISOString(), data: data };
-  existing.unshift(entry);
-  localStorage.setItem(SAVED_DOCS_KEY, JSON.stringify(existing.slice(0, 50)));
-  renderSavedStaffDocs();
-}
-
-function getSavedDocs() {
-  try { return JSON.parse(localStorage.getItem(SAVED_DOCS_KEY)) || []; } catch(e) { return []; }
-}
-
-function deleteSavedDoc(id) {
-  if (!confirm('Delete this saved record?')) { return; }
-  const docs = getSavedDocs().filter(function(d) { return d.id !== id; });
-  localStorage.setItem(SAVED_DOCS_KEY, JSON.stringify(docs));
-  renderSavedStaffDocs();
-  toast('Record deleted');
-}
-
-function loadSavedDoc(id) {
-  const doc = getSavedDocs().find(function(d) { return d.id === id; });
-  if (!doc) { return; }
-  if (doc.type === 'orientation') {
-    openDocModal('orientation');
-    const d = doc.data;
-    document.getElementById('ori-trainee-name').value = d.name || '';
-    document.getElementById('ori-hire-date').value = d.hireDate || '';
-    document.getElementById('ori-date1').value = d.date1 || '';
-    document.getElementById('ori-date2').value = d.date2 || '';
-    document.getElementById('ori-date3').value = d.date3 || '';
-    document.getElementById('ori-trainer-sig').value = d.trainerSig || '';
-    document.getElementById('ori-trainee-sig').value = d.traineeSig || '';
-    document.getElementById('ori-hours').value = d.hours || '';
-    document.getElementById('ori-last-day').value = d.lastDay || '';
-    document.getElementById('ori-notes').value = d.notes || '';
-    if (d.checks) {
-      d.checks.forEach(function(v, i) {
-        const el = document.getElementById('ori-chk-' + i);
-        if (el) { el.checked = v; }
-      });
-    }
-    toast('Orientation record loaded into form');
-  } else {
-    openDocModal('credentials');
-    const d = doc.data;
-    Object.entries(d).forEach(function(pair) {
-      const el = document.getElementById(pair[0]);
-      if (!el) { return; }
-      if (el.type === 'checkbox') { el.checked = pair[1]; }
-      else { el.value = pair[1] || ''; }
-    });
-    toast('Credentials record loaded into form');
-  }
-}
-
-function renderSavedStaffDocs() {
-  let container = document.getElementById('saved-staffdocs-container');
-  if (!container) {
-    const page = document.getElementById('page-staffdocs');
-    if (!page) { return; }
-    container = document.createElement('div');
-    container.id = 'saved-staffdocs-container';
-    container.style.cssText = 'margin-top:28px;';
-    page.appendChild(container);
-  }
-  const docs = getSavedDocs();
-  if (!docs.length) { container.innerHTML = ''; return; }
-  const typeLabel = { orientation: 'Orientation Checklist', credentials: 'Credentials Checklist' };
-  const typeColor = { orientation: '#b8860b', credentials: '#2563eb' };
-  container.innerHTML =
-    '<div id="saved-docs-list-anchor"></div>' +
-    '<div class="card">' +
-      '<div class="card-header" style="background:linear-gradient(135deg,#1a1a1a,#333);border-radius:10px 10px 0 0;padding:14px 20px;">' +
-        '<div style="color:#fff;font-size:16px;">Saved Staff Document Records</div>' +
-        '<div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px;">' + docs.length + ' record' + (docs.length !== 1 ? 's' : '') + ' saved locally</div>' +
-      '</div>' +
-      '<div class="card-body" style="padding:0;">' +
-        docs.map(function(doc) {
-          const savedDate = new Date(doc.savedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-          const color = typeColor[doc.type] || '#b8860b';
-          const label = typeLabel[doc.type] || doc.type;
-          return '<div style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--border);">' +
-            '<div style="flex:1;min-width:0;">' +
-              '<div style="font-weight:700;font-size:13.5px;color:var(--text);">' + escHtml(doc.staffName) + '</div>' +
-              '<div style="font-size:11.5px;color:' + color + ';font-weight:600;">' + label + '</div>' +
-              '<div style="font-size:11px;color:var(--text3);">Saved ' + savedDate + '</div>' +
-            '</div>' +
-            '<div style="display:flex;gap:6px;flex-shrink:0;">' +
-              '<button class="btn btn-secondary btn-sm" onclick="loadSavedDoc(\'' + doc.id + '\')">Load</button>' +
-              '<button class="btn btn-danger btn-sm" onclick="deleteSavedDoc(\'' + doc.id + '\')">Delete</button>' +
-            '</div>' +
-          '</div>';
-        }).join('') +
-      '</div>' +
-    '</div>';
-}
-
-function viewSavedStaffDocs() {
-  renderSavedStaffDocs();
-  setTimeout(function() {
-    const anchor = document.getElementById('saved-docs-list-anchor');
-    if (anchor) { anchor.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    else { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
-  }, 80);
-}
-
-async function registerNewStaff() {
-  const name = document.getElementById('new-staff-name').value.trim();
-  const startMonth = document.getElementById('new-staff-start-month').value.trim();
-  const amount = parseFloat(document.getElementById('new-staff-amount').value || 0);
-  const freq = document.getElementById('new-staff-freq').value || 'monthly';
-  if (!name || !startMonth) { toast('Please fill in Name and Month Started Working'); return; }
-  const staffRecord = {
-    id: uid(), name: name, email: '', password_plain: '',
-    salary_amount: amount || null, salary_freq: freq,
-    salary_start_month: startMonth + '-01', is_active: true,
-    created_at: new Date().toISOString(),
-    created_by: currentUser ? currentUser.name : ''
-  };
-  const res = await db.from('staff_members').upsert(staffRecord);
-  if (res.error) { toast('Error saving to database: ' + res.error.message); return; }
-  const firstName = name.split(' ')[0];
-  if (!KNOWN_STAFF.includes(firstName)) {
-    KNOWN_STAFF.push(firstName);
-    STAFF_COLORS[firstName] = { bg:'#f4f6f9', border:'#8a9ab0', text:'#4a5568', dot:'#8a9ab0' };
-  }
-  await loadDynamicStaffFromSupabase();
-  document.getElementById('new-staff-name').value = '';
-  document.getElementById('new-staff-start-month').value = '';
-  document.getElementById('new-staff-amount').value = '';
-  document.getElementById('add-staff-form').style.display = 'none';
-  toast(firstName + ' registered successfully!');
-  renderExpensesPanel();
-}
-
-async function loadDynamicStaffFromSupabase() {
-  const res = await db.from('staff_members')
-    .select('name, salary_amount, salary_freq, salary_start_month')
-    .eq('is_active', true);
-  const allStaff = res.data || [];
-  if (!allStaff.length) { return; }
-  const knownSeeds = new Set(['penninah nyandia','githaiga njoroge','james','alvan','ketty','joseph']);
-  const currentCfg = getSalaryConfig();
-  allStaff.forEach(function(s) {
-    if (!s.name || !s.salary_amount) { return; }
-    const firstName = s.name.split(' ')[0];
-    const firstLower = firstName.toLowerCase();
-    if (knownSeeds.has(s.name.toLowerCase()) || knownSeeds.has(firstLower)) { return; }
-    currentCfg[firstLower] = {
-      amount: parseFloat(s.salary_amount),
-      freq: s.salary_freq || 'monthly',
-      name: s.name,
-      start_month: s.salary_start_month || null
-    };
-    if (!KNOWN_STAFF.includes(firstName)) { KNOWN_STAFF.push(firstName); }
-    if (!STAFF_COLORS[firstName]) {
-      STAFF_COLORS[firstName] = { bg:'#f4f6f9', border:'#8a9ab0', text:'#4a5568', dot:'#8a9ab0' };
-    }
-  });
-  localStorage.setItem(SALARY_CONFIG_KEY, JSON.stringify(currentCfg));
-}
-
-async function openKettyManager(staffName) {
-  const cfg = getSalaryConfig();
-  const key = staffName.toLowerCase();
-  const staffCfg = cfg[key];
-  const colors = STAFF_COLORS[staffName] || { bg:'#fce4ec', border:'#e91e63', text:'#e91e63' };
-  document.getElementById('ketty-manager-title').textContent = staffName + ' — Sunday Attendance Manager';
-  const allSundays = getAllSundaysSince('2026-05-01');
-  const today = new Date().toISOString().split('T')[0];
-  const res1 = await db.from('expenses')
-    .select('amount, wage_period_start, exp_date')
-    .eq('expense_type', 'wage')
-    .eq('wage_staff', staffName);
-  const allPayments = res1.data || [];
-  const paidDates = new Set(allPayments.map(function(p) { return p.wage_period_start; }).filter(Boolean));
-  const payAmounts = {};
-  allPayments.forEach(function(p) { if (p.wage_period_start) { payAmounts[p.wage_period_start] = parseFloat(p.amount || 0); } });
-  const res2 = await db.from('staff_days_off').select('id, day_date, reason').eq('staff_name', staffName);
-  const daysOff = res2.data || [];
-  const daysOffMap = {};
-  daysOff.forEach(function(d) { daysOffMap[d.day_date] = d; });
-  const rows = allSundays.map(function(sunday) {
-    const isPaid = paidDates.has(sunday);
-    const isOff = !!daysOffMap[sunday];
-    const isFuture = sunday > today;
-    const isPending = !isPaid && !isOff && !isFuture;
-    let statusHtml = '';
-    let actionsHtml = '';
-    if (isPaid) {
-      const amt = payAmounts[sunday] || (staffCfg ? staffCfg.amount : 0) || 0;
-      statusHtml = '<span style="background:#e6f4ea;color:#1e7e34;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;">Paid $' + parseFloat(amt).toFixed(2) + '</span>';
-      actionsHtml = '<button onclick="removeKettyPayment(\'' + staffName + '\',\'' + sunday + '\')" style="background:var(--danger-light);color:var(--danger);border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Undo</button>';
-    } else if (isOff) {
-      const reason = daysOffMap[sunday].reason || 'Day off';
-      const offId = daysOffMap[sunday].id;
-      statusHtml = '<span style="background:#f0f2f5;color:#8a9ab0;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;">' + reason + '</span>';
-      actionsHtml = '<button onclick="removeKettyDayOff(\'' + offId + '\',\'' + sunday + '\',\'' + staffName + '\')" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Undo</button>';
-    } else if (isFuture) {
-      statusHtml = '<span style="background:#f0f2f5;color:#8a9ab0;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;">Upcoming</span>';
-    } else {
-      statusHtml = '<span style="background:#fdf0ef;color:#c0392b;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;">Unaccounted</span>';
-      actionsHtml =
-        '<button onclick="recordKettyPayment(\'' + staffName + '\',\'' + sunday + '\',' + (staffCfg ? staffCfg.amount : 0) + ')" style="background:#e6f4ea;color:#1e7e34;border:1px solid #a8d5b0;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Record Payment</button> ' +
-        '<button onclick="markKettyDayOff(\'' + staffName + '\',\'' + sunday + '\')" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Did Not Work</button>';
-    }
-    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);">' +
-      '<div style="font-size:13px;font-weight:' + (isPending ? '700' : '400') + ';color:' + (isPending ? '#c0392b' : 'var(--text)') + ';min-width:120px;">' + fmtDate(sunday) + '</div>' +
-      '<div style="flex:1;">' + statusHtml + '</div>' +
-      '<div style="display:flex;gap:6px;flex-shrink:0;">' + actionsHtml + '</div>' +
-    '</div>';
-  }).reverse().join('');
-  const paidCount = allSundays.filter(function(s) { return paidDates.has(s); }).length;
-  const offCount = allSundays.filter(function(s) { return !!daysOffMap[s]; }).length;
-  const unpaidCount = allSundays.filter(function(s) { return !paidDates.has(s) && !daysOffMap[s] && s <= today; }).length;
-  document.getElementById('ketty-manager-body').innerHTML =
-    '<div style="background:linear-gradient(135deg,' + colors.bg + ',#fff);border:1.5px solid ' + colors.border + ';border-radius:10px;padding:14px 18px;margin-bottom:16px;">' +
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;">' +
-        '<div><div style="font-size:22px;font-weight:800;color:#1e7e34;">' + paidCount + '</div><div style="font-size:11px;color:var(--text3);">Paid</div></div>' +
-        '<div><div style="font-size:22px;font-weight:800;color:#8a9ab0;">' + offCount + '</div><div style="font-size:11px;color:var(--text3);">Days Off</div></div>' +
-        '<div><div style="font-size:22px;font-weight:800;color:' + (unpaidCount > 0 ? '#c0392b' : '#1e7e34') + ';">' + unpaidCount + '</div><div style="font-size:11px;color:var(--text3)
-
-async function openDocModal(type) {
-  const overlay = document.getElementById('modal-doc-' + type);
-  if (!overlay) return;
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-
-  if (!overlay.dataset.initialised) {
-    overlay.dataset.initialised = '1';
-    if (type === 'orientation') {
-      buildOrientationChecklist();
-      loadOrientationDraft();
-    }
-    if (type === 'credentials') {
-      loadCredentialsDraft();
-    }
-  }
-
-  if (type === 'cbhs') {
-    const residents = await getResidents();
-    const sel = document.getElementById('cbhs-resident-select');
-    if (sel) {
-      const currentVal = sel.value;
-      sel.innerHTML = '<option value="">— Select Resident —</option>';
-      residents.forEach(function(r) {
-        const opt = document.createElement('option');
-        opt.value = r.id;
-        opt.textContent = r.name;
-        if (r.id === currentVal) { opt.selected = true; }
-        sel.appendChild(opt);
-      });
-    }
-    if (!overlay.dataset.cbhsInitialised) {
-      overlay.dataset.cbhsInitialised = '1';
-      const raw = localStorage.getItem('hlh_cbhs_draft');
-      if (raw) {
-        try {
-          const d = JSON.parse(raw);
-          if (d.clientName) {
-            const n = document.getElementById('cbhs-client-name');
-            if (n) { n.value = d.clientName; }
-          }
-          if (d.dob) {
-            const dob = document.getElementById('cbhs-client-dob');
-            if (dob) { dob.value = d.dob; }
-          }
-          if (d.tier) {
-            const radio = document.querySelector('input[name="cbhs-tier"][value="' + d.tier + '"]');
-            if (radio) { radio.checked = true; }
-          }
-          cbhsEntries = d.entries || [];
-        } catch(err) {
-          cbhsEntries = [];
-        }
-      }
-      if (!cbhsEntries.length) {
-        cbhsEntries = [blankCBHSEntry(), blankCBHSEntry()];
-      }
-      renderCBHSEntries();
-    }
-  }
-}
-
-function closeDocModal(type) {
-  const overlay = document.getElementById('modal-doc-' + type);
-  if (overlay) { overlay.classList.remove('open'); }
-  document.body.style.overflow = '';
-}
-
-['orientation', 'credentials', 'cbhs'].forEach(function(type) {
-  const overlay = document.getElementById('modal-doc-' + type);
-  if (overlay) {
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) { closeDocModal(type); }
-    });
-  }
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    ['orientation', 'credentials', 'cbhs'].forEach(function(type) {
-      closeDocModal(type);
-    });
-  }
-});
-
-function switchStaffDocTab(tab) {
-  openDocModal(tab);
-}
-
-// ── Salary config — reloads dynamic staff on every open ──────────────────────
-
-async function openSalaryConfig() {
-  const cfg = getSalaryConfig();
-  KNOWN_STAFF.forEach(function(name) {
-    const key = name.toLowerCase();
-    const amtEl = document.getElementById('salary-' + key + '-amount');
-    const freqEl = document.getElementById('salary-' + key + '-freq');
-    if (amtEl) { amtEl.value = cfg[key] && cfg[key].amount ? cfg[key].amount : ''; }
-    if (freqEl) { freqEl.value = cfg[key] && cfg[key].freq ? cfg[key].freq : 'monthly'; }
-  });
-
-  const salaryGrid = document.querySelector('#modal-salary-config .modal-body > div[style*="flex-direction:column"]');
-  if (salaryGrid) {
-    salaryGrid.querySelectorAll('[id^="salary-card-"]').forEach(function(c) { c.remove(); });
-    try {
-      const res = await db.from('staff_members').select('name, salary_amount, salary_freq').eq('is_active', true);
-      const dynamicStaff = res.data || [];
-      const knownKeys = new Set(KNOWN_STAFF.map(function(n) { return n.toLowerCase(); }));
-      const palette = [
-        ['#e8f0fe', '#1a73e8'],
-        ['#f3e8fd', '#7c3aed'],
-        ['#fce4ec', '#e91e63'],
-        ['#e6f4ea', '#1e7e34'],
-        ['#fff3cd', '#d68910']
-      ];
-      dynamicStaff.forEach(function(s) {
-        if (!s.name) { return; }
-        const firstName = s.name.split(' ')[0];
-        const key = firstName.toLowerCase();
-        if (knownKeys.has(key)) { return; }
-        const pick = palette[Math.floor(Math.random() * palette.length)];
-        const card = document.createElement('div');
-        card.id = 'salary-card-' + key;
-        card.style.cssText = 'padding:16px 18px;border-top:1px solid var(--border);';
-        const amt = s.salary_amount || '';
-        const freq = s.salary_freq || 'monthly';
-        card.innerHTML =
-          '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">' +
-            '<div style="width:38px;height:38px;border-radius:50%;background:' + pick[0] + ';border:2px solid ' + pick[1] + ';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:' + pick[1] + ';flex-shrink:0;">' + firstName.charAt(0) + '</div>' +
-            '<div style="font-weight:700;font-size:15px;color:var(--text);">' + escHtml(s.name) + '</div>' +
-          '</div>' +
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
-            '<div class="field" style="margin:0;"><label style="font-size:11px;">Amount Per Period ($)</label>' +
-            '<input type="number" id="salary-' + key + '-amount" value="' + amt + '" placeholder="e.g. 800.00" step="0.01" min="0"></div>' +
-            '<div class="field" style="margin:0;"><label style="font-size:11px;">Pay Frequency</label>' +
-            '<select id="salary-' + key + '-freq">' +
-              '<option value="monthly"' + (freq === 'monthly' ? ' selected' : '') + '>Monthly</option>' +
-              '<option value="biweekly"' + (freq === 'biweekly' ? ' selected' : '') + '>Bi-weekly</option>' +
-              '<option value="weekly"' + (freq === 'weekly' ? ' selected' : '') + '>Weekly</option>' +
-              '<option value="sunday_only"' + (freq === 'sunday_only' ? ' selected' : '') + '>Sunday Only</option>' +
-            '</select></div>' +
-          '</div>';
-        const lastChild = salaryGrid.lastElementChild;
-        if (lastChild) {
-          salaryGrid.insertBefore(card, lastChild);
-        } else {
-          salaryGrid.appendChild(card);
-        }
-      });
-    } catch(err) {
-      console.warn('openSalaryConfig dynamic staff load failed:', err);
-    }
-  }
-  openModal('modal-salary-config');
-}
-
-// ── Ketty day-off removal — passes staffName so manager can reopen ────────────
-
-async function removeKettyDayOff(id, sunday, staffName) {
-  if (!confirm('Remove the "day off" marking for ' + fmtDate(sunday) + '?')) { return; }
-  const res = await db.from('staff_days_off').delete().eq('id', id);
-  if (res.error) { toast('Error: ' + res.error.message); return; }
-  toast('Day off marking removed');
-  renderExpensesPanel();
-  if (staffName) {
-    await openKettyManager(staffName);
-  } else {
-    closeModal('modal-ketty-manager');
-  }
-}
-
-// ── Expense bill quick-open — arrow function fixes silent setTimeout bug ──────
-
-function openAddExpenseBill() {
-  openAddExpense();
-  setTimeout(function() { setExpenseType('bill'); }, 50);
-}
-
-// ── Staff doc record loaders — scroll modal body, not the page ────────────────
-
-async function loadOrientationRecord(id) {
-  const res = await db.from('staff_orientations').select('*').eq('id', id).single();
-  const r = res.data;
-  if (!r) { return; }
-  const fields = {
-    'ori-trainee-name': r.trainee_name,
-    'ori-hire-date':    r.hire_date,
-    'ori-date1':        r.ori_date1,
-    'ori-date2':        r.ori_date2,
-    'ori-date3':        r.ori_date3,
-    'ori-trainer-sig':  r.trainer_sig,
-    'ori-trainee-sig':  r.trainee_sig,
-    'ori-hours':        r.hours,
-    'ori-last-day':     r.last_day,
-    'ori-notes':        r.notes
-  };
-  Object.entries(fields).forEach(function(pair) {
-    const el = document.getElementById(pair[0]);
-    if (el) { el.value = pair[1] || ''; }
-  });
-  try {
-    const checks = JSON.parse(r.checks || '[]');
-    checks.forEach(function(v, i) {
-      const el = document.getElementById('ori-chk-' + i);
-      if (el) { el.checked = v; }
-    });
-  } catch(err) {}
-  const modal = document.getElementById('modal-doc-orientation');
-  if (modal) {
-    const body = modal.querySelector('[style*="overflow-y:auto"]');
-    if (body) { body.scrollTo({ top: 0, behavior: 'smooth' }); }
-  }
-  toast('Record loaded — edit and save again to update');
-}
-
-async function loadCredentialsRecord(id) {
-  const res = await db.from('staff_credentials').select('*').eq('id', id).single();
-  const r = res.data;
-  if (!r) { return; }
-  try {
-    const d = JSON.parse(r.field_data || '{}');
-    Object.entries(d).forEach(function(pair) {
-      const el = document.getElementById(pair[0]);
-      if (!el) { return; }
-      if (el.type === 'checkbox') { el.checked = pair[1]; }
-      else { el.value = pair[1] || ''; }
-    });
-  } catch(err) {}
-  const modal = document.getElementById('modal-doc-credentials');
-  if (modal) {
-    const body = modal.querySelector('[style*="overflow-y:auto"]');
-    if (body) { body.scrollTo({ top: 0, behavior: 'smooth' }); }
-  }
-  toast('Record loaded — edit and save again to update');
-}
-
-async function exportCredentialsPDF() {
-  const html = buildCredentialsHTML();
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:'pt', format:'letter' });
-  const container = document.createElement('div');
-  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:816px;background:#fff;font-family:Times New Roman,serif;font-size:12px;';
-  container.innerHTML = html;
-  document.body.appendChild(container);
-  const name = (document.getElementById('cred-staff-name').value || 'Staff').replace(/\s+/g,'_');
-  doc.html(container, {
-    callback: (d) => { document.body.removeChild(container); d.save(`CredentialsChecklist_${name}_${new Date().toISOString().split('T')[0]}.pdf`); setTimeout(() => window.focus(), 300); },
-    x:36, y:20, width:540, windowWidth:816
-  });
-}
-
+// ══════════════════════════════════
+// SAVED STAFF DOCS (localStorage)
+// ══════════════════════════════════
 const SAVED_DOCS_KEY = 'hlh_saved_staff_docs';
 
 function saveToStaffDocsList(type, data) {
@@ -12910,7 +12417,7 @@ function loadSavedDoc(id) {
   const doc = getSavedDocs().find(d => d.id === id);
   if (!doc) return;
   if (doc.type === 'orientation') {
-    switchStaffDocTab('orientation');
+    openDocModal('orientation');
     const d = doc.data;
     document.getElementById('ori-trainee-name').value = d.name || '';
     document.getElementById('ori-hire-date').value = d.hireDate || '';
@@ -12925,9 +12432,9 @@ function loadSavedDoc(id) {
     if (d.checks) {
       d.checks.forEach((v, i) => { const el = document.getElementById('ori-chk-' + i); if (el) el.checked = v; });
     }
-    toast('✅ Orientation record loaded into form');
+    toast('Orientation record loaded');
   } else {
-    switchStaffDocTab('credentials');
+    openDocModal('credentials');
     const d = doc.data;
     Object.entries(d).forEach(([elId, val]) => {
       const el = document.getElementById(elId);
@@ -12935,9 +12442,8 @@ function loadSavedDoc(id) {
       if (el.type === 'checkbox') el.checked = val;
       else el.value = val || '';
     });
-    toast('✅ Credentials record loaded into form');
+    toast('Credentials record loaded');
   }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function renderSavedStaffDocs() {
@@ -12963,21 +12469,18 @@ function renderSavedStaffDocs() {
       </div>
       <div class="card-body" style="padding:0;">
         ${docs.map(doc => {
-          const savedDate = new Date(doc.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+          const savedDate = new Date(doc.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
           const color = typeColor[doc.type] || '#b8860b';
           const label = typeLabel[doc.type] || doc.type;
           return `<div style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--border);">
-            <div style="width:38px;height:38px;border-radius:10px;background:${color}18;border:1.5px solid ${color}40;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-              ${doc.type === 'orientation' ? '📋' : '🏅'}
-            </div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:700;font-size:13.5px;color:var(--text);">${doc.staffName}</div>
               <div style="font-size:11.5px;color:${color};font-weight:600;">${label}</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:1px;">Saved ${savedDate}</div>
+              <div style="font-size:11px;color:var(--text3);">Saved ${savedDate}</div>
             </div>
             <div style="display:flex;gap:6px;flex-shrink:0;">
-              <button class="btn btn-secondary btn-sm" onclick="loadSavedDoc('${doc.id}')" style="font-size:11px;">↩️ Load into Form</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteSavedDoc('${doc.id}')" style="font-size:11px;">Delete</button>
+              <button class="btn btn-secondary btn-sm" onclick="loadSavedDoc('${doc.id}')">↩️ Load</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSavedDoc('${doc.id}')">Delete</button>
             </div>
           </div>`;
         }).join('')}
@@ -12999,134 +12502,34 @@ function viewSavedStaffDocs() {
 // ══════════════════════════════════
 async function registerNewStaff() {
   const name = document.getElementById('new-staff-name').value.trim();
-  const startMonth = document.getElementById('new-staff-start-month').value.trim(); // e.g. "2026-06"
+  const startMonth = document.getElementById('new-staff-start-month').value.trim();
   const amount = parseFloat(document.getElementById('new-staff-amount').value || 0);
   const freq = document.getElementById('new-staff-freq').value || 'monthly';
-
-  if (!name || !startMonth) {
-    toast('Please fill in Name and Month Started Working');
-    return;
-  }
-
-  const startMonthFull = startMonth + '-01'; // e.g. "2026-06-01"
-
-  // 1. Save to Supabase staff_members — this is the single source of truth
+  if (!name || !startMonth) { toast('Please fill in Name and Month Started Working'); return; }
   const staffRecord = {
-    id: uid(),
-    name,
-    email: '',
-    password_plain: '',
-    salary_amount: amount || null,
-    salary_freq: freq,
-    salary_start_month: startMonthFull,
-    is_active: true,
+    id: uid(), name, email: '', password_plain: '',
+    salary_amount: amount || null, salary_freq: freq,
+    salary_start_month: startMonth + '-01', is_active: true,
     created_at: new Date().toISOString(),
     created_by: currentUser ? currentUser.name : ''
   };
-
   const { error: dbError } = await db.from('staff_members').upsert(staffRecord);
-  if (dbError) {
-    toast('❌ Error saving to database: ' + dbError.message);
-    return;
-  }
-
-  // 2. Add to in-memory KNOWN_STAFF and STAFF_COLORS so balance tracking works this session
+  if (dbError) { toast('Error saving: ' + dbError.message); return; }
   const firstName = name.split(' ')[0];
   if (!KNOWN_STAFF.includes(firstName)) {
     KNOWN_STAFF.push(firstName);
     STAFF_COLORS[firstName] = { bg:'#f4f6f9', border:'#8a9ab0', text:'#4a5568', dot:'#8a9ab0' };
   }
-
-  // 3. Reload all dynamic staff from Supabase into salary config (replaces localStorage approach)
   await loadDynamicStaffFromSupabase();
-
-  // 4. Add a card for them in the salary config modal
-  const salaryGrid = document.querySelector('#modal-salary-config .modal-body > div[style*="flex-direction:column"]');
-  if (salaryGrid) {
-    const colors = ['#e8f0fe:#1a73e8', '#f3e8fd:#7c3aed', '#fce4ec:#e91e63', '#e6f4ea:#1e7e34', '#fff3cd:#d68910'];
-    const pick = colors[Math.floor(Math.random() * colors.length)].split(':');
-    const initials = firstName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-    const key = firstName.toLowerCase();
-    const newCard = document.createElement('div');
-    newCard.id = `salary-card-${key}`;
-    newCard.style.cssText = `padding:16px 18px;border-top:1px solid var(--border);background:${pick[0]}22;`;
-    newCard.innerHTML = `
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-        <div style="width:38px;height:38px;border-radius:50%;background:${pick[0]};border:2px solid ${pick[1]};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:${pick[1]};flex-shrink:0;">${initials}</div>
-        <div style="font-weight:700;font-size:15px;color:#1a2332;">${name}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="field" style="margin:0;">
-          <label style="font-size:11px;">Expected Amount Per Period ($)</label>
-          <input type="number" id="salary-${key}-amount" value="${amount || ''}" placeholder="e.g. 800.00" step="0.01" min="0">
-        </div>
-        <div class="field" style="margin:0;">
-          <label style="font-size:11px;">Pay Frequency</label>
-          <select id="salary-${key}-freq">
-            <option value="monthly" ${freq==='monthly'?'selected':''}>Monthly</option>
-            <option value="biweekly" ${freq==='biweekly'?'selected':''}>Bi-weekly</option>
-            <option value="weekly" ${freq==='weekly'?'selected':''}>Weekly</option>
-            <option value="sunday_only" ${freq==='sunday_only'?'selected':''}>Sunday Only</option>
-          </select>
-        </div>
-      </div>`;
-    salaryGrid.insertBefore(newCard, salaryGrid.lastElementChild);
-  }
-
-  // 5. Clear form + hide it
   ['new-staff-name','new-staff-start-month','new-staff-amount'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  document.getElementById('add-staff-form').style.display = 'none';
-
-  toast(`✅ ${name} registered and saved successfully!`);
+  const addForm = document.getElementById('add-staff-form');
+  if (addForm) addForm.style.display = 'none';
+  toast('✅ ' + firstName + ' registered successfully!');
   renderExpensesPanel();
 }
 
-// ── Load all dynamic staff from Supabase into in-memory salary config ──
-// Called on login and after registering new staff
-async function loadDynamicStaffFromSupabase() {
-  const { data: allStaff } = await db.from('staff_members')
-    .select('name, salary_amount, salary_freq, salary_start_month')
-    .eq('is_active', true);
-
-  if (!allStaff || !allStaff.length) return;
-
-  const knownSeeds = new Set(['penninah nyandia','githaiga njoroge','james','alvan','ketty','joseph']);
-  const currentCfg = getSalaryConfig();
-
-  allStaff.forEach(s => {
-    if (!s.name || !s.salary_amount) return;
-    const nameLower = s.name.toLowerCase();
-    const firstName = s.name.split(' ')[0];
-    const firstLower = firstName.toLowerCase();
-
-    // Skip the hardcoded four caregivers and login staff
-    if (knownSeeds.has(nameLower) || knownSeeds.has(firstLower)) return;
-
-    currentCfg[firstLower] = {
-      amount: parseFloat(s.salary_amount),
-      freq: s.salary_freq || 'monthly',
-      name: s.name,
-      start_month: s.salary_start_month || null
-    };
-
-    // Always push to KNOWN_STAFF — even if already in config, may be missing from array
-    if (!KNOWN_STAFF.includes(firstName)) {
-      KNOWN_STAFF.push(firstName);
-    }
-    // Always set STAFF_COLORS so the card renders correctly
-    if (!STAFF_COLORS[firstName]) {
-      STAFF_COLORS[firstName] = { bg:'#f4f6f9', border:'#8a9ab0', text:'#4a5568', dot:'#8a9ab0' };
-    }
-  });
-
-  localStorage.setItem(SALARY_CONFIG_KEY, JSON.stringify(currentCfg));
-}
-
-// ══════════════════════════════════
-// KETTY SUNDAY MANAGER
-// ══════════════════════════════════
 async function openKettyManager(staffName) {
   const cfg = getSalaryConfig();
   const key = staffName.toLowerCase();
