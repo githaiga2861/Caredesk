@@ -3340,8 +3340,8 @@ function splitAfhTemplate(tpl) {
   // Build the HTML shell:
   // Replace <style>...</style> with <link rel="stylesheet" href="app.css">
   let htmlShell = tpl.replace(cssBlock, '<link rel="stylesheet" href="app.css">', 1);
-  // Replace <script>...</script> with <script src="app.js"></script>
-  htmlShell = htmlShell.replace(jsBlock, '<script src="app.js"></script>');
+  // Replace <script>...<\/script> with <script src="app.js"><\/script>
+  htmlShell = htmlShell.replace(jsBlock, '<script src="app.js"><\/script>');
 
   return { htmlShell, cssContent, jsContent };
 }
@@ -3559,9 +3559,104 @@ function injectAfhTokens(tpl, o, opts) {
   }
 
   // Inject PWA install-prompt script immediately before </body>
-  // (skip when JS is a separate file — pwaScript is appended to app.js instead)
+  // Shows a polished "Add to Home Screen" banner after login,
+  // once per device, until the user taps "Not now" or installs.
+  const pwaScript =
+    '<script id="cdp-pwa-install">' +
+    '(function(){\n' +
+    '  var DISMISS_KEY = "cdp_pwa_dismissed";\n' +
+    '  var deferredPrompt = null;\n' +
+    '  var bannerEl = null;\n' +
+    '  var primary = "' + (o.primaryColor || '#b8860b') + '";\n' +
+    '  var appName = "' + (o.businessName || 'CareDesk Home').replace(/"/g, '\\"') + '";\n' +
+    '\n' +
+    '  window.addEventListener("beforeinstallprompt", function(e) {\n' +
+    '    e.preventDefault();\n' +
+    '    deferredPrompt = e;\n' +
+    '    if (!localStorage.getItem(DISMISS_KEY)) showBanner();\n' +
+    '  });\n' +
+    '\n' +
+    '  window.addEventListener("appinstalled", function() {\n' +
+    '    localStorage.setItem(DISMISS_KEY, "installed");\n' +
+    '    if (bannerEl) bannerEl.remove();\n' +
+    '  });\n' +
+    '\n' +
+    '  function showBanner() {\n' +
+    '    if (bannerEl) return;\n' +
+    '    bannerEl = document.createElement("div");\n' +
+    '    bannerEl.id = "cdp-pwa-banner";\n' +
+    '    bannerEl.style.cssText = [\n' +
+    '      "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);",\n' +
+    '      "z-index:99999;width:min(440px,calc(100vw - 32px));",\n' +
+    '      "background:#fff;border-radius:16px;",\n' +
+    '      "box-shadow:0 8px 32px rgba(0,0,0,0.18),0 2px 8px rgba(0,0,0,0.1);",\n' +
+    '      "border:1.5px solid rgba(0,0,0,0.07);",\n' +
+    '      "display:flex;align-items:center;gap:14px;padding:16px 18px;",\n' +
+    '      "font-family:system-ui,-apple-system,sans-serif;animation:cdpPwaIn .3s ease;"\n' +
+    '    ].join("");\n' +
+    '    bannerEl.innerHTML = [\n' +
+    '      "<style>",\n' +
+    '        "@keyframes cdpPwaIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}",\n' +
+    '          "to{opacity:1;transform:translateX(-50%) translateY(0)}}",\n' +
+    '        "#cdp-pwa-banner .cdp-pwa-icon{width:48px;height:48px;border-radius:12px;",\n' +
+    '          "background:linear-gradient(135deg," + primary + "," + primary + "dd);",\n' +
+    '          "display:flex;align-items:center;justify-content:center;",\n' +
+    '          "font-size:22px;flex-shrink:0;}",\n' +
+    '        "#cdp-pwa-banner .cdp-pwa-title{font-size:14px;font-weight:700;color:#111;line-height:1.3;}",\n' +
+    '        "#cdp-pwa-banner .cdp-pwa-sub{font-size:12px;color:#666;margin-top:2px;line-height:1.4;}",\n' +
+    '        "#cdp-pwa-banner .cdp-pwa-install{background:" + primary + ";color:#fff;border:none;",\n' +
+    '          "border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;",\n' +
+    '          "cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;}",\n' +
+    '        "#cdp-pwa-banner .cdp-pwa-install:hover{filter:brightness(1.1);}",\n' +
+    '        "#cdp-pwa-banner .cdp-pwa-dismiss{background:none;border:none;cursor:pointer;",\n' +
+    '          "color:#999;font-size:18px;line-height:1;padding:0 0 0 4px;flex-shrink:0;}",\n' +
+    '        "#cdp-pwa-banner .cdp-pwa-dismiss:hover{color:#333;}",\n' +
+    '      "</style>",\n' +
+    '      \'<div class="cdp-pwa-icon">📋</div>\',\n' +
+    '      "<div style=\\"flex:1;min-width:0;\\">",\n' +
+    '        \'<div class="cdp-pwa-title">Install \' + appName + \'</div>\',\n' +
+    '        \'<div class="cdp-pwa-sub">Add to your home screen for quick access — works offline.</div>\',\n' +
+    '      "</div>",\n' +
+    '      \'<button class="cdp-pwa-install" id="cdp-pwa-btn">Install</button>\',\n' +
+    '      \'<button class="cdp-pwa-dismiss" id="cdp-pwa-close" title="Not now">✕</button>\'\n' +
+    '    ].join("");\n' +
+    '    document.body.appendChild(bannerEl);\n' +
+    '    document.getElementById("cdp-pwa-btn").addEventListener("click", function() {\n' +
+    '      if (!deferredPrompt) return;\n' +
+    '      deferredPrompt.prompt();\n' +
+    '      deferredPrompt.userChoice.then(function(r) {\n' +
+    '        deferredPrompt = null;\n' +
+    '        if (r.outcome === "accepted") localStorage.setItem(DISMISS_KEY, "installed");\n' +
+    '        bannerEl.remove(); bannerEl = null;\n' +
+    '      });\n' +
+    '    });\n' +
+    '    document.getElementById("cdp-pwa-close").addEventListener("click", function() {\n' +
+    '      // Mark dismissed but DON\'T set permanent — shows again next login per the brief\n' +
+    '      if (bannerEl) { bannerEl.remove(); bannerEl = null; }\n' +
+    '    });\n' +
+    '  }\n' +
+    '\n' +
+    '  // Show banner after login (app visible) — poll until #app is shown\n' +
+    '  function waitForLogin() {\n' +
+    '    if (localStorage.getItem(DISMISS_KEY) === "installed") return;\n' +
+    '    if (!deferredPrompt) return; // browser hasn\'t fired beforeinstallprompt yet\n' +
+    '    var app = document.getElementById("app");\n' +
+    '    if (app && app.style.display !== "none" && app.style.display !== "") {\n' +
+    '      showBanner();\n' +
+    '    } else {\n' +
+    '      setTimeout(waitForLogin, 1000);\n' +
+    '    }\n' +
+    '  }\n' +
+    '  if (document.readyState === "loading") {\n' +
+    '    document.addEventListener("DOMContentLoaded", function() { setTimeout(waitForLogin, 1500); });\n' +
+    '  } else {\n' +
+    '    setTimeout(waitForLogin, 1500);\n' +
+    '  }\n' +
+    '})();\n' +
+    '<\/script>';
+
+  // Insert immediately before </body> (skip when JS is a separate file)
   if (!opts.skipPwa) {
-    var pwaScript = '<script id="cdp-pwa-install">' + buildAfhPwaScript(o) + '<\/script>';
     if (/<\/body>/i.test(out)) {
       out = out.replace(/<\/body>/i, pwaScript + '\n</body>');
     } else {
