@@ -3377,67 +3377,69 @@ function applyAfhTokenMap(str, o) {
 
 /** Extract the PWA install-prompt script from injectAfhTokens and return it
  *  as a standalone JS string (no <script> tags) for appending to app.js. */
+/** Build the PWA install-prompt script as a plain JS string (no script tags). */
 function buildAfhPwaScript(o) {
-  // The PWA script is self-contained — no DOM manipulation at define time,
-  // only on DOMContentLoaded / beforeinstallprompt events.
-  const primary  = o.primaryColor  || '#b8860b';
-  const appName  = (o.businessName || 'CareDesk Home').replace(/"/g, '\\"');
-  const logoSrc  = o.logoBase64 || 'assets/logo.png';
-  return [
-    '// ── PWA Install Prompt ─────────────────────────────────────────────────',
-    '(function(){',
-    '  var DISMISS_KEY = "cdp_pwa_dismissed";',
-    '  var deferredPrompt = null;',
-    '  var bannerEl = null;',
-    '  var primary = "' + primary + '";',
-    '  var appName = "' + appName + '";',
-    '  var logoSrc = "' + logoSrc + '";',
-    '',
-    '  window.addEventListener("beforeinstallprompt", function(e) {',
-    '    e.preventDefault();',
-    '    deferredPrompt = e;',
-    '    if (!localStorage.getItem(DISMISS_KEY)) showBanner();',
-    '  });',
-    '  window.addEventListener("appinstalled", function() {',
-    '    localStorage.setItem(DISMISS_KEY, "installed");',
-    '    if (bannerEl) bannerEl.remove();',
-    '  });',
-    '  function showBanner() {',
-    '    if (bannerEl) return;',
-    '    bannerEl = document.createElement("div");',
-    '    bannerEl.id = "cdp-pwa-banner";',
-    '    bannerEl.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;width:min(440px,calc(100vw - 32px));background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border:1.5px solid rgba(0,0,0,0.07);display:flex;align-items:center;gap:14px;padding:16px 18px;font-family:system-ui,-apple-system,sans-serif;animation:cdpPwaIn .3s ease;";',
-    '    bannerEl.innerHTML = \'<style>@keyframes cdpPwaIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}</style>\'',
-    '      + \'<img src="\' + logoSrc + \'" style="width:48px;height:48px;border-radius:12px;object-fit:contain;flex-shrink:0;">\'',
-    '      + \'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:#111;">Install \' + appName + \'</div><div style="font-size:12px;color:#666;margin-top:2px;">Add to your home screen for quick access.</div></div>\'',
-    '      + \'<button id="cdp-pwa-btn" style="background:\' + primary + \';color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">Install</button>\'',
-    '      + \'<button id="cdp-pwa-close" style="background:none;border:none;cursor:pointer;color:#999;font-size:18px;line-height:1;padding:0;flex-shrink:0;">✕</button>\';',
-    '    document.body.appendChild(bannerEl);',
-    '    document.getElementById("cdp-pwa-btn").addEventListener("click", function() {',
-    '      if (!deferredPrompt) return;',
-    '      deferredPrompt.prompt();',
-    '      deferredPrompt.userChoice.then(function(r) {',
-    '        deferredPrompt = null;',
-    '        if (r.outcome === "accepted") localStorage.setItem(DISMISS_KEY, "installed");',
-    '        if (bannerEl) { bannerEl.remove(); bannerEl = null; }',
-    '      });',
-    '    });',
-    '    document.getElementById("cdp-pwa-close").addEventListener("click", function() {',
-    '      if (bannerEl) { bannerEl.remove(); bannerEl = null; }',
-    '    });',
-    '  }',
-    '  function waitForLogin() {',
-    '    if (localStorage.getItem(DISMISS_KEY) === "installed") return;',
-    '    if (!deferredPrompt) return;',
-    '    var app = document.getElementById("app");',
-    '    if (app && app.style.display !== "none" && app.style.display !== "") { showBanner(); }',
-    '    else { setTimeout(waitForLogin, 1000); }',
-    '  }',
-    '  if (document.readyState === "loading") {',
-    '    document.addEventListener("DOMContentLoaded", function() { setTimeout(waitForLogin, 1500); });',
-    '  } else { setTimeout(waitForLogin, 1500); }',
-    '})();'
-  ].join('\n');
+  var primary = o.primaryColor || '#b8860b';
+  var appName = (o.businessName || 'CareDesk Home').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  var logoSrc = o.logoBase64 || 'assets/logo.png';
+
+  return '// PWA install prompt\n' +
+    '(function(){\n' +
+    '  var DISMISS_KEY="cdp_pwa_dismissed";\n' +
+    '  var deferredPrompt=null,bannerEl=null;\n' +
+    '  var primary="' + primary.replace(/"/g,'\\"') + '";\n' +
+    '  var appName="' + appName + '";\n' +
+    '  var logoSrc="assets/logo.png";\n' +
+    '  window.addEventListener("beforeinstallprompt",function(e){\n' +
+    '    e.preventDefault(); deferredPrompt=e;\n' +
+    '    if(!localStorage.getItem(DISMISS_KEY)) showBanner();\n' +
+    '  });\n' +
+    '  window.addEventListener("appinstalled",function(){\n' +
+    '    localStorage.setItem(DISMISS_KEY,"installed");\n' +
+    '    if(bannerEl) bannerEl.remove();\n' +
+    '  });\n' +
+    '  function showBanner(){\n' +
+    '    if(bannerEl) return;\n' +
+    '    bannerEl=document.createElement("div");\n' +
+    '    bannerEl.id="cdp-pwa-banner";\n' +
+    '    bannerEl.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;width:min(440px,calc(100vw - 32px));background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);display:flex;align-items:center;gap:14px;padding:16px 18px;font-family:system-ui,sans-serif;";\n' +
+    '    var img=document.createElement("img");\n' +
+    '    img.src=logoSrc; img.style.cssText="width:48px;height:48px;border-radius:12px;object-fit:contain;flex-shrink:0;";\n' +
+    '    var txt=document.createElement("div");\n' +
+    '    txt.style.flex="1";\n' +
+    '    txt.innerHTML="<strong>Install "+appName+"</strong><br><span style=\\"font-size:12px;color:#666;\\">Add to your home screen for quick access.</span>";\n' +
+    '    var btn=document.createElement("button");\n' +
+    '    btn.textContent="Install";\n' +
+    '    btn.style.cssText="background:"+primary+";color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;";\n' +
+    '    var cls=document.createElement("button");\n' +
+    '    cls.textContent="\\u2715";\n' +
+    '    cls.style.cssText="background:none;border:none;cursor:pointer;color:#999;font-size:18px;flex-shrink:0;";\n' +
+    '    bannerEl.appendChild(img); bannerEl.appendChild(txt); bannerEl.appendChild(btn); bannerEl.appendChild(cls);\n' +
+    '    document.body.appendChild(bannerEl);\n' +
+    '    btn.addEventListener("click",function(){\n' +
+    '      if(!deferredPrompt) return;\n' +
+    '      deferredPrompt.prompt();\n' +
+    '      deferredPrompt.userChoice.then(function(r){\n' +
+    '        deferredPrompt=null;\n' +
+    '        if(r.outcome==="accepted") localStorage.setItem(DISMISS_KEY,"installed");\n' +
+    '        if(bannerEl){bannerEl.remove();bannerEl=null;}\n' +
+    '      });\n' +
+    '    });\n' +
+    '    cls.addEventListener("click",function(){\n' +
+    '      if(bannerEl){bannerEl.remove();bannerEl=null;}\n' +
+    '    });\n' +
+    '  }\n' +
+    '  function waitForLogin(){\n' +
+    '    if(localStorage.getItem(DISMISS_KEY)==="installed") return;\n' +
+    '    if(!deferredPrompt) return;\n' +
+    '    var app=document.getElementById("app");\n' +
+    '    if(app&&app.style.display!=="none"&&app.style.display!==""){showBanner();}\n' +
+    '    else{setTimeout(waitForLogin,1000);}\n' +
+    '  }\n' +
+    '  if(document.readyState==="loading"){\n' +
+    '    document.addEventListener("DOMContentLoaded",function(){setTimeout(waitForLogin,1500);});\n' +
+    '  } else { setTimeout(waitForLogin,1500); }\n' +
+    '})();';
 }
 
 /** PWA manifest.json for the generated AFH client repo. */
