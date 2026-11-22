@@ -182,3 +182,9 @@ dialog::backdrop { background: rgba(20, 20, 20, .4); }
 .recipient.short { background: #fffaf0; box-shadow: inset 3px 0 0 var(--gold); }
 .tpl.short { border-color: #e3cf9f; background: #fffaf0; }
 .tpl.short strong::before { content: "★ "; color: var(--gold-deep); }
+
+/* lists: website upgrade vs new website */
+.tag.list-upgrade { background: #e4f2da; color: #2f6b14; border: 1px solid #c4e0ae; }
+.tag.list-new { background: #f1efe6; color: #6a5a2a; border: 1px solid #e2dcc6; }
+.tpl.upgrade { border-color: #9fd17f; background: #f1f8ea; }
+.tpl.upgrade strong::before { content: "↻ "; color: #3f9a22; }

@@ -57,9 +57,20 @@
     4: "4 · Final follow-up (day 21)",
     5: "5 · After a reply",
     6: "★ Quick pitch",
+    7: "★ Website upgrade · they already have a site",
   };
   const SHORT = "Quick pitch"; // campaign tag for quick, highlighted outreach lists
   const isShort = (c) => (c.campaign || "") === SHORT;
+  // Two lists: a company-domain email usually means the facility already has a website (upgrade pitch);
+  // a free-mail address (Gmail, Yahoo…) usually means it doesn't (new website pitch).
+  const FREE_MAIL = new Set(["gmail.com", "googlemail.com", "yahoo.com", "ymail.com", "hotmail.com", "outlook.com", "live.com",
+    "msn.com", "aol.com", "icloud.com", "me.com", "mac.com", "comcast.net", "att.net", "sbcglobal.net", "verizon.net",
+    "centurylink.net", "frontier.com", "q.com", "proton.me", "protonmail.com", "gmx.com", "mail.com"]);
+  const emailDomain = (c) => ((c.email || "").split("@")[1] || "").trim().toLowerCase();
+  const listOf = (c) => (emailDomain(c) && !FREE_MAIL.has(emailDomain(c)) ? "upgrade" : "new");
+  const LIST_LABEL = { upgrade: "Website upgrade", new: "New website" };
+  const listTag = (c) => el("span", { class: "tag list-" + listOf(c), title: listOf(c) === "upgrade" ? `Business email (${emailDomain(c)}) – probably has a website` : "Personal email – probably no website yet" },
+    listOf(c) === "upgrade" ? `↻ Upgrade · ${emailDomain(c)}` : "✚ New website");
   // Greeting used when we don't know the person's name
   const TEAM_GREETING = {
     hospital: "Care Management Team",
@@ -178,7 +189,9 @@
     const prev = state.lastSubjectByContact[contact.id];
     if (prev) return prev.subject.replace(/^(re:\s*)+/i, "");
     // fall back to the intro template written for this contact's category
-    const intro = state.templates.find((t) => t.stage === 1 && t.categories.includes(contact.category));
+    const intro = listOf(contact) === "upgrade"
+      ? [...state.templates].filter((t) => t.stage === 7).sort((x, y) => x.sort_order - y.sort_order)[0]
+      : state.templates.find((t) => t.stage === 1 && t.categories.includes(contact.category));
     return intro ? fill(intro.subject, contact) : `A website for ${contact.facility}`;
   }
 
@@ -187,7 +200,7 @@
     return {
       first_name: firstName(contact),
       contact_name: contact.contact_name || TEAM_GREETING[contact.category],
-      facility: contact.facility,
+      facility: contact.facility.replace(/\s*\([^)]*\)\s*$/, ""), // drop notes like "(2 homes)"
       city: contact.city || contact.county || "your area",
       county: contact.county ? `${contact.county} County` : "",
       sender_name: s.sender_name || "",
@@ -249,7 +262,7 @@
     // falling back to the last subject of any kind.
     const stageOf = Object.fromEntries(state.templates.map((x) => [x.id, x.stage]));
     for (const row of l.data) {
-      const isIntro = stageOf[row.template_id] === 1;
+      const isIntro = stageOf[row.template_id] === 1 || (stageOf[row.template_id] === 7 && /^(?!re:)/i.test(row.subject));
       const prev = state.lastSubjectByContact[row.contact_id];
       if (isIntro || !prev || !prev.intro) state.lastSubjectByContact[row.contact_id] = { subject: row.subject, intro: isIntro };
     }
@@ -323,17 +336,23 @@
     box.replaceChildren();
     let stage = null;
     // quick-pitch templates are pinned to the top
-    for (const t of [...state.templates].sort((x, y) => (y.stage === 6) - (x.stage === 6))) {
+    const pin = (t) => (t.stage === 7 ? 2 : t.stage === 6 ? 1 : 0);
+    for (const t of [...state.templates].sort((x, y) => pin(y) - pin(x))) {
       if (t.stage !== stage) {
         stage = t.stage;
         box.append(el("div", { class: "stage-label" }, STAGE_LABEL[stage] || `Stage ${stage}`));
       }
       box.append(
         el("button", {
-          class: "tpl" + (t.stage === 6 ? " short" : "") + (t.id === state.selectedTemplateId ? " active" : ""),
+          class: "tpl" + (t.stage === 6 ? " short" : "") + (t.stage === 7 ? " upgrade" : "") + (t.id === state.selectedTemplateId ? " active" : ""),
           onclick: () => {
             state.selectedTemplateId = t.id;
-            $("#r-campaign").value = t.stage === 6 ? SHORT : "";
+            // upgrade templates → facilities that already have a website; intro sequence → those without
+            $("#r-campaign").value = t.stage === 7 ? "upgrade" : t.stage >= 1 && t.stage <= 4 ? "new" : "";
+            for (const id of [...state.selectedIds]) {
+              const c = state.contacts.find((x) => x.id === id);
+              if (c && $("#r-campaign").value && listOf(c) !== $("#r-campaign").value) state.selectedIds.delete(id);
+            }
             // drop selected receivers this template isn't written for, so nothing hidden gets emailed
             if (t.categories.length) {
               for (const id of [...state.selectedIds]) {
@@ -374,7 +393,7 @@
       if (cat && c.category !== cat) return false;
       if (county && c.county !== county) return false;
       if (status && c.status !== status) return false;
-      if (campaign && (c.campaign || "") !== campaign) return false;
+      if (campaign && listOf(c) !== campaign) return false;
       if (matchOnly && !t.categories.includes(c.category)) return false;
       if (q) {
         const hay = [c.facility, c.contact_name, c.city, c.county, c.email, c.role].join(" ").toLowerCase();
@@ -391,7 +410,7 @@
     list.replaceChildren();
     const rows = filteredRecipients();
     // emailable first
-    rows.sort((a, b) => (isShort(b) - isShort(a)) || (sendable(b) - sendable(a)) || a.facility.localeCompare(b.facility));
+    rows.sort((a, b) => listOf(b).localeCompare(listOf(a)) || (sendable(b) - sendable(a)) || a.facility.localeCompare(b.facility));
     for (const c of rows) {
       const ok = sendable(c);
       list.append(
@@ -407,7 +426,7 @@
           }),
           el("div", { class: "r-main" },
             el("div", {}, el("strong", {}, c.facility), " ", el("span", { class: "tag " + c.category }, CATEGORY_LABEL[c.category]),
-              isShort(c) ? el("span", { class: "tag shortm" }, "★ Quick pitch") : null),
+              listTag(c)),
             el("div", { class: "muted small" },
               [c.contact_name, [c.city, c.county].filter(Boolean).join(", "), c.email || (c.phone ? `no email · call ${c.phone}` : "no email")].filter(Boolean).join(" · ")),
           ),
@@ -601,7 +620,7 @@
     if (c.status === "not_contacted") patch.status = "in_sequence";
     await sb.from("outreach_contacts").update(patch).eq("id", c.id);
     Object.assign(c, patch);
-    const isIntro = d.template?.stage === 1;
+    const isIntro = d.template?.stage === 1 || (d.template?.stage === 7 && !/^re:/i.test(d.subject));
     const prev = state.lastSubjectByContact[c.id];
     if (isIntro || !prev || !prev.intro) state.lastSubjectByContact[c.id] = { subject: d.subject, intro: isIntro };
     renderRecipients();
@@ -643,11 +662,12 @@
     body.replaceChildren();
     const rows = state.contacts.filter((c) =>
       !q || [c.facility, c.contact_name, c.city, c.county, c.email, c.category, c.campaign].join(" ").toLowerCase().includes(q))
-      .sort((a, b) => isShort(b) - isShort(a));
-    $("#contact-count").textContent = `${rows.length} of ${state.contacts.length}`;
+      .sort((a, b) => listOf(a).localeCompare(listOf(b)) || a.facility.localeCompare(b.facility));
+    const up = state.contacts.filter((x) => listOf(x) === "upgrade").length;
+    $("#contact-count").textContent = `${rows.length} of ${state.contacts.length} · ${up} website upgrade · ${state.contacts.length - up} new website`;
     for (const c of rows) {
       body.append(el("tr", {},
-        el("td", {}, el("strong", {}, c.facility), isShort(c) ? el("div", {}, el("span", { class: "tag shortm" }, "★ Quick pitch")) : null),
+        el("td", {}, el("strong", {}, c.facility), el("div", {}, listTag(c))),
         el("td", {}, el("span", { class: "tag " + c.category }, CATEGORY_LABEL[c.category])),
         el("td", {}, [c.city, c.county].filter(Boolean).join(", ")),
         el("td", {}, c.contact_name || "—"),

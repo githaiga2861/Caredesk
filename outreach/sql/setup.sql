@@ -339,7 +339,7 @@ Best regards,
 {signature}
 $b$, 2),
 
-('2A', 'Value follow-up – free website review (day 4)', 2, '{}',
+('2A', 'Value follow-up – free homepage sketch (day 4)', 2, '{}',
 $s$Re: {previous_subject}$s$,
 $b$Hi {first_name},
 
@@ -349,7 +349,7 @@ Following up on my note from earlier this week. When families and discharge plan
 2. There's a simple way to send a referral or book a tour, not only a phone number.
 3. The site works properly on a phone.
 
-If it helps, I'd be glad to do a free review of {facility}'s current website and send you three specific improvements. There's no cost and no obligation; just reply "yes" and I'll send it within two business days.
+If it helps, I'd be glad to sketch a free homepage design for {facility} so you can see what it could look like. There's no cost and no obligation; just reply "yes" and I'll send it within three business days.
 
 Click my {portfolio_link} for examples of my work.
 
@@ -428,6 +428,63 @@ Best regards,
 {signature}
 $b$, 2),
 
+('U1', 'Website upgrade – introduction', 7, '{}',
+$s$Upgrading {facility}'s website$s$,
+$b$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build management systems for care facilities, and I work remotely with clients across the US.
+
+Since {facility} already has a website, I'm not suggesting starting over. I help facilities get more out of the site they have:
+
+• A faster, modern design that works well on a phone, where most families and discharge planners look first
+• Online referral, tour and waitlist forms that land straight in your inbox
+• Clear pages for the care you provide, admissions and payment options
+• Simple editing, so your team can keep it up to date without calling a developer
+
+Click my {portfolio_link} to see recent work, including Golden Years Home Care and Harmony Living House.
+
+If you'd like, I'll review your current website for free and send you three specific upgrades. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$b$, 1),
+
+('U2', 'Website upgrade – free review follow-up (day 5)', 7, '{}',
+$s$Re: {previous_subject}$s$,
+$b$Hi {first_name},
+
+Following up on my note about {facility}'s website. My free review is short and practical. I look at:
+
+1. How the site looks and loads on a phone
+2. How easy it is for a family or discharge planner to send a referral or book a tour
+3. How clearly it explains the care you provide and who you accept
+4. How it shows up when people in {city} search for care
+
+You'd get a one-page summary with three upgrades I'd recommend, whether or not we work together. Just reply "yes".
+
+You can see examples of my work on my {portfolio_link}.
+
+Best regards,
+
+{signature}
+$b$, 2),
+
+('U3', 'Website upgrade – final follow-up (day 14)', 7, '{}',
+$s$Closing the loop on {facility}'s website$s$,
+$b$Hi {first_name},
+
+This will be my last note for now. If refreshing {facility}'s website or adding online referral and tour forms becomes a priority, I'd be glad to help, and the free review offer stands.
+
+My work is on my {portfolio_link}, and the quickest way to reach me is {whatsapp_link}.
+
+Thank you for your time, and all the best to you and your team.
+
+Best regards,
+
+{signature}
+$b$, 3),
+
 ('QP1', 'Quick pitch – short note', 6, '{}',
 $s$Website & systems for {facility}$s$,
 $b$Hi {first_name},
@@ -446,7 +503,7 @@ $b$, 1)
 on conflict (code) do update set name = excluded.name, stage = excluded.stage, categories = excluded.categories,
   subject = excluded.subject, body = excluded.body, sort_order = excluded.sort_order;
 
--- Check: should list 138 contacts and 8 templates
+-- Check: should list 138 contacts and 11 templates
 select (select count(*) from public.outreach_contacts) as contacts,
        (select count(*) from public.outreach_templates) as templates,
        (select count(*) from public.outreach_contacts where email is not null) as with_email;
