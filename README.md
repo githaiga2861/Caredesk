@@ -16,7 +16,7 @@ One repo, one master Supabase project, three parts:
 To show client reviews, open `site/main.js`, find `REVIEWS`, and paste each client's own words (with their OK) into `quote`. Cards with an empty quote stay hidden.
 
 ## Facility Outreach
-1. Open the master Supabase project (the one CareDesk Pro → Settings uses). In **SQL Editor**, run `outreach/sql/setup.sql`. It creates the `outreach_*` tables, loads 138 facility contacts and 8 email templates, and is safe to run again.
+1. Open the master Supabase project (the one CareDesk Pro → Settings uses). In **SQL Editor**, run `outreach/sql/setup.sql`. It creates the `outreach_*` tables, loads the 53 facility contacts that have an email and 11 email templates, and is safe to run again.
 2. In **Authentication → Users → Add user**, create your login (tick Auto Confirm).
 3. Open CareDesk Pro and click **Facility Outreach** in the sidebar, or go to `/outreach/`. It reuses the Supabase connection saved in CareDesk Pro on the same browser. If none is saved, it asks for the URL and anon key once.
 

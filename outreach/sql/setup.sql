@@ -275,26 +275,9 @@ select * from (values
 ('Virginia Mason Franciscan Health Rehabilitation Hospital', 'rehab', 'Pierce', 'Tacoma (serves St. Joseph/St. Clare/St. Francis)', null, 'Admissions / Clinical Liaison; ask for case management', null, null, '253-444-3320', 'vmfhrehabhospital.com')) as v(facility, category, county, city, contact_name, role, email, email_note, phone, source)
 where not exists (select 1 from public.outreach_contacts);
 
--- Four facilities added later (no published emails yet – add them in Contacts when you get them)
-insert into public.outreach_contacts (facility, category, county, city, contact_name, role, email, email_note, phone, source)
-select v.* from (values
-  ('Shelton Health and Rehabilitation Center', 'snf', 'Mason', 'Shelton', 'Lyle Lewin',
-   'Executive Director', null::text, 'not published – call to ask for the right email',
-   '360-427-2575 (fax 360-427-2563)', 'WHCA Facility Finder; 153 Johns Ct, Shelton, WA 98584'),
-  ('Woodard Creek Health & Rehabilitation', 'snf', 'Thurston', 'Olympia', 'Austin Hoeft',
-   'Administrator', null, 'not published – contact form: woodardcreek.com/contact-us/',
-   '360-493-4900', 'WHCA Facility Finder; 3333 Ensign Rd NE, Olympia, WA 98506'),
-  ('Lacey Post Acute and Rehabilitation', 'snf', 'Thurston', 'Lacey', 'Elizabeth Fachting',
-   'Administrator', null, 'not published – text form: laceypostacute.com/contact-us/',
-   '360-491-9890 (fax 360-491-9278)', 'WHCA Facility Finder; 4524 Intelco Loop SE, Lacey, WA 98503'),
-  ('Birch Creek Post Acute and Rehabilitation', 'snf', 'Pierce', 'Tacoma', 'Sharon Holmes',
-   'Administrator', null, 'not published – contact form: birchcreekpostacute.com/contact-us/',
-   '253-474-8421 (fax 253-474-1403)', 'WHCA Facility Finder; 5601 S Orchard St, Tacoma, WA 98409')
-) as v(facility, category, county, city, contact_name, role, email, email_note, phone, source)
-where not exists (
-  select 1 from public.outreach_contacts c
-  where lower(c.facility) like lower(split_part(v.facility, ' ', 1) || ' ' || split_part(v.facility, ' ', 2)) || '%'
-);
+-- Only facilities with an email address are used for outreach
+delete from public.outreach_contacts where coalesce(trim(email), '') = '';
+
 
 -- ---------- Email templates: website & systems outreach ----------
 -- Placeholders filled automatically per facility: {first_name} {facility} {city} {county}
@@ -503,7 +486,7 @@ $b$, 1)
 on conflict (code) do update set name = excluded.name, stage = excluded.stage, categories = excluded.categories,
   subject = excluded.subject, body = excluded.body, sort_order = excluded.sort_order;
 
--- Check: should list 138 contacts and 11 templates
+-- Check: should list 53 contacts (all with email) and 11 templates
 select (select count(*) from public.outreach_contacts) as contacts,
        (select count(*) from public.outreach_templates) as templates,
        (select count(*) from public.outreach_contacts where email is not null) as with_email;
