@@ -3,363 +3,286 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Joseph Githaiga — Websites & Care Systems for Facilities</title>
-<meta name="description" content="Working remotely with US clients, Joseph Githaiga (BSc Data Science, PG Dip Business Management) designs premium websites and builds management systems for adult family homes, skilled nursing, rehab, memory care and hospital teams. Chat on WhatsApp +254 115 446 363.">
-<meta property="og:title" content="Joseph Githaiga — Websites & Care Systems for Facilities">
-<meta property="og:description" content="Websites, referral forms and care-management systems built for senior care facilities. Chat on WhatsApp.">
+<title>Joseph Githaiga — Premium Websites & Care Systems</title>
+<meta name="description" content="Working remotely with US clients, Joseph Githaiga (BSc Data Science, PG Dip Business Management) designs premium websites and builds data-driven care-management systems for facilities. Chat on WhatsApp.">
+<meta property="og:title" content="Joseph Githaiga — Premium Websites & Care Systems">
+<meta property="og:description" content="Premium websites and data-driven care systems, built end to end by one specialist. Working remotely with clients across the US.">
+<meta property="og:image" content="img/harmony-cover.webp">
 <meta name="theme-color" content="#262b1f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23262b1f'/%3E%3Cpath d='M8 46c10-12 20-14 28-8s14 4 20-2v20H8z' fill='%234fae2d'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/harmony-cover.webp">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div class="progress" id="progress" aria-hidden="true"></div>
+<div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
 
 <!-- ============ NAV ============ -->
-<header class="nav" id="top">
-  <button class="nav-menu" id="menu-btn" aria-label="Open menu" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
+<header class="nav" id="nav">
+  <button class="nav-menu" id="menu-btn" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
   <div class="nav-pill">
     <span class="nav-mark" aria-hidden="true">✦</span>
     <span class="nav-name">Joseph</span>
-    <a class="btn btn-dark btn-sm wa-link" href="#" data-wa="Hi Joseph, I'd like to talk about a website or system for our facility.">Let's talk</a>
+    <span class="nav-section mono" id="nav-section" aria-hidden="true"></span>
+    <a class="btn btn-dark btn-sm wa-link magnetic" href="#" data-wa="Hi Joseph, I'd like to talk about a website or system.">Let's talk</a>
   </div>
   <div class="nav-status"><span class="dot"></span>Remote · working with US clients</div>
-  <nav class="menu" id="menu" hidden>
-    <a href="#about">About</a><a href="#work">Work</a><a href="#why-joseph">Why Joseph</a><a href="#services">Services</a>
-    <a href="#process">Process</a><a href="#reviews">Clients</a><a href="#contact">Contact</a>
-  </nav>
 </header>
 
-<!-- ============ HERO ============ -->
-<section class="hero">
-  <div class="orbit" aria-hidden="true">
-    <span class="tag-pill t1">Web Design</span>
-    <span class="tag-pill t2">Care Systems</span>
-    <span class="tag-pill t3">Automation</span>
+<nav class="overlay" id="overlay" aria-hidden="true">
+  <div class="overlay-inner">
+    <a href="#work" data-i="01">Work</a>
+    <a href="#why" data-i="02">Why Joseph</a>
+    <a href="#services" data-i="03">Services</a>
+    <a href="#process" data-i="04">Process</a>
+    <a href="#contact" data-i="05">Contact</a>
   </div>
-  <div class="hero-cards" aria-hidden="true">
-    <div class="h-card green">
-      <div class="mini-browser">
-        <div class="mb-bar"><i></i><i></i><i></i></div>
-        <div class="mb-body">
-          <div class="mb-line w70"></div><div class="mb-line w45"></div>
-          <div class="mb-grid"><b></b><b></b><b></b></div>
-          <div class="mb-btn"></div>
-        </div>
-      </div>
-      <span class="h-card-label">Sites + Systems</span>
+  <a class="overlay-wa wa-link" href="#"><span class="wa-ico"></span> WhatsApp +254 115 446 363</a>
+</nav>
+
+<main>
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="orbit" aria-hidden="true">
+    <span class="tag-pill t1">Premium Websites</span>
+    <span class="tag-pill t2">Care Systems</span>
+    <span class="tag-pill t3">Data &amp; Automation</span>
+  </div>
+  <div class="hero-cards" id="hero-cards" aria-hidden="true">
+    <div class="h-card shot" data-depth="18">
+      <img src="img/harmony-cover.webp" alt="" width="800" height="500">
+      <span class="h-card-label">Live client work</span>
     </div>
-    <div class="h-card dark">
-      <span class="big">7+</span>
+    <div class="h-card dark" data-depth="30">
+      <span class="big"><span data-count="7">7</span>+</span>
       <span class="small">Live sites &amp; systems built for care teams</span>
     </div>
   </div>
 
-  <div class="hills hills-hero" data-hills="hero"></div>
+  <div class="hills hills-hero" data-hills="hero" data-parallax="0.25"></div>
 
   <div class="hero-copy">
-    <h1>Hi, I'm Joseph.</h1>
+    <h1 class="split">Hi, I'm Joseph.</h1>
     <p class="mono lead">
-      A web designer <span class="chip g">◧</span> building modern websites
-      and care-management systems <span class="chip d">⚙</span> for facilities that
-      look after seniors and vulnerable adults.
-    </p>
-    <p class="mono follow">
-      Message me on <a class="chip d wa-link" href="#" aria-label="WhatsApp"><span class="wa-ico sm"></span></a>
-      or email <a class="chip d" href="mailto:jose.githaiga.njoroge@gmail.com" aria-label="Email">✉</a>
+      I design premium websites <span class="chip g">◧</span> and build
+      <span class="rotator" id="rotator"><span>care-management systems</span></span> <span class="chip d">⚙</span>
+      for facilities that look after people.
     </p>
   </div>
 
   <div class="hero-meta">
     <span class="mono">REMOTE · CLIENTS ACROSS THE US</span>
-    <a class="btn btn-wa wa-link" href="#" data-wa="Hi Joseph, I'd like to talk about a website or system for our facility.">
+    <a class="btn btn-wa wa-link magnetic" href="#" data-wa="Hi Joseph, I'd like to talk about a website or system for our facility.">
       <span class="wa-ico"></span> Chat on WhatsApp
     </a>
-    <span class="mono" title="Pacific Time"><span id="clock">--:--:--</span> PT</span>
+    <span class="mono" title="Pacific Time — most of my clients are in Washington State"><span id="clock">--:--:--</span> PT</span>
   </div>
+  <a class="scroll-cue mono" href="#work" aria-label="Scroll to my work"><span></span>scroll</a>
 </section>
 
 <!-- ============ REMOTE STRIP ============ -->
-<section class="remote-strip" aria-label="Working remotely with US clients">
+<div class="remote-strip" aria-label="Working remotely with US clients">
   <div class="rs-track mono">
-    <span>🇺🇸 Working remotely with care facilities &amp; businesses across the United States</span><span>✦</span>
-    <span>Calls on your time zone — Pacific, Mountain, Central &amp; Eastern</span><span>✦</span>
+    <span>🇺🇸 Working remotely with clients across the United States</span><span>✦</span>
+    <span>Calls on your time zone — PT · MT · CT · ET</span><span>✦</span>
+    <span>One specialist · design → code → data → launch</span><span>✦</span>
     <span>WhatsApp +254 115 446 363</span><span>✦</span>
-    <span>🇺🇸 Working remotely with care facilities &amp; businesses across the United States</span><span>✦</span>
-    <span>Calls on your time zone — Pacific, Mountain, Central &amp; Eastern</span><span>✦</span>
+    <span>🇺🇸 Working remotely with clients across the United States</span><span>✦</span>
+    <span>Calls on your time zone — PT · MT · CT · ET</span><span>✦</span>
+    <span>One specialist · design → code → data → launch</span><span>✦</span>
     <span>WhatsApp +254 115 446 363</span><span>✦</span>
   </div>
-</section>
-
-<!-- ============ ABOUT ============ -->
-<section class="about wrap" id="about">
-  <div class="about-text">
-    <p class="about-lead">I design and build websites and day-to-day software for care facilities — clean, fast, and made around how your staff actually work. <span class="hl">I work remotely, and most of my clients are in the United States.</span></p>
-    <p class="muted">From a referral-ready website for your admissions team to a full resident, medication and staff-credential system for an adult family home, I handle the design, the build, hosting and training.</p>
-    <div class="about-actions">
-      <a class="btn btn-dark" href="#work">See my work</a>
-      <a class="btn btn-ghost wa-link" href="#">WhatsApp +254 115 446 363</a>
-    </div>
-    <div class="about-foot mono">
-      <span class="stars">●●●●●</span>
-      Remote-first · US time zones · replies within 24 hours on WhatsApp
-    </div>
-  </div>
-  <div class="about-cards">
-    <div class="a-card visual">
-      <div class="mini-dash">
-        <div class="md-side"><i></i><i></i><i></i><i></i></div>
-        <div class="md-main">
-          <div class="md-row"><b></b><b></b><b></b></div>
-          <div class="md-chart"><span style="height:40%"></span><span style="height:70%"></span><span style="height:55%"></span><span style="height:85%"></span><span style="height:62%"></span></div>
-        </div>
-      </div>
-    </div>
-    <div class="a-card dark">
-      <span class="eyebrow"><span class="dot"></span>Projects</span>
-      <span class="big">7+</span>
-      <span class="mono small">Websites &amp; systems live</span>
-    </div>
-    <div class="a-card wide">
-      <div class="hills hills-card" data-hills="card"></div>
-      <span class="eyebrow"><span class="dot"></span>Facility types</span>
-      <span class="big">5</span>
-      <span class="mono small">Hospitals · SNF · Rehab · Memory care · AFH</span>
-    </div>
-  </div>
-</section>
+</div>
 
 <!-- ============ WORK ============ -->
-<section class="dark-band" id="work">
+<section class="dark-band" id="work" data-label="Work">
   <div class="wrap">
     <div class="sec-head">
-      <span class="sec-label mono">Featured Projects</span>
-      <h2>Featured projects crafted with strategy</h2>
+      <span class="sec-label mono">Selected work · live today</span>
+      <h2 class="split">Real projects, running for real people.</h2>
     </div>
+    <p class="work-hint mono">Hover a project to scroll through the live site ↓</p>
     <div class="projects">
-      <a class="p-card" href="https://hcms.goldenyearshomecarewa.com/" target="_blank" rel="noopener">
-        <div class="p-shot s3">
-          <div class="mini-dash light">
-            <div class="md-side"><i></i><i></i><i></i><i></i></div>
-            <div class="md-main"><div class="md-row"><b></b><b></b><b></b></div><div class="md-table"><i></i><i></i><i></i><i></i></div></div>
-          </div>
-        </div>
-        <div class="p-meta"><div><h3>Golden Years HCMS</h3><p class="mono">Home care management system</p><span class="p-url mono">hcms.goldenyearshomecarewa.com</span></div><span class="p-go">↗</span></div>
+      <a class="p-card feature" href="https://harmonylivinghouse.com" target="_blank" rel="noopener">
+        <div class="p-frame"><div class="p-bar"><i></i><i></i><i></i><span>harmonylivinghouse.com</span></div>
+          <div class="p-shot"><img src="img/harmony.webp" alt="Harmony Living House website" loading="lazy" width="800" height="1500"></div></div>
+        <div class="p-meta"><div><span class="p-kind mono">Adult family home · Chehalis, WA</span><h3>Harmony Living House</h3></div><span class="p-go">↗</span></div>
       </a>
-      <a class="p-card" href="https://goldenyearshomecarewa.com" target="_blank" rel="noopener">
-        <div class="p-shot s1">
-          <div class="ps-nav"></div>
-          <div class="ps-hero"><strong>Care that feels like home</strong><span></span></div>
-          <div class="hills hills-shot" data-hills="shot"></div>
-        </div>
-        <div class="p-meta"><div><h3>Golden Years Home Care</h3><p class="mono">Home care agency website</p><span class="p-url mono">goldenyearshomecarewa.com</span></div><span class="p-go">↗</span></div>
+      <a class="p-card feature" href="https://goldenyearshomecarewa.com" target="_blank" rel="noopener">
+        <div class="p-frame"><div class="p-bar"><i></i><i></i><i></i><span>goldenyearshomecarewa.com</span></div>
+          <div class="p-shot"><img src="img/gyhc.webp" alt="Golden Years Home Care website" loading="lazy" width="800" height="1500"></div></div>
+        <div class="p-meta"><div><span class="p-kind mono">Home care agency · Washington</span><h3>Golden Years Home Care</h3></div><span class="p-go">↗</span></div>
+      </a>
+      <a class="p-card" href="https://hcms.goldenyearshomecarewa.com/" target="_blank" rel="noopener">
+        <div class="p-frame"><div class="p-bar"><i></i><i></i><i></i><span>hcms.goldenyearshomecarewa.com</span></div>
+          <div class="p-shot"><img src="img/hcms.webp" alt="Golden Years home care management system" loading="lazy" width="800" height="838"></div></div>
+        <div class="p-meta"><div><span class="p-kind mono">Scheduling · GPS clock-in · invoicing</span><h3>Home Care Management System</h3></div><span class="p-go">↗</span></div>
       </a>
       <a class="p-card" href="https://goldenyearshomehealthllc.com" target="_blank" rel="noopener">
-        <div class="p-shot s2">
-          <div class="ps-nav"></div>
-          <div class="ps-hero"><strong>Skilled nursing at home</strong><span></span></div>
-          <div class="ps-cards"><b></b><b></b><b></b></div>
-        </div>
-        <div class="p-meta"><div><h3>Golden Years Home Health</h3><p class="mono">Home health &amp; skilled nursing site</p><span class="p-url mono">goldenyearshomehealthllc.com</span></div><span class="p-go">↗</span></div>
+        <div class="p-frame"><div class="p-bar"><i></i><i></i><i></i><span>goldenyearshomehealthllc.com</span></div>
+          <div class="p-shot"><img src="img/gyhh.webp" alt="Golden Years Home Health website" loading="lazy" width="800" height="1500"></div></div>
+        <div class="p-meta"><div><span class="p-kind mono">Home health &amp; skilled nursing</span><h3>Golden Years Home Health</h3></div><span class="p-go">↗</span></div>
       </a>
       <a class="p-card" href="https://nurse-delegation-management-system.vercel.app/" target="_blank" rel="noopener">
-        <div class="p-shot s4">
-          <div class="ps-form"><i></i><i></i><i></i><i class="short"></i><b></b></div>
-        </div>
-        <div class="p-meta"><div><h3>RN Management System</h3><p class="mono">Nurse delegation &amp; DSHS forms</p><span class="p-url mono">nurse-delegation-management-system.vercel.app</span></div><span class="p-go">↗</span></div>
+        <div class="p-frame"><div class="p-bar"><i></i><i></i><i></i><span>nurse-delegation-management-system.vercel.app</span></div>
+          <div class="p-shot"><img src="img/rn.webp" alt="RN management system" loading="lazy" width="800" height="500"></div></div>
+        <div class="p-meta"><div><span class="p-kind mono">Nurse delegation · DSHS forms</span><h3>RN Management System</h3></div><span class="p-go">↗</span></div>
       </a>
-      <a class="p-card" href="https://harmonylivinghouse.com" target="_blank" rel="noopener">
-        <div class="p-shot s7">
-          <div class="ps-nav"></div>
-          <div class="ps-hero"><strong>Adult family home</strong></div>
-          <div class="ps-house"></div>
-        </div>
-        <div class="p-meta"><div><h3>Harmony Living House</h3><p class="mono">Adult family home website · Chehalis, WA</p><span class="p-url mono">harmonylivinghouse.com</span></div><span class="p-go">↗</span></div>
+      <a class="p-card wide" href="https://filmaxjambotours.com" target="_blank" rel="noopener">
+        <div class="p-frame"><div class="p-bar"><i></i><i></i><i></i><span>filmaxjambotours.com</span></div>
+          <div class="p-shot"><img src="img/filmax.webp" alt="Filmax Jambo Tours website" loading="lazy" width="800" height="1500"></div></div>
+        <div class="p-meta"><div><span class="p-kind mono">Luxury safari company · Kenya</span><h3>Filmax Jambo Tours</h3></div><span class="p-go">↗</span></div>
       </a>
-      <a class="p-card" href="https://filmaxjambotours.com" target="_blank" rel="noopener">
-        <div class="p-shot s8">
-          <div class="ps-hero light"><strong>Safaris &amp; tours</strong><span></span></div>
-          <div class="ps-sun"></div><div class="hills hills-shot" data-hills="shot2"></div>
-        </div>
-        <div class="p-meta"><div><h3>Filmax Jambo Tours</h3><p class="mono">Safari &amp; tour company website</p><span class="p-url mono">filmaxjambotours.com</span></div><span class="p-go">↗</span></div>
+      <a class="p-card cta wa-link" href="#" data-wa="Hi Joseph, I'd like you to build my project next.">
+        <span class="cta-k mono">Your project</span>
+        <strong>Could be the next one live here.</strong>
+        <span class="cta-btn"><span class="wa-ico"></span> Start on WhatsApp <span class="arr">→</span></span>
       </a>
     </div>
-    <p class="mono demo-note">Care systems sit behind a login to protect resident data — <a href="#contact" class="u">ask for a live demo</a> and I'll walk you through it.</p>
+    <p class="mono demo-note">Care systems sit behind secure logins to protect client data — <a href="#contact" class="u">ask for a live walkthrough</a>.</p>
   </div>
 </section>
 
 <!-- ============ WHY JOSEPH ============ -->
-<section class="wrap whyj" id="why-joseph">
+<section class="wrap whyj" id="why" data-label="Why Joseph">
   <div class="sec-head light">
     <span class="sec-label mono">Why Joseph</span>
-    <h2>One expert. The whole build.</h2>
+    <h2 class="split">One specialist. Every layer. Zero hand-offs.</h2>
   </div>
   <div class="whyj-grid">
-    <div class="whyj-hero">
-      <span class="eyebrow"><span class="dot"></span>Problem solver</span>
-      <p class="whyj-quote">I'm a pro who doesn't see a big problem without offering a working solution. I'm determined to make work easier for the people I build for.</p>
+    <div class="whyj-hero spotlight">
+      <span class="eyebrow"><span class="dot"></span>The difference</span>
+      <p class="whyj-quote">Big problems don't scare me — <em>they're the brief.</em></p>
+      <p class="whyj-sub">Messy paperwork, slow websites, spreadsheets nobody trusts: I turn them into calm, simple tools your team actually enjoys using. You get one specialist from first sketch to launch day — so nothing gets lost between designers, developers and data people.</p>
       <div class="whyj-creds">
-        <div><strong>BSc</strong><span class="mono">Data Science graduate</span></div>
+        <div><strong>BSc</strong><span class="mono">Data Science</span></div>
         <div><strong>PG Dip</strong><span class="mono">Business Management</span></div>
       </div>
-      <a class="btn btn-wa wa-link" href="#" data-wa="Hi Joseph, I'd like to talk about a project."><span class="wa-ico"></span> Talk to me directly</a>
+      <a class="btn btn-wa wa-link magnetic" href="#" data-wa="Hi Joseph, I have a problem I'd like you to solve."><span class="wa-ico"></span> Bring me your problem</a>
     </div>
-    <article class="whyj-card"><span class="svc-ico">◎</span><h3>No team needed</h3><p>Design, code, database, hosting and support — I do almost everything myself. You deal with one person who knows every part of your system.</p></article>
-    <article class="whyj-card"><span class="svc-ico">▦</span><h3>Data-intensive systems</h3><p>My data science background means records, medications, billing, staff credentials and reports are built to stay accurate and fast as your data grows.</p></article>
-    <article class="whyj-card"><span class="svc-ico">◆</span><h3>Premium websites only</h3><p>Every site is hand-crafted, fast and polished — no cluttered templates, no shortcuts.</p></article>
-    <article class="whyj-card"><span class="svc-ico">▲</span><h3>Business sense built in</h3><p>With a postgraduate diploma in business management, I build around your operations, budget and compliance, not just the code.</p></article>
+    <article class="whyj-card spotlight"><span class="svc-ico">◎</span><h3>A one-person studio</h3><p>Strategy, design, code, data and hosting under one roof. No hand-offs, no finger-pointing — one person to message who knows every line.</p></article>
+    <article class="whyj-card spotlight"><span class="svc-ico">▦</span><h3>Built for heavy data</h3><p>Trained as a data scientist, I build systems that stay fast and accurate with thousands of records — residents, medications, shifts and invoices.</p></article>
+    <article class="whyj-card spotlight"><span class="svc-ico">◆</span><h3>Premium by default</h3><p>Hand-coded, pixel-perfect and lightning fast. No page-builder bloat, no recycled templates — every site is made for you.</p></article>
+    <article class="whyj-card spotlight"><span class="svc-ico">▲</span><h3>Thinks like an operator</h3><p>Business training means every feature is weighed against your time, budget and compliance — not just how it looks.</p></article>
   </div>
   <div class="stack">
-    <span class="mono stack-label">Languages &amp; tools I build with</span>
-    <div class="stack-chips">
-      <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>TypeScript</span><span>React</span>
-      <span>Python</span><span>SQL / PostgreSQL</span><span>Supabase</span><span>Java · Android apps</span><span>Capacitor</span>
-    </div>
+    <span class="mono stack-label">Built with</span>
+    <div class="stack-view"><div class="stack-track">
+      <div class="stack-chips">
+        <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>TypeScript</span><span>React</span><span>Python</span>
+        <span>SQL / PostgreSQL</span><span>Supabase</span><span>Java · Android</span><span>Capacitor</span><span>Vercel</span><span>GitHub</span>
+      </div>
+      <div class="stack-chips" aria-hidden="true">
+        <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>TypeScript</span><span>React</span><span>Python</span>
+        <span>SQL / PostgreSQL</span><span>Supabase</span><span>Java · Android</span><span>Capacitor</span><span>Vercel</span><span>GitHub</span>
+      </div>
+    </div></div>
   </div>
 </section>
 
 <!-- ============ SERVICES ============ -->
-<section class="wrap services" id="services">
+<section class="wrap services" id="services" data-label="Services">
   <div class="sec-head light">
     <span class="sec-label mono">Services</span>
-    <h2>Creative solutions tailored for care facilities</h2>
+    <h2 class="split">What I build for you</h2>
   </div>
   <div class="svc-grid">
-    <article class="svc"><span class="svc-ico">◧</span><h3>Facility websites</h3><p>A modern, mobile-first site that tells families and discharge planners exactly what you offer, with clear calls to action.</p></article>
-    <article class="svc"><span class="svc-ico">⇄</span><h3>Referral &amp; admission forms</h3><p>Online referral, tour-booking and waitlist forms that land straight in your inbox — no more missed voicemails.</p></article>
-    <article class="svc"><span class="svc-ico">♥</span><h3>Resident care systems</h3><p>Resident records, progress notes, vitals, MAR and incident reports in one secure place your caregivers can use on a phone.</p></article>
-    <article class="svc"><span class="svc-ico">✓</span><h3>Staff &amp; credential tracking</h3><p>Caregiver credentials, trainings, orientation checklists and days off — with reminders before anything expires.</p></article>
-    <article class="svc"><span class="svc-ico">✉</span><h3>Outreach &amp; email tools</h3><p>A simple CRM for your referral sources with personalized email templates that send from your own Gmail.</p></article>
-    <article class="svc"><span class="svc-ico">☁</span><h3>Hosting &amp; support</h3><p>Fast, secure hosting, updates and a direct WhatsApp line to me when something needs changing.</p></article>
+    <article class="svc spotlight"><span class="svc-n mono">01</span><h3>Premium websites</h3><p>Fast, mobile-first sites that tell families and referral partners exactly what you offer — and make it effortless to reach you.</p></article>
+    <article class="svc spotlight"><span class="svc-n mono">02</span><h3>Referral &amp; booking flows</h3><p>Online referrals, tour bookings and waitlists that land straight in your inbox. No more missed voicemails.</p></article>
+    <article class="svc spotlight"><span class="svc-n mono">03</span><h3>Care-management systems</h3><p>Residents, notes, vitals, medications, incidents, scheduling and invoicing — one secure system your staff can use from a phone.</p></article>
+    <article class="svc spotlight"><span class="svc-n mono">04</span><h3>Data, dashboards &amp; automation</h3><p>Reports that build themselves, credentials that remind you before they expire, and numbers you can finally trust.</p></article>
   </div>
 </section>
 
 <!-- ============ PROCESS ============ -->
-<section class="wrap process" id="process">
-  <div class="proc-intro">
+<section class="wrap process" id="process" data-label="Process">
+  <div class="sec-head light">
     <span class="sec-label mono">Process</span>
-    <h2 class="proc-h">How we'll work together</h2>
-    <p class="mono muted">A simple, transparent way to work together — from first message to launch day.</p>
-    <a class="btn btn-wa wa-link" href="#"><span class="wa-ico"></span> Start on WhatsApp</a>
+    <h2 class="split">From first message to launch</h2>
   </div>
-  <ol class="timeline">
-    <li><span class="tl-tag mono">Step 01 · Day 1</span><h3>Free discovery chat</h3><p class="mono">A WhatsApp or video call about your facility, your staff and what slows you down.</p></li>
-    <li><span class="tl-tag mono">Step 02 · Week 1</span><h3>Design &amp; plan</h3><p class="mono">You see the look and the screens before a line of code is written.</p></li>
-    <li><span class="tl-tag mono">Step 03 · Weeks 2–4</span><h3>Build &amp; test</h3><p class="mono">I build it, load your data and test it with your team.</p></li>
-    <li><span class="tl-tag mono">Step 04 · Launch</span><h3>Go live &amp; train</h3><p class="mono">Launch, a short training session, and ongoing support on WhatsApp.</p></li>
-  </ol>
+  <div class="steps" id="steps">
+    <div class="steps-line"><span id="steps-fill"></span></div>
+    <div class="step"><span class="step-dot"></span><span class="tl-tag mono">Day 1</span><h3>Discovery chat</h3><p class="mono">A WhatsApp or video call on your time zone about what slows you down.</p></div>
+    <div class="step"><span class="step-dot"></span><span class="tl-tag mono">Week 1</span><h3>Design &amp; plan</h3><p class="mono">You see the screens and approve them before a line of code is written.</p></div>
+    <div class="step"><span class="step-dot"></span><span class="tl-tag mono">Weeks 2–4</span><h3>Build &amp; test</h3><p class="mono">I build it, load your data and test it alongside your team.</p></div>
+    <div class="step"><span class="step-dot"></span><span class="tl-tag mono">Launch</span><h3>Go live &amp; train</h3><p class="mono">Launch, a short training session, then support on WhatsApp.</p></div>
+  </div>
 </section>
 
-<!-- ============ TOOLS ============ -->
-<section class="dark-band tools-band">
+<!-- ============ CLIENTS ============ -->
+<section class="clients" id="clients" data-label="Clients">
   <div class="wrap">
-    <div class="tools">
-      <div class="tool"><span class="t-ico">⚡</span><div><strong>Supabase</strong><span class="mono">Secure database &amp; logins</span></div></div>
-      <div class="tool"><span class="t-ico">▲</span><div><strong>Vercel</strong><span class="mono">Fast global hosting</span></div></div>
-      <div class="tool"><span class="t-ico">⌥</span><div><strong>GitHub</strong><span class="mono">Version control &amp; backups</span></div></div>
-      <div class="tool"><span class="t-ico">✉</span><div><strong>Gmail</strong><span class="mono">Email from your own inbox</span></div></div>
-      <div class="tool"><span class="t-ico">▣</span><div><strong>Installable apps</strong><span class="mono">Works on phone &amp; tablet</span></div></div>
-      <div class="tool"><span class="t-ico">⎙</span><div><strong>Printable forms</strong><span class="mono">DSHS-style PDFs &amp; reports</span></div></div>
+    <div class="sec-head light">
+      <span class="sec-label mono">Clients</span>
+      <h2 class="split">Trusted by teams in the US &amp; Kenya</h2>
     </div>
   </div>
-  <div class="hills hills-band" data-hills="band"></div>
-</section>
-
-<!-- ============ CLIENTS & REVIEWS ============ -->
-<section class="wrap reviews" id="reviews">
-  <div class="sec-head light">
-    <span class="sec-label mono">Clients</span>
-    <h2>What clients say about working with me</h2>
+  <div class="logo-marquee mono">
+    <div class="lm-track">
+      <span>Golden Years Home Care</span><span>✦</span><span>Golden Years Home Health</span><span>✦</span><span>Harmony Living House</span><span>✦</span><span>Filmax Jambo Tours</span><span>✦</span><span>Groove Tax Services</span><span>✦</span>
+      <span>Golden Years Home Care</span><span>✦</span><span>Golden Years Home Health</span><span>✦</span><span>Harmony Living House</span><span>✦</span><span>Filmax Jambo Tours</span><span>✦</span><span>Groove Tax Services</span><span>✦</span>
+    </div>
   </div>
-  <div class="trusted mono">
-    <span>Trusted by</span>
-    <strong>Golden Years Home Care</strong><strong>Golden Years Home Health</strong>
-    <strong>Harmony Living House</strong><strong>Filmax Jambo Tours</strong><strong>Groove Tax Services</strong>
-  </div>
-  <div class="review-grid" id="review-grid"></div>
-</section>
-
-<!-- ============ WHY ============ -->
-<section class="wrap why">
-  <div class="sec-head light">
-    <span class="sec-label mono">Why facilities choose this</span>
-    <h2>What you get working with me</h2>
-  </div>
-  <div class="why-grid">
-    <article class="why-card"><div class="why-top"><span class="why-badge">01</span><strong>Built for care work</strong></div><p class="mono">I've built systems around DSHS forms, nurse delegation and AFH daily routines — not generic business software.</p></article>
-    <article class="why-card"><div class="why-top"><span class="why-badge">02</span><strong>You own it</strong></div><p class="mono">Your code, your database, your domain. No lock-in and no per-bed subscription fees.</p></article>
-    <article class="why-card"><div class="why-top"><span class="why-badge">03</span><strong>One direct line</strong></div><p class="mono">You talk to the person building it — on WhatsApp, email or a scheduled call.</p></article>
-    <article class="why-card"><div class="why-top"><span class="why-badge">04</span><strong>Phone-friendly</strong></div><p class="mono">Caregivers can chart from a phone at the bedside; managers see everything on a laptop.</p></article>
-    <article class="why-card"><div class="why-top"><span class="why-badge">05</span><strong>Privacy-minded</strong></div><p class="mono">Logins, row-level security and private hosting for anything that holds resident information.</p></article>
-  </div>
-</section>
-
-<!-- ============ GALLERY ============ -->
-<section class="gallery-band">
-  <div class="gallery">
-    <div class="g-card c1"><span class="g-k mono">Mobile-first</span><strong>Works on every phone</strong></div>
-    <div class="g-card c2"><span class="g-k mono">Fast</span><strong>Loads in about a second</strong></div>
-    <div class="g-card c3"><span class="g-k mono">Secure</span><strong>Logins &amp; protected data</strong></div>
-    <div class="g-card c4"><span class="g-k mono">Yours</span><strong>Own your code &amp; data</strong></div>
+  <div class="wrap"><div class="review-grid" id="review-grid"></div></div>
+  <div class="fan" id="fan" aria-hidden="true">
+    <img src="img/gyhh-cover.webp" alt="">
+    <img src="img/hcms-cover.webp" alt="">
+    <img src="img/harmony-cover.webp" alt="">
+    <img src="img/filmax-cover.webp" alt="">
+    <img src="img/gyhc-cover.webp" alt="">
   </div>
   <div class="hills hills-gallery" data-hills="gallery"></div>
 </section>
 
 <!-- ============ CONTACT ============ -->
-<section class="wrap contact" id="contact">
+<section class="wrap contact" id="contact" data-label="Contact">
   <div class="sec-head light">
     <span class="sec-label mono">Contact</span>
-    <h2>Let's create something meaningful together</h2>
+    <h2 class="split">Let's create something meaningful together</h2>
   </div>
   <div class="contact-grid">
     <aside class="c-info">
-      <div class="c-avatar" aria-hidden="true"><span>J</span></div>
-      <p class="mono small">Remote — working with clients across the US. Calls scheduled on your time zone.</p>
-      <a class="wa-big wa-link" href="#">
+      <p class="c-lead">The fastest way to start is a WhatsApp message. Tell me what's slowing you down — I'll reply within 24 hours with ideas, not a sales pitch.</p>
+      <a class="wa-big wa-link magnetic" href="#">
         <span class="wa-ico lg"></span>
-        <span><small class="mono">WhatsApp — fastest reply</small><strong>+254 115 446 363</strong></span>
+        <span><small class="mono">Call or chat on WhatsApp</small><strong>+254 115 446 363</strong></span>
       </a>
-      <a class="c-line mono wa-link" href="#">☏ Call or chat on WhatsApp: +254 115 446 363</a>
       <a class="c-line mono" href="mailto:jose.githaiga.njoroge@gmail.com">✉ jose.githaiga.njoroge@gmail.com</a>
+      <p class="mono small muted">Remote · calls scheduled on US time zones</p>
     </aside>
     <form class="c-form" id="contact-form">
-      <label>Name<input name="name" required placeholder="Enter your name"></label>
-      <label>Facility<input name="facility" placeholder="Facility or organization"></label>
+      <label>Name<input name="name" required placeholder="Your name"></label>
+      <label>Organization<input name="facility" placeholder="Facility or business"></label>
       <label>Email<input name="email" type="email" placeholder="Your email address"></label>
-      <label>What do you need?<textarea name="message" rows="4" required placeholder="A new website, a referral form, a care system…"></textarea></label>
+      <label>What do you need?<textarea name="message" rows="4" required placeholder="A new website, an upgrade, a care system…"></textarea></label>
       <div class="c-actions">
-        <button class="btn btn-wa" type="submit" data-via="wa"><span class="wa-ico"></span> Send on WhatsApp</button>
+        <button class="btn btn-wa magnetic" type="submit" data-via="wa"><span class="wa-ico"></span> Send on WhatsApp</button>
         <button class="btn btn-ghost" type="submit" data-via="email">Send by email</button>
       </div>
     </form>
   </div>
 </section>
+</main>
 
 <!-- ============ FOOTER ============ -->
 <footer class="footer">
   <div class="wrap foot-top">
     <div class="foot-brand">
       <strong>Joseph Githaiga</strong>
-      <p class="mono small">Websites and care-management systems for facilities that serve seniors.</p>
-      <form class="foot-sub" id="foot-form">
-        <input type="email" placeholder="Your email" aria-label="Your email">
-        <button class="btn btn-dark btn-sm" type="submit">Email me</button>
-      </form>
+      <p class="mono small">Premium websites &amp; data-driven systems. Remote, working with clients across the US.</p>
     </div>
-    <nav class="foot-nav mono">
-      <a href="#about">About</a><a href="#work">Work</a><a href="#services">Services</a><a href="#contact">Contact</a>
-    </nav>
+    <nav class="foot-nav mono"><a href="#work">Work</a><a href="#why">Why Joseph</a><a href="#services">Services</a><a href="#contact">Contact</a></nav>
     <div class="foot-social">
       <a class="soc wa-link" href="#" aria-label="WhatsApp"><span class="wa-ico"></span></a>
       <a class="soc" href="mailto:jose.githaiga.njoroge@gmail.com" aria-label="Email">✉</a>
-      
+      <a class="soc" href="#top" aria-label="Back to top">↑</a>
     </div>
   </div>
   <div class="hills hills-foot" data-hills="foot"></div>
-  <p class="mono copy">© <span id="year"></span> Joseph Githaiga · Crafting websites &amp; systems for care</p>
+  <p class="mono copy">© <span id="year"></span> Joseph Githaiga · Crafted end to end by one specialist</p>
 </footer>
 
 <a class="wa-float wa-link" href="#" aria-label="Chat on WhatsApp">
