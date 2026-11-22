@@ -536,6 +536,10 @@ table.data tbody tr:last-child td { border-bottom: none; }
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
         <span class="label-txt">Marketing</span>
       </div>
+      <a class="nav-item" href="outreach/" title="Facility Outreach — Gmail email marketing to facilities" style="text-decoration:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+        <span class="label-txt">Facility Outreach ↗</span>
+      </a>
       <div class="nav-spacer"></div>
       <div class="nav-section-label">System</div>
       <div class="nav-item" data-panel="settings">
@@ -837,7 +841,7 @@ function switchPanel(name) {
     if (inner) { void inner.offsetWidth; inner.classList.add('reveal'); }
   });
 }
-$$('.nav-item').forEach(n => n.addEventListener('click', () => switchPanel(n.dataset.panel)));
+$$('.nav-item[data-panel]').forEach(n => n.addEventListener('click', () => switchPanel(n.dataset.panel)));
 
 // ── Live clock ──
 function tickClock() {
