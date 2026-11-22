@@ -119,7 +119,7 @@
   });
 
   // ---------- reveal on scroll
-  const targets = document.querySelectorAll(".review, .about-text, .a-card, .p-card, .svc, .timeline li, .tool, .why-card, .c-info, .c-form, .sec-head");
+  const targets = document.querySelectorAll(".whyj-hero, .whyj-card, .review, .about-text, .a-card, .p-card, .svc, .timeline li, .tool, .why-card, .c-info, .c-form, .sec-head");
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });

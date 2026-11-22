@@ -7,5 +7,5 @@ window.APP_CONFIG = {
   ADMIN_URL: "../caredesk-pro.html",
   SENDER_EMAIL: "jose.githaiga.njoroge@gmail.com",
   WHATSAPP: "+254 115 446 363",
-  PORTFOLIO_URL: "", // set after the Vercel deploy, e.g. "https://caredesk-portfolio.vercel.app" (or in Settings)
+  PORTFOLIO_URL: "https://caredesk-site-one.vercel.app",
 };

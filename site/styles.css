@@ -17,7 +17,7 @@
   --mono: "Space Mono", ui-monospace, monospace;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: clip; }
 body {
   overflow-x: clip;
   margin: 0; background: var(--bg); color: var(--ink);
@@ -404,3 +404,26 @@ p { margin: 0; }
 .rv-who span { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
 .rv-stars { color: var(--green); letter-spacing: 2px; font-size: 13px; }
 @media (max-width: 900px) { .review-grid { grid-template-columns: 1fr; } }
+
+/* why joseph */
+.whyj { padding: 100px 0 20px; }
+.whyj-grid { display: grid; grid-template-columns: 1.15fr 1fr 1fr; grid-template-rows: auto auto; gap: 16px; }
+.whyj-hero { grid-row: span 2; background: var(--olive); color: #fff; border-radius: var(--r-lg); padding: 30px; display: flex; flex-direction: column; gap: 22px; position: relative; overflow: hidden; }
+.whyj-hero::after { content: ""; position: absolute; right: -60px; bottom: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(79,174,45,.45), transparent 70%); }
+.whyj-quote { font-size: clamp(21px, 2.2vw, 26px); font-weight: 700; line-height: 1.35; position: relative; z-index: 1; }
+.whyj-creds { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; position: relative; z-index: 1; }
+.whyj-creds div { background: var(--olive-2); border: 1px solid rgba(255,255,255,.1); border-radius: var(--r-md); padding: 14px; display: grid; gap: 4px; }
+.whyj-creds strong { font-size: 26px; color: var(--green-2); line-height: 1; }
+.whyj-creds span { font-size: 11.5px; color: rgba(255,255,255,.75); }
+.whyj-hero .btn { align-self: flex-start; margin-top: auto; position: relative; z-index: 1; }
+.whyj-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; }
+.whyj-card h3 { font-size: 19px; margin-bottom: 8px; }
+.whyj-card p { color: var(--muted); font-size: 15px; }
+.whyj-card:nth-child(odd) .svc-ico { background: var(--green); }
+.stack { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.stack-label { color: var(--muted); }
+.stack-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack-chips span { font-family: var(--mono); font-size: 12.5px; padding: 7px 12px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); }
+.stack-chips span:nth-child(3n+1) { background: var(--olive); color: #fff; border-color: var(--olive); }
+@media (max-width: 900px) { .whyj-grid { grid-template-columns: 1fr 1fr; } .whyj-hero { grid-column: 1 / -1; grid-row: auto; } }
+@media (max-width: 600px) { .whyj-grid { grid-template-columns: 1fr; } }

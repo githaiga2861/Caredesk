@@ -125,8 +125,12 @@ insert into public.outreach_settings (key, value) values
   ('sender_title',  'Web Designer & Systems Builder for Care Facilities'),
   ('direct_line',   '+254 115 446 363'),
   ('gmail_account', 'jose.githaiga.njoroge@gmail.com'),
-  ('portfolio_url', '')
+  ('portfolio_url', 'https://caredesk-site-one.vercel.app')
 on conflict (key) do nothing;
+
+-- make sure the live portfolio address is set even if settings already existed
+update public.outreach_settings set value = 'https://caredesk-site-one.vercel.app'
+where key = 'portfolio_url' and coalesce(value, '') = '';
 
 -- ---------- Facility contacts (same list as the Golden Years referral system) ----------
 -- Only seeds when the contacts table is empty, so re-running never duplicates.
@@ -294,7 +298,8 @@ where not exists (
 
 -- ---------- Email templates: website & systems outreach ----------
 -- Placeholders filled automatically per facility: {first_name} {facility} {city} {county}
--- {client_noun} {category_line} {portfolio_url} {whatsapp} {whatsapp_link} {signature} {previous_subject}
+-- {client_noun} {category_line} {portfolio_link} {portfolio_url} {whatsapp} {whatsapp_link} {signature} {previous_subject}
+-- {portfolio_link} / {whatsapp_link} become the clickable words "Portfolio" / "WhatsApp" when you paste the email into Gmail.
 -- Anything else in {braces} becomes a fill-in box before you send (e.g. {day_option_1}).
 insert into public.outreach_templates (code, name, stage, categories, subject, body, sort_order) values
 
@@ -308,10 +313,9 @@ Recently I built the websites and the home care management system for Golden Yea
 
 {category_line}
 
-You can see the live projects here:
-{portfolio_url}
+Click my {portfolio_link} to see the live projects.
 
-Would you be open to a 15-minute call to talk it through? I schedule calls on Pacific time, and if it's easier you can reach me on WhatsApp at {whatsapp}: {whatsapp_link}
+Would you be open to a 15-minute call to talk it through? I schedule calls on Pacific time, and if it's easier you can message me on {whatsapp_link} at {whatsapp}.
 
 Best regards,
 
@@ -326,10 +330,9 @@ My name is Joseph Githaiga. I build websites and care-management systems for adu
 
 The system I've built for AFHs keeps resident records, progress notes, vitals, medications, incident reports and caregiver credentials in one place. Caregivers can chart from a phone, and you can print DSHS-style forms and reports whenever you need them. I also built the RN management system Golden Years Home Health uses for nurse delegation, and the website for Harmony Living House in Chehalis.
 
-You can see the work here:
-{portfolio_url}
+Click my {portfolio_link} to see the work.
 
-Would a short demo be useful? I'm happy to show you on a 15-minute video call, or you can message me on WhatsApp at {whatsapp}: {whatsapp_link}
+Would a short demo be useful? I'm happy to show you on a 15-minute video call, or you can message me on {whatsapp_link} at {whatsapp}.
 
 Best regards,
 
@@ -348,7 +351,7 @@ Following up on my note from earlier this week. When families and discharge plan
 
 If it helps, I'd be glad to do a free review of {facility}'s current website and send you three specific improvements. There's no cost and no obligation; just reply "yes" and I'll send it within two business days.
 
-Examples of my work: {portfolio_url}
+Click my {portfolio_link} for examples of my work.
 
 Best regards,
 
@@ -365,9 +368,9 @@ Would either of these work (Pacific time)?
 • {day_option_1}
 • {day_option_2}
 
-If neither suits, reply with a time that does, or message me on WhatsApp at {whatsapp}: {whatsapp_link}
+If neither suits, reply with a time that does, or message me on {whatsapp_link} at {whatsapp}.
 
-My recent projects are here: {portfolio_url}
+Click my {portfolio_link} to see recent projects.
 
 Best regards,
 
@@ -380,7 +383,7 @@ $b$Hi {first_name},
 
 I don't want to fill your inbox, so this will be my last note for now.
 
-If a new website, an online referral form, or a simpler way to manage records and staff credentials ever becomes a priority for {facility}, I'd be glad to help. My work is here whenever you want a look: {portfolio_url}
+If a new website, an online referral form, or a simpler way to manage records and staff credentials ever becomes a priority for {facility}, I'd be glad to help. Whenever you'd like a look at my work, click my {portfolio_link}.
 
 Thank you for your time, and all the best to you and your team.
 
@@ -401,7 +404,7 @@ To put together a clear proposal for {facility}, it would help to know:
 2. What matters most right now: more referrals, easier admissions, or less paperwork for staff?
 3. Who else should be involved in the decision?
 
-We can cover this on a short call at {meeting_time} (Pacific time), or by WhatsApp at {whatsapp}: {whatsapp_link}
+We can cover this on a short call at {meeting_time} (Pacific time), or on {whatsapp_link} at {whatsapp}.
 
 Best regards,
 
@@ -416,9 +419,9 @@ Thank you for your time today. As promised, here's a summary of what we discusse
 
 {project_summary}
 
-I'll send the full proposal with the timeline and pricing by {proposal_date}. In the meantime, you can see similar projects here: {portfolio_url}
+I'll send the full proposal with the timeline and pricing by {proposal_date}. In the meantime, click my {portfolio_link} to see similar projects.
 
-If any questions come up, WhatsApp is the quickest way to reach me: {whatsapp_link}
+If any questions come up, the quickest way to reach me is {whatsapp_link}.
 
 Best regards,
 
@@ -431,16 +434,17 @@ $b$Hi {first_name},
 
 I'm Joseph, a web designer who works remotely with care facilities across the US. I build modern websites, referral forms and care-management systems, including the ones Golden Years Home Care and Harmony Living House use today.
 
-Here's my work: {portfolio_url}
+Click my {portfolio_link} to see my work.
 
-Would you be open to a quick call or a WhatsApp chat ({whatsapp})?
+Would you be open to a quick call or a chat on {whatsapp_link}?
 
 Best regards,
 
 {signature}
 $b$, 1)
 
-on conflict (code) do nothing;
+on conflict (code) do update set name = excluded.name, stage = excluded.stage, categories = excluded.categories,
+  subject = excluded.subject, body = excluded.body, sort_order = excluded.sort_order;
 
 -- Check: should list 138 contacts and 8 templates
 select (select count(*) from public.outreach_contacts) as contacts,

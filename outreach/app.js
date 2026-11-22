@@ -88,7 +88,7 @@
   const AUTO_FIELDS = new Set([
     "first_name", "contact_name", "facility", "city", "county", "sender_name", "sender_title",
     "direct_line", "client_noun", "category_line", "signature", "previous_subject", "image_link",
-    "portfolio_url", "whatsapp", "whatsapp_link",
+    "portfolio_url", "portfolio_link", "whatsapp", "whatsapp_link", "whatsapp_url",
   ]);
   const IMAGE_BUCKET = "outreach-images";
   const DEFAULT_IMAGE_CAPTION = "Here's a one-page overview of our services you can share with your team";
@@ -156,15 +156,19 @@
   const portfolioUrl = () => ((state.settings.portfolio_url || "").trim() || cfg.PORTFOLIO_URL || "").replace(/\/+$/, "");
   const whatsappNumber = () => (state.settings.direct_line || "").trim() || cfg.WHATSAPP || "+254 115 446 363";
   const whatsappLink = () => "https://wa.me/" + whatsappNumber().replace(/\D/g, "");
+  // "Label (url)" — shown as-is in plain text, and as a clickable Label in the pasted (rich) email
+  const portfolioLink = () => (portfolioUrl() ? `Portfolio (${portfolioUrl()})` : "");
+  const whatsappLabelLink = () => `WhatsApp (${whatsappLink()})`;
+  const LINK_LABELS = ["Portfolio", "WhatsApp"];
 
   function signature() {
     const s = state.settings;
     return [
       s.sender_name || "{sender_name}",
       s.sender_title || "{sender_title}",
-      `WhatsApp: ${whatsappNumber()} — ${whatsappLink()}`,
+      `${whatsappLabelLink()} · ${whatsappNumber()}`,
       senderEmail() || null,
-      portfolioUrl() ? `Portfolio: ${portfolioUrl()}` : "Portfolio: {portfolio_url}",
+      portfolioLink() || "Portfolio ({portfolio_url})",
       "",
       "If you'd prefer not to hear from me, just reply \"unsubscribe\" and I won't email again.",
     ].filter((l) => l !== null).join("\n");
@@ -190,8 +194,10 @@
       sender_title: s.sender_title || "",
       direct_line: whatsappNumber(),
       whatsapp: whatsappNumber(),
-      whatsapp_link: whatsappLink(),
+      whatsapp_link: whatsappLabelLink(),
+      whatsapp_url: whatsappLink(),
       portfolio_url: portfolioUrl(),
+      portfolio_link: portfolioLink(),
       client_noun: CLIENT_NOUN[contact.category] || "client",
       category_line: CATEGORY_LINE[contact.category] || "",
       signature: signature(),
@@ -533,7 +539,7 @@
         el("label", {}, "Body", body),
         warn,
         el("div", { class: "actions" },
-          el("button", { class: "btn ghost small", onclick: () => copyDraft(d) }, "Copy text"),
+          el("button", { class: "btn ghost small", onclick: () => copyRichEmail(d).then(() => toast("Email copied with clickable links – paste it into Gmail with Ctrl+V.")).catch(() => copyDraft(d)) }, "Copy email"),
           d.image ? el("button", { class: "btn ghost small", onclick: () => copyImage(d.image) }, "Copy image") : null,
           el("button", { class: "btn ghost small", onclick: () => { state.drafts.splice(i, 1); renderDrafts(); } }, "Remove"),
           el("button", { class: "btn primary small", onclick: () => openDraft(d) }, d.opened ? "Open again in Gmail" : "Open in Gmail"),
@@ -566,9 +572,14 @@
       if (!silent) toast(problem, true);
       return "invalid";
     }
-    const url = gmailUrl(d.to, d.subject, d.body);
-    if (url.length > 8000 && !silent) toast("This email is very long; Gmail may cut it off. Consider shortening it.", true);
-    if (d.image && !silent) copyImage(d.image);
+    const rich = pasteMode() && !silent;
+    const url = gmailUrl(d.to, d.subject, rich ? "" : d.body);
+    if (!rich && url.length > 8000 && !silent) toast("This email is very long; Gmail may cut it off. Consider shortening it.", true);
+    if (rich) {
+      copyRichEmail(d)
+        .then(() => toast("Email copied with clickable links. In Gmail, click in the message box and press Ctrl+V, then Send.", false))
+        .catch(() => toast("Couldn't copy the email. Use \"Copy email\" on the draft, then paste into Gmail.", true));
+    } else if (d.image && !silent) copyImage(d.image);
     const w = window.open(url, "_blank");
     if (!w) return "blocked";
     d.opened = true;
@@ -606,6 +617,8 @@
   $("#open-all").addEventListener("click", () => {
     const pending = state.drafts.filter((d) => !d.opened);
     if (!pending.length) return toast("All drafts have been opened.");
+    if (pasteMode() && pending.length > 1)
+      return toast('With "Clickable links" on, each email is pasted on its own – use "Open next in Gmail", or untick "Clickable links" to open all at once (links then show as full web addresses).', true);
     const bad = pending.map(draftProblems).filter(Boolean);
     if (bad.length) return toast(bad[0], true);
     if (pending.length > 1 && !confirm(`Open ${pending.length} Gmail tabs, one per receiver? You'll review and press Send in each tab.`)) return;
@@ -781,6 +794,30 @@
     parts.splice(at, 0, line);
     return parts.join("\n\n");
   }
+
+  // ---------- rich (HTML) email: clickable "Portfolio" / "WhatsApp" words, linked URLs, inline image
+  const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function toHtml(text, image) {
+    const links = [];
+    const keep = (html) => `\u0000${links.push(html) - 1}\u0000`;
+    let t = text;
+    if (image) t = t.split(image.url).join(keep(
+      `<a href="${esc(image.url)}"><img src="${esc(image.url)}" alt="${esc(image.name || "")}" width="480" style="max-width:100%;border-radius:8px"></a>`));
+    const labels = LINK_LABELS.map((l) => l.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+    t = t.replace(new RegExp(`\\b(${labels}) \\((https?:\\/\\/[^\\s)]+)\\)`, "g"),
+      (m, label, url) => keep(`<a href="${esc(url)}"><b>${esc(label)}</b></a>`));
+    t = t.replace(/https?:\/\/[^\s<>()"]+[^\s<>()".,;:!?]/g, (url) => keep(`<a href="${esc(url)}">${esc(url)}</a>`));
+    let html = esc(t).replace(/\n/g, "<br>");
+    html = html.replace(/\u0000(\d+)\u0000/g, (m, i) => links[+i]);
+    return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.55;color:#222">${html}</div>`;
+  }
+  function copyRichEmail(d) {
+    if (!navigator.clipboard || !window.ClipboardItem) return Promise.reject(new Error("no clipboard"));
+    const html = new Blob([toHtml(d.body, d.image)], { type: "text/html" });
+    const text = new Blob([d.body], { type: "text/plain" });
+    return navigator.clipboard.write([new ClipboardItem({ "text/html": html, "text/plain": text })]);
+  }
+  const pasteMode = () => $("#paste-mode")?.checked;
 
   // Copy the picture itself so it can be pasted into the Gmail message (Ctrl+V).
   // Must be called straight from a click. Gmail only accepts PNG from the clipboard.
