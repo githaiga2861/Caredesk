@@ -239,7 +239,9 @@
     const im = await sb.from("outreach_images").select("*").order("created_at", { ascending: false });
     state.images = im.error ? [] : im.data;
     state.imagesError = im.error ? "Images aren't set up yet. Run outreach/sql/setup.sql in the Supabase SQL Editor, then reload." : null;
-    state.contacts = c.data;
+    // Only facilities with an email address are part of this outreach list
+    state.contacts = c.data.filter((x) => (x.email || "").trim());
+    state.hiddenNoEmail = c.data.length - state.contacts.length;
     state.templates = t.data.map((x) => ({ ...x, categories: x.categories || [] }));
     state.settings = Object.fromEntries(s.data.map((r) => [r.key, r.value]));
     state.lastSubjectByContact = {};
@@ -807,6 +809,9 @@
     t = t.replace(new RegExp(`\\b(${labels}) \\((https?:\\/\\/[^\\s)]+)\\)`, "g"),
       (m, label, url) => keep(`<a href="${esc(url)}"><b>${esc(label)}</b></a>`));
     t = t.replace(/https?:\/\/[^\s<>()"]+[^\s<>()".,;:!?]/g, (url) => keep(`<a href="${esc(url)}">${esc(url)}</a>`));
+    // the phone number opens WhatsApp (Kenyan number, US clients)
+    const num = whatsappNumber();
+    if (num) t = t.split(num).join(keep(`<a href="${esc(whatsappLink())}">${esc(num)}</a>`));
     let html = esc(t).replace(/\n/g, "<br>");
     html = html.replace(/\u0000(\d+)\u0000/g, (m, i) => links[+i]);
     return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.55;color:#222">${html}</div>`;

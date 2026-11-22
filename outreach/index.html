@@ -101,7 +101,7 @@
               <button id="r-clear" class="btn ghost small">Clear</button>
             </div>
             <div id="recipient-list" class="recipient-list"></div>
-            <p class="muted small">Contacts without an email or marked "Do not contact" can't be selected.</p>
+            <p class="muted small">Only facilities with an email address are listed. Contacts marked "Do not contact" can't be selected.</p>
             <div class="image-pick">
               <label>Image to share (optional)
                 <select id="c-image"><option value="">No image</option></select>
@@ -262,7 +262,7 @@
         <label>Role <input id="f-role" /></label>
       </div>
       <div class="row">
-        <label>Email <input id="f-email" type="email" /></label>
+        <label>Email <input id="f-email" type="email" required /></label>
         <label>Phone <input id="f-phone" /></label>
       </div>
       <label>Email note <input id="f-email_note" placeholder="e.g. general inbox" /></label>
