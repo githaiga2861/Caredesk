@@ -121,12 +121,15 @@ create policy "outreach images: auth select" on storage.objects
 
 -- ---------- Sender settings (edit later in the app's Settings tab) ----------
 insert into public.outreach_settings (key, value) values
-  ('sender_name',   'Joseph Githaiga'),
+  ('sender_name',   'Joseph'),
   ('sender_title',  'Web Designer & Systems Builder for Care Facilities'),
   ('direct_line',   '+254 115 446 363'),
   ('gmail_account', 'jose.githaiga.njoroge@gmail.com'),
   ('portfolio_url', 'https://caredesk-site-one.vercel.app')
 on conflict (key) do nothing;
+
+-- sign emails as "Joseph" only
+update public.outreach_settings set value = 'Joseph' where key = 'sender_name' and value ilike '%githaiga%';
 
 -- make sure the live portfolio address is set even if settings already existed
 update public.outreach_settings set value = 'https://caredesk-site-one.vercel.app'
@@ -296,7 +299,7 @@ insert into public.outreach_templates (code, name, stage, categories, list, subj
 $q$Upgrading {facility}'s website$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 Since {facility} already has a website, I'm not suggesting starting over. For discharge and case-management teams, an upgrade usually means a cleaner post-acute partner directory, discharge resources that work on a phone, and a referral intake form that routes straight to the right inbox.
 
@@ -313,7 +316,7 @@ $q$, 1),
 $q$Upgrading {facility}'s website$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 Since {facility} already has a website, I'm not suggesting starting over. For admissions teams, an upgrade usually means a faster admissions page, an online referral form discharge planners can send in two minutes, a virtual tour, and simple tools for staff credentials and census.
 
@@ -330,7 +333,7 @@ $q$, 2),
 $q$Upgrading {facility}'s website$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 Since {facility} already has a website, I'm not suggesting starting over. For admissions and liaison teams, an upgrade usually means a sharper admissions page for discharge planners, therapy and outcomes pages that build trust, and an online referral form that lands straight in your inbox.
 
@@ -347,7 +350,7 @@ $q$, 3),
 $q$Upgrading {facility}'s website$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 Since {facility} already has a website, I'm not suggesting starting over. For community relations teams, an upgrade usually means a warmer, more modern website with real photos, online tour booking, a waitlist form that comes straight to your inbox, and pages families can read on a phone.
 
@@ -364,7 +367,7 @@ $q$, 4),
 $q$Upgrading {facility}'s website$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 Since {facility} already has a website, I'm not suggesting starting over. For owners and providers, an upgrade usually means a refreshed website that brings in enquiries, plus a care system for resident records, progress notes, vitals, medications, incident reports and caregiver credentials with DSHS-style printable forms.
 
@@ -381,7 +384,7 @@ $q$, 5),
 $q$Upgrading {facility}'s website$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 Since {facility} already has a website, I'm not suggesting starting over. For you, an upgrade usually means a faster, more modern website that turns visitors into enquiries, with simple forms, clear pages and easy editing.
 
@@ -398,7 +401,7 @@ $q$, 6),
 $q$A modern website for {facility}$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 I'd love to help {facility} get a professional online home. For discharge and case-management teams, that usually means a clear post-acute partner directory, discharge resource pages families can actually find, and a referral intake form your staff can keep up to date without IT tickets.
 
@@ -415,7 +418,7 @@ $q$, 7),
 $q$A modern website for {facility}$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 I'd love to help {facility} get a professional online home. For admissions teams, that usually means a clear admissions page, an online referral form that lands straight in your inbox, a virtual tour, and a simple tracker for staff credentials and trainings.
 
@@ -432,7 +435,7 @@ $q$, 8),
 $q$A modern website for {facility}$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 I'd love to help {facility} get a professional online home. For admissions and liaison teams, that usually means a clear admissions page for discharge planners, therapy services families understand, outcomes you can be proud of, and an online referral form.
 
@@ -449,7 +452,7 @@ $q$, 9),
 $q$A modern website for {facility}$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 I'd love to help {facility} get a professional online home. For community relations teams, that usually means a warm, family-friendly website with photos of your community, online tour booking, and a waitlist form that comes straight to your inbox.
 
@@ -466,7 +469,7 @@ $q$, 10),
 $q$A modern website for {facility}$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 I'd love to help {facility} get a professional online home. For owners and providers, that usually means a professional website families can find on Google, plus a care system for resident records, progress notes, vitals, medications, incident reports and caregiver credentials that your staff can use from a phone.
 
@@ -483,7 +486,7 @@ $q$, 11),
 $q$A modern website for {facility}$q$,
 $q$Hi {first_name},
 
-My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+My name is Joseph. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
 I'd love to help {facility} get a professional online home. For you, that usually means a premium website that clearly explains what you do, makes it effortless to contact you, and works beautifully on a phone.
 

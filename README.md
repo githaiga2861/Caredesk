@@ -4,7 +4,7 @@ One repo, one master Supabase project, three parts:
 
 | Folder / file | What it is | Hosted on |
 |---|---|---|
-| `site/` | Joseph Githaiga's portfolio website (websites & care systems for facilities) | **Vercel** (Root Directory = `site`) |
+| `site/` | Joseph's portfolio website (websites & care systems for facilities) | **Vercel** (Root Directory = `site`) |
 | `caredesk-pro.html` + `templates/` | CareDesk Pro operator command center and the client system templates | GitHub Pages |
 | `outreach/` | Facility Outreach: contacts, email templates, and one-click Gmail drafts sent from jose.githaiga.njoroge@gmail.com | GitHub Pages (`/outreach/`), linked from the CareDesk Pro sidebar |
 
