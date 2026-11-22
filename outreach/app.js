@@ -189,9 +189,8 @@
     const prev = state.lastSubjectByContact[contact.id];
     if (prev) return prev.subject.replace(/^(re:\s*)+/i, "");
     // fall back to the intro template written for this contact's category
-    const intro = listOf(contact) === "upgrade"
-      ? [...state.templates].filter((t) => t.stage === 7).sort((x, y) => x.sort_order - y.sort_order)[0]
-      : state.templates.find((t) => t.stage === 1 && t.categories.includes(contact.category));
+    const intros = state.templates.filter((t) => t.stage === 1 && (!t.list || t.list === listOf(contact)));
+    const intro = intros.find((t) => t.categories.includes(contact.category)) || intros.find((t) => !t.categories.length);
     return intro ? fill(intro.subject, contact) : `A website for ${contact.facility}`;
   }
 
@@ -262,7 +261,7 @@
     // falling back to the last subject of any kind.
     const stageOf = Object.fromEntries(state.templates.map((x) => [x.id, x.stage]));
     for (const row of l.data) {
-      const isIntro = stageOf[row.template_id] === 1 || (stageOf[row.template_id] === 7 && /^(?!re:)/i.test(row.subject));
+      const isIntro = stageOf[row.template_id] === 1;
       const prev = state.lastSubjectByContact[row.contact_id];
       if (isIntro || !prev || !prev.intro) state.lastSubjectByContact[row.contact_id] = { subject: row.subject, intro: isIntro };
     }
@@ -331,46 +330,61 @@
     return state.templates.find((t) => t.id === state.selectedTemplateId) || null;
   }
 
+  // Step 1: templates grouped by list (Website upgrade / New website / Both), then by facility type
+  const TPL_TABS = [
+    { key: "upgrade", label: "↻ Website upgrade", hint: "Facilities with a business email – they probably already have a website" },
+    { key: "new", label: "✚ New website", hint: "Facilities with Gmail/Yahoo – they probably don't have a website yet" },
+    { key: "both", label: "Both lists", hint: "Meeting offers and replies – work for everyone" },
+  ];
+  const tplList = (t) => t.list || "both";
+  const CAT_ORDER = ["hospital", "snf", "rehab", "memory_care", "afh"];
+  const tplCatLabel = (t) => (t.categories.length ? t.categories.map((c) => CATEGORY_LABEL[c]).join(", ") : "Any business / individual");
+  const STEP_LABEL = { 1: "Introductions – first email", 2: "Follow-up (day 5)", 3: "Meeting offer (day 10)", 4: "Final follow-up (day 14)", 5: "After a reply" };
+
+  function selectTemplate(t) {
+    state.selectedTemplateId = t.id;
+    // step 2 follows the template: same list, same facility type
+    $("#r-campaign").value = t.list || "";
+    $("#r-category").value = t.categories.length === 1 ? t.categories[0] : "";
+    $("#r-match").checked = true;
+    for (const id of [...state.selectedIds]) {
+      const c = state.contacts.find((x) => x.id === id);
+      if (!c || !templateFits(t, c)) state.selectedIds.delete(id);
+    }
+    renderTemplatePicker();
+    renderRecipients();
+    $("#step2").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function renderTemplatePicker() {
     const box = $("#template-list");
     box.replaceChildren();
+    if (!state.templates.length) return box.append(el("p", { class: "muted" }, "No templates yet. Run outreach/sql/setup.sql or add one in Templates."));
+    const sel = selectedTemplate();
+    if (!state.pickerTab) state.pickerTab = sel ? tplList(sel) : "upgrade";
+    const tabs = el("div", { class: "tpl-tabs", role: "tablist" },
+      ...TPL_TABS.map((tb) => el("button", {
+        type: "button", role: "tab", class: "tpl-tab " + tb.key + (state.pickerTab === tb.key ? " active" : ""), title: tb.hint,
+        onclick: () => { state.pickerTab = tb.key; renderTemplatePicker(); },
+      }, tb.label, el("span", { class: "count" }, String(state.templates.filter((t) => tplList(t) === tb.key).length)))));
+    box.append(tabs, el("p", { class: "muted small tpl-hint" }, TPL_TABS.find((x) => x.key === state.pickerTab).hint));
+    const items = state.templates.filter((t) => tplList(t) === state.pickerTab)
+      .sort((a, b) => a.stage - b.stage
+        || (a.categories.length ? CAT_ORDER.indexOf(a.categories[0]) : 99) - (b.categories.length ? CAT_ORDER.indexOf(b.categories[0]) : 99)
+        || a.sort_order - b.sort_order);
     let stage = null;
-    // quick-pitch templates are pinned to the top
-    const pin = (t) => (t.stage === 7 ? 2 : t.stage === 6 ? 1 : 0);
-    for (const t of [...state.templates].sort((x, y) => pin(y) - pin(x))) {
-      if (t.stage !== stage) {
-        stage = t.stage;
-        box.append(el("div", { class: "stage-label" }, STAGE_LABEL[stage] || `Stage ${stage}`));
-      }
-      box.append(
-        el("button", {
-          class: "tpl" + (t.stage === 6 ? " short" : "") + (t.stage === 7 ? " upgrade" : "") + (t.id === state.selectedTemplateId ? " active" : ""),
-          onclick: () => {
-            state.selectedTemplateId = t.id;
-            // upgrade templates → facilities that already have a website; intro sequence → those without
-            $("#r-campaign").value = t.stage === 7 ? "upgrade" : t.stage >= 1 && t.stage <= 4 ? "new" : "";
-            for (const id of [...state.selectedIds]) {
-              const c = state.contacts.find((x) => x.id === id);
-              if (c && $("#r-campaign").value && listOf(c) !== $("#r-campaign").value) state.selectedIds.delete(id);
-            }
-            // drop selected receivers this template isn't written for, so nothing hidden gets emailed
-            if (t.categories.length) {
-              for (const id of [...state.selectedIds]) {
-                const c = state.contacts.find((x) => x.id === id);
-                if (!c || !t.categories.includes(c.category)) state.selectedIds.delete(id);
-              }
-            }
-            renderTemplatePicker();
-            renderRecipients();
-          },
-        },
-          el("strong", {}, `${t.code ? t.code + " · " : ""}${t.name}`),
-          el("span", { class: "muted small" },
-            t.categories.length ? t.categories.map((c) => CATEGORY_LABEL[c]).join(", ") : "All categories"),
-        ),
-      );
+    for (const t of items) {
+      if (t.stage !== stage) { stage = t.stage; box.append(el("div", { class: "stage-label" }, STEP_LABEL[stage] || STAGE_LABEL[stage] || `Stage ${stage}`)); }
+      const fits = state.contacts.filter((c) => sendable(c) && templateFits(t, c)).length;
+      box.append(el("button", {
+        type: "button", class: "tpl " + tplList(t) + (t.id === state.selectedTemplateId ? " active" : ""),
+        onclick: () => selectTemplate(t),
+      },
+        el("span", { class: "tpl-top" }, el("span", { class: "tpl-cat" }, tplCatLabel(t)), el("span", { class: "tpl-fit" }, `${fits} recipient${fits === 1 ? "" : "s"}`)),
+        el("strong", {}, t.name.replace(/^.*?—\s*/, "")),
+        el("span", { class: "muted small" }, (t.code ? t.code + " · " : "") + "Subject: " + t.subject),
+      ));
     }
-    if (!state.templates.length) box.append(el("p", { class: "muted" }, "No templates yet. Run outreach/sql/setup.sql or add one in Templates."));
   }
 
   function renderCountyFilter() {
@@ -388,13 +402,13 @@
     const status = $("#r-status").value;
     const campaign = $("#r-campaign").value;
     const t = selectedTemplate();
-    const matchOnly = $("#r-match").checked && t && t.categories.length;
+    const matchOnly = $("#r-match").checked && t;
     return state.contacts.filter((c) => {
       if (cat && c.category !== cat) return false;
       if (county && c.county !== county) return false;
       if (status && c.status !== status) return false;
       if (campaign && listOf(c) !== campaign) return false;
-      if (matchOnly && !t.categories.includes(c.category)) return false;
+      if (matchOnly && !templateFits(t, c)) return false;
       if (q) {
         const hay = [c.facility, c.contact_name, c.city, c.county, c.email, c.role].join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
@@ -404,6 +418,7 @@
   }
 
   const sendable = (c) => !!c.email && c.status !== "do_not_contact";
+  const templateFits = (t, c) => (!t.list || listOf(c) === t.list) && (!t.categories.length || t.categories.includes(c.category));
 
   function renderRecipients() {
     const list = $("#recipient-list");
@@ -460,7 +475,7 @@
     const chosen = state.contacts.filter((c) => state.selectedIds.has(c.id) && sendable(c));
     if (!chosen.length) return toast("Select at least one receiver with an email.", true);
 
-    const mismatched = chosen.filter((c) => t.categories.length && !t.categories.includes(c.category));
+    const mismatched = chosen.filter((c) => !templateFits(t, c));
     state.manualValues = {};
     const img = state.images.find((x) => String(x.id) === $("#c-image").value) || null;
     state.draftImage = img;
@@ -474,6 +489,7 @@
       body: fill(body, c, extra),
       image: img,
       opened: false,
+      pick: true,
     }));
     const tip = $("#image-tip");
     if (img) {
@@ -484,7 +500,7 @@
     renderDrafts();
     const msg = $("#drafts-msg");
     if (mismatched.length) {
-      msg.textContent = `Heads up: "${t.name}" is written for ${t.categories.map((x) => CATEGORY_LABEL[x]).join(", ")}, but ${mismatched.length} receiver(s) are in other categories. Check their drafts before sending.`;
+      msg.textContent = `Heads up: "${t.name}" is written for ${tplCatLabel(t)}${t.list ? " (" + LIST_LABEL[t.list] + " list)" : ""}, but ${mismatched.length} receiver(s) don't match. Check their drafts before sending.`;
       show(msg);
     } else show(msg, false);
     show($("#drafts-section"));
@@ -533,6 +549,7 @@
       ? `Opens in Gmail as ${senderEmail()}`
       : "No sending account set – Gmail will use your default account. Set one in Settings.";
 
+    updateOpenSelected();
     state.drafts.forEach((d, i) => {
       const subj = el("input", { value: d.subject, oninput: (e) => { d.subject = e.target.value; refreshWarn(); } });
       const to = el("input", { type: "email", value: d.to, oninput: (e) => (d.to = e.target.value.trim()) });
@@ -546,9 +563,11 @@
       }
       refreshWarn();
 
-      const card = el("article", { class: "draft" + (d.opened ? " opened" : "") },
+      const card = el("article", { class: "draft" + (d.opened ? " opened" : "") + (d.pick ? " picked" : "") },
         el("header", {},
-          el("div", {},
+          el("label", { class: "draft-pick", title: "Include in \"Open selected\"" },
+            el("input", { type: "checkbox", checked: d.pick, onchange: (e) => { d.pick = e.target.checked; card.classList.toggle("picked", d.pick); updateOpenSelected(); } })),
+          el("div", { class: "draft-who" },
             el("strong", {}, d.contact.facility), " ",
             el("span", { class: "tag " + d.contact.category }, CATEGORY_LABEL[d.contact.category]),
             d.contact.email_note ? el("div", { class: "muted small" }, "Note: " + d.contact.email_note) : null,
@@ -563,7 +582,7 @@
           el("button", { class: "btn ghost small", onclick: () => copyRichEmail(d).then(() => toast("Email copied with clickable links – paste it into Gmail with Ctrl+V.")).catch(() => copyDraft(d)) }, "Copy email"),
           d.image ? el("button", { class: "btn ghost small", onclick: () => copyImage(d.image) }, "Copy image") : null,
           el("button", { class: "btn ghost small", onclick: () => { state.drafts.splice(i, 1); renderDrafts(); } }, "Remove"),
-          el("button", { class: "btn primary small", onclick: () => openDraft(d) }, d.opened ? "Open again in Gmail" : "Open in Gmail"),
+          el("button", { class: "btn primary small", onclick: () => openDraft(d) }, d.opened ? "Opened ✓ · open again" : "Send ↗ (open in Gmail)"),
         ),
       );
       box.append(card);
@@ -620,7 +639,7 @@
     if (c.status === "not_contacted") patch.status = "in_sequence";
     await sb.from("outreach_contacts").update(patch).eq("id", c.id);
     Object.assign(c, patch);
-    const isIntro = d.template?.stage === 1 || (d.template?.stage === 7 && !/^re:/i.test(d.subject));
+    const isIntro = d.template?.stage === 1;
     const prev = state.lastSubjectByContact[c.id];
     if (isIntro || !prev || !prev.intro) state.lastSubjectByContact[c.id] = { subject: d.subject, intro: isIntro };
     renderRecipients();
@@ -628,32 +647,35 @@
     renderLog();
   }
 
-  $("#open-next").addEventListener("click", () => {
-    const next = state.drafts.find((d) => !d.opened);
-    if (!next) return toast("All drafts have been opened.");
-    const r = openDraft(next);
-    if (r === "blocked") toast("Your browser blocked the Gmail tab. Allow pop-ups for this site and try again.", true);
-  });
 
-  $("#open-all").addEventListener("click", () => {
-    const pending = state.drafts.filter((d) => !d.opened);
-    if (!pending.length) return toast("All drafts have been opened.");
+
+  function updateOpenSelected() {
+    const n = state.drafts.filter((d) => d.pick && !d.opened).length;
+    $("#open-selected").textContent = `Open selected (${n})`;
+    $("#open-selected").disabled = !n;
+  }
+
+  function openMany(list) {
+    const pending = list.filter((d) => !d.opened);
+    if (!pending.length) return toast("Those emails have all been opened already.");
     if (pasteMode() && pending.length > 1)
-      return toast('With "Clickable links" on, each email is pasted on its own – use "Open next in Gmail", or untick "Clickable links" to open all at once (links then show as full web addresses).', true);
+      return toast('"Clickable Portfolio word" is on, so each email needs its own paste. Untick it to open several tabs at once with everything filled in.', true);
     const bad = pending.map(draftProblems).filter(Boolean);
     if (bad.length) return toast(bad[0], true);
-    if (pending.length > 1 && !confirm(`Open ${pending.length} Gmail tabs, one per receiver? You'll review and press Send in each tab.`)) return;
-    if (state.draftImage) copyImage(state.draftImage);
     let opened = 0;
     for (const d of pending) {
-      const r = openDraft(d, { silent: true });
+      const r = openDraft(d, { silent: pending.length > 1 });
       if (r === "blocked") break;
       if (r === "ok") opened++;
     }
     if (opened < pending.length) {
-      toast(`Opened ${opened} of ${pending.length}. Your browser blocked the rest – allow pop-ups for this site, or use "Open next".`, true);
-    } else toast(`Opened ${opened} Gmail tabs.`);
-  });
+      toast(`Opened ${opened} of ${pending.length}. Chrome blocked the rest – click the blocked pop-up icon at the right of the address bar, choose "Always allow pop-ups" for this site, then click again.`, true);
+    } else toast(`Opened ${opened} Gmail tab${opened === 1 ? "" : "s"} – review each one and press Send.`);
+  }
+
+  $("#open-all").addEventListener("click", () => openMany(state.drafts));
+  $("#open-selected").addEventListener("click", () => openMany(state.drafts.filter((d) => d.pick)));
+  $("#pick-all").addEventListener("click", () => { const all = state.drafts.some((d) => !d.pick); state.drafts.forEach((d) => (d.pick = all)); renderDrafts(); });
 
   // ================================================================ CONTACTS
   function renderContacts() {
@@ -738,6 +760,7 @@
     state.editingTemplateId = t ? t.id : null;
     $("#t-code").value = t?.code || "";
     $("#t-stage").value = t?.stage || 1;
+    $("#t-list").value = t?.list || "";
     $("#t-order").value = t?.sort_order ?? (state.templates.length + 1) * 10;
     $("#t-name").value = t?.name || "";
     $("#t-subject").value = t?.subject || "";
@@ -754,6 +777,7 @@
     const row = {
       code: $("#t-code").value.trim() || null,
       stage: Number($("#t-stage").value),
+      list: $("#t-list").value || null,
       sort_order: Number($("#t-order").value) || 0,
       name: $("#t-name").value.trim(),
       subject: $("#t-subject").value.trim(),

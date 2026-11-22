@@ -65,11 +65,12 @@
         <div class="compose-grid">
           <aside class="panel">
             <h2>1. Pick a template</h2>
+            <p class="muted small">Click a template – step 2 then shows only the facilities it's written for.</p>
             <div id="template-list" class="template-list"></div>
           </aside>
 
           <section class="panel">
-            <h2>2. Choose receivers <span id="selected-count" class="pill">0 selected</span></h2>
+            <h2 id="step2">2. Choose receivers <span id="selected-count" class="pill">0 selected</span></h2>
             <div class="filters">
               <input id="r-search" type="search" placeholder="Search facility, name, city, email…" />
               <select id="r-category">
@@ -96,7 +97,7 @@
               </select>
             </div>
             <div class="filters small">
-              <label class="check"><input type="checkbox" id="r-match" checked /> Only categories this template is written for</label>
+              <label class="check"><input type="checkbox" id="r-match" checked /> Only facilities this template is written for</label>
               <span class="spacer"></span>
               <button id="r-select-all" class="btn ghost small">Select all shown</button>
               <button id="r-clear" class="btn ghost small">Clear</button>
@@ -109,16 +110,17 @@
               </label>
               <img id="c-image-preview" class="image-pick-thumb hidden" alt="" />
             </div>
-            <button id="generate" class="btn primary block">3. Generate personalized emails</button>
+            <button id="generate" class="btn primary block">3. Prepare personalized emails →</button>
           </section>
         </div>
 
         <section id="drafts-section" class="panel hidden">
           <div class="drafts-head">
-            <div><h2>4. Review and send <span id="draft-count" class="pill"></span></h2><p id="sending-from" class="muted small"></p></div>
+            <div><h2>4. Send <span id="draft-count" class="pill"></span></h2><p class="muted small">Each button opens a Gmail tab with the recipient, subject and personalized email filled in – check it and press Send.</p><p id="sending-from" class="muted small"></p></div>
             <div class="actions">
-              <label class="check paste-toggle" title="Gmail opens with To and Subject filled in. The email is copied with Portfolio and WhatsApp as clickable words – click in the message and press Ctrl+V."><input type="checkbox" id="paste-mode" checked /> Clickable links (paste with Ctrl+V)</label>
-              <button id="open-next" class="btn">Open next in Gmail</button>
+              <label class="check paste-toggle" title="Off (recommended): each Gmail tab opens with To, Subject and the whole email filled in – you just press Send. On: the word 'Portfolio' becomes a clickable link, but you paste each email with Ctrl+V and can only open one at a time."><input type="checkbox" id="paste-mode" /> Clickable "Portfolio" word (paste with Ctrl+V)</label>
+              <button id="pick-all" class="btn ghost small" type="button">Select / unselect all</button>
+              <button id="open-selected" class="btn">Open selected</button>
               <button id="open-all" class="btn primary">Open all in Gmail</button>
             </div>
           </div>
@@ -170,11 +172,18 @@
                     <option value="7">★ Website upgrade</option>
                   </select>
                 </label>
+                <label>List
+                  <select id="t-list">
+                    <option value="">Both lists</option>
+                    <option value="upgrade">↻ Website upgrade</option>
+                    <option value="new">✚ New website</option>
+                  </select>
+                </label>
                 <label>Order <input id="t-order" type="number" /></label>
               </div>
               <label>Name <input id="t-name" required /></label>
               <fieldset class="cats">
-                <legend>Written for (leave all unticked = every category)</legend>
+                <legend>Facility type (leave all unticked = any business / individual)</legend>
                 <label class="check"><input type="checkbox" value="hospital" /> Hospital</label>
                 <label class="check"><input type="checkbox" value="snf" /> Skilled nursing</label>
                 <label class="check"><input type="checkbox" value="rehab" /> Rehab</label>

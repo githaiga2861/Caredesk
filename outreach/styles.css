@@ -186,5 +186,27 @@ dialog::backdrop { background: rgba(20, 20, 20, .4); }
 /* lists: website upgrade vs new website */
 .tag.list-upgrade { background: #e4f2da; color: #2f6b14; border: 1px solid #c4e0ae; }
 .tag.list-new { background: #f1efe6; color: #6a5a2a; border: 1px solid #e2dcc6; }
-.tpl.upgrade { border-color: #9fd17f; background: #f1f8ea; }
-.tpl.upgrade strong::before { content: "↻ "; color: #3f9a22; }
+
+/* step 1: template picker tabs */
+.tpl-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--mist); padding: 4px; border-radius: 12px; position: sticky; top: 0; z-index: 2; }
+.tpl-tab { border: 0; background: transparent; padding: 8px 6px; border-radius: 9px; font: 700 12px var(--font, inherit); cursor: pointer; color: var(--muted); display: grid; gap: 2px; justify-items: center; }
+.tpl-tab .count { font-size: 11px; font-weight: 600; opacity: .7; }
+.tpl-tab.active { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.tpl-tab.upgrade.active { color: #2f6b14; } .tpl-tab.new.active { color: #6a5a2a; }
+.tpl-hint { margin: 6px 2px 2px; }
+.tpl { text-align: left; cursor: pointer; display: grid; gap: 4px; transition: transform .15s, border-color .15s, box-shadow .15s; }
+.tpl:hover { transform: translateY(-1px); box-shadow: 0 6px 14px -8px rgba(0,0,0,.25); }
+.tpl .tpl-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.tpl-cat { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--gold-deep); }
+.tpl.new .tpl-cat { color: #8a6d1f; }
+.tpl-fit { font-size: 11px; color: var(--muted); background: var(--mist); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.tpl.active { border-color: var(--gold); background: var(--gold-soft); box-shadow: inset 4px 0 0 var(--gold); }
+.tpl.active strong::after { content: "  ✓ selected"; color: var(--gold-deep); font-size: 11px; font-weight: 700; }
+/* step 4: selectable drafts */
+.draft header { gap: 10px; }
+.draft-who { flex: 1; }
+.draft-pick input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--gold-deep); }
+.draft:not(.picked) { opacity: .6; }
+#open-selected:disabled { opacity: .5; cursor: not-allowed; }
+.paste-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; }
+.paste-toggle input, .draft-pick input { width: auto; }

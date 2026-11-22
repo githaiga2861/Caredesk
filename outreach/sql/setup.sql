@@ -279,58 +279,267 @@ where not exists (select 1 from public.outreach_contacts);
 delete from public.outreach_contacts where coalesce(trim(email), '') = '';
 
 
--- ---------- Email templates: website & systems outreach ----------
--- Placeholders filled automatically per facility: {first_name} {facility} {city} {county}
--- {client_noun} {category_line} {portfolio_link} {portfolio_url} {whatsapp} {whatsapp_link} {signature} {previous_subject}
--- {portfolio_link} / {whatsapp_link} become the clickable words "Portfolio" / "WhatsApp" when you paste the email into Gmail.
--- Anything else in {braces} becomes a fill-in box before you send (e.g. {day_option_1}).
-insert into public.outreach_templates (code, name, stage, categories, subject, body, sort_order) values
+-- ---------- Email templates ----------
+-- One introduction per facility type for each list, plus follow-ups.
+--   list = 'upgrade'  → facilities with a business email (they probably have a website)
+--   list = 'new'      → facilities with Gmail/Yahoo… (they probably don't)
+--   list = null       → works for both
+-- Placeholders filled automatically: {first_name} {facility} {city} {portfolio_link} {whatsapp} {whatsapp_link} {signature} {previous_subject}
+-- Anything else in {braces} becomes a fill-in box before sending (e.g. {day_option_1}).
+alter table public.outreach_templates add column if not exists list text;
 
-('1A', 'Introduction – website & systems', 1, '{hospital,snf,rehab,memory_care}',
-$s$A modern website for {facility}$s$,
-$b$Hi {first_name},
+-- replace the older built-in templates with this set
+delete from public.outreach_templates where code in ('1A','1B','2A','3A','4A','5A','5B','QP1','U1','U2','U3');
 
-My name is Joseph Githaiga. I design websites and build management systems for care facilities, and I work remotely with clients across the US, including several in Washington State.
+insert into public.outreach_templates (code, name, stage, categories, list, subject, body, sort_order) values
+('UP-HOSP', 'Website upgrade · Hospital — Introduction', 1, '{hospital}', 'upgrade',
+$q$Upgrading {facility}'s website$q$,
+$q$Hi {first_name},
 
-Recently I built the websites and the home care management system for Golden Years Home Care and Golden Years Home Health in Sumner, and the website for Harmony Living House, an adult family home in Chehalis. I'd like to do the same for {facility}.
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
-{category_line}
+Since {facility} already has a website, I'm not suggesting starting over. For discharge and case-management teams, an upgrade usually means a cleaner post-acute partner directory, discharge resources that work on a phone, and a referral intake form that routes straight to the right inbox.
 
-Click my {portfolio_link} to see the live projects.
+I've built referral-ready websites and management systems for home care and home health agencies that hospitals in Washington discharge to. Click my {portfolio_link} to see the live work.
 
-Would you be open to a 15-minute call to talk it through? I schedule calls on Pacific time, and if it's easier you can message me on {whatsapp_link} at {whatsapp}.
-
-Best regards,
-
-{signature}
-$b$, 1),
-
-('1B', 'Introduction – adult family homes (care system)', 1, '{afh}',
-$s$Less paperwork at {facility}$s$,
-$b$Hi {first_name},
-
-My name is Joseph Githaiga. I build websites and care-management systems for adult family homes, and I work remotely with care homes across the US.
-
-The system I've built for AFHs keeps resident records, progress notes, vitals, medications, incident reports and caregiver credentials in one place. Caregivers can chart from a phone, and you can print DSHS-style forms and reports whenever you need them. I also built the RN management system Golden Years Home Health uses for nurse delegation, and the website for Harmony Living House in Chehalis.
-
-Click my {portfolio_link} to see the work.
-
-Would a short demo be useful? I'm happy to show you on a 15-minute video call, or you can message me on {whatsapp_link} at {whatsapp}.
+If you'd like, I'll review your current website for free and send you three specific upgrades for {facility}. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
 
 Best regards,
 
 {signature}
-$b$, 2),
+$q$, 1),
 
-('2A', 'Value follow-up – free homepage sketch (day 4)', 2, '{}',
-$s$Re: {previous_subject}$s$,
-$b$Hi {first_name},
+('UP-SNF', 'Website upgrade · Skilled nursing — Introduction', 1, '{snf}', 'upgrade',
+$q$Upgrading {facility}'s website$q$,
+$q$Hi {first_name},
 
-Following up on my note from earlier this week. When families and discharge planners look at a facility online, three things usually decide whether they call:
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
 
-1. They can tell in a few seconds what care you provide and who you accept.
-2. There's a simple way to send a referral or book a tour, not only a phone number.
-3. The site works properly on a phone.
+Since {facility} already has a website, I'm not suggesting starting over. For admissions teams, an upgrade usually means a faster admissions page, an online referral form discharge planners can send in two minutes, a virtual tour, and simple tools for staff credentials and census.
+
+I've built websites and management systems for skilled home health and home care agencies, including scheduling, GPS clock-in and invoicing. Click my {portfolio_link} to see the live work.
+
+If you'd like, I'll review your current website for free and send you three specific upgrades for {facility}. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 2),
+
+('UP-REHAB', 'Website upgrade · Rehab — Introduction', 1, '{rehab}', 'upgrade',
+$q$Upgrading {facility}'s website$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+Since {facility} already has a website, I'm not suggesting starting over. For admissions and liaison teams, an upgrade usually means a sharper admissions page for discharge planners, therapy and outcomes pages that build trust, and an online referral form that lands straight in your inbox.
+
+I've built referral-ready websites and care systems for post-acute and home health providers in Washington. Click my {portfolio_link} to see the live work.
+
+If you'd like, I'll review your current website for free and send you three specific upgrades for {facility}. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 3),
+
+('UP-MC', 'Website upgrade · Memory care / Assisted living — Introduction', 1, '{memory_care}', 'upgrade',
+$q$Upgrading {facility}'s website$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+Since {facility} already has a website, I'm not suggesting starting over. For community relations teams, an upgrade usually means a warmer, more modern website with real photos, online tour booking, a waitlist form that comes straight to your inbox, and pages families can read on a phone.
+
+I recently built the website for Harmony Living House in Chehalis and the sites and systems for Golden Years Home Care and Home Health. Click my {portfolio_link} to see the live work.
+
+If you'd like, I'll review your current website for free and send you three specific upgrades for {facility}. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 4),
+
+('UP-AFH', 'Website upgrade · Adult family home — Introduction', 1, '{afh}', 'upgrade',
+$q$Upgrading {facility}'s website$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+Since {facility} already has a website, I'm not suggesting starting over. For owners and providers, an upgrade usually means a refreshed website that brings in enquiries, plus a care system for resident records, progress notes, vitals, medications, incident reports and caregiver credentials with DSHS-style printable forms.
+
+I built the website for Harmony Living House, an adult family home in Chehalis, and the RN delegation system Golden Years Home Health uses. Click my {portfolio_link} to see the live work.
+
+If you'd like, I'll review your current website for free and send you three specific upgrades for {facility}. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 5),
+
+('UP-ANY', 'Website upgrade · Any business / individual — Introduction', 1, '{}', 'upgrade',
+$q$Upgrading {facility}'s website$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+Since {facility} already has a website, I'm not suggesting starting over. For you, an upgrade usually means a faster, more modern website that turns visitors into enquiries, with simple forms, clear pages and easy editing.
+
+My clients include care providers in Washington State, a luxury safari company and a tax services firm. Click my {portfolio_link} to see the live work.
+
+If you'd like, I'll review your current website for free and send you three specific upgrades for {facility}. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 6),
+
+('NW-HOSP', 'New website · Hospital — Introduction', 1, '{hospital}', 'new',
+$q$A modern website for {facility}$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+I'd love to help {facility} get a professional online home. For discharge and case-management teams, that usually means a clear post-acute partner directory, discharge resource pages families can actually find, and a referral intake form your staff can keep up to date without IT tickets.
+
+I've built referral-ready websites and management systems for home care and home health agencies that hospitals in Washington discharge to. Click my {portfolio_link} to see the live work.
+
+Would you be open to a 15-minute call on Pacific time to talk it through? If it's easier, message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 7),
+
+('NW-SNF', 'New website · Skilled nursing — Introduction', 1, '{snf}', 'new',
+$q$A modern website for {facility}$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+I'd love to help {facility} get a professional online home. For admissions teams, that usually means a clear admissions page, an online referral form that lands straight in your inbox, a virtual tour, and a simple tracker for staff credentials and trainings.
+
+I've built websites and management systems for skilled home health and home care agencies, including scheduling, GPS clock-in and invoicing. Click my {portfolio_link} to see the live work.
+
+Would you be open to a 15-minute call on Pacific time to talk it through? If it's easier, message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 8),
+
+('NW-REHAB', 'New website · Rehab — Introduction', 1, '{rehab}', 'new',
+$q$A modern website for {facility}$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+I'd love to help {facility} get a professional online home. For admissions and liaison teams, that usually means a clear admissions page for discharge planners, therapy services families understand, outcomes you can be proud of, and an online referral form.
+
+I've built referral-ready websites and care systems for post-acute and home health providers in Washington. Click my {portfolio_link} to see the live work.
+
+Would you be open to a 15-minute call on Pacific time to talk it through? If it's easier, message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 9),
+
+('NW-MC', 'New website · Memory care / Assisted living — Introduction', 1, '{memory_care}', 'new',
+$q$A modern website for {facility}$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+I'd love to help {facility} get a professional online home. For community relations teams, that usually means a warm, family-friendly website with photos of your community, online tour booking, and a waitlist form that comes straight to your inbox.
+
+I recently built the website for Harmony Living House in Chehalis and the sites and systems for Golden Years Home Care and Home Health. Click my {portfolio_link} to see the live work.
+
+Would you be open to a 15-minute call on Pacific time to talk it through? If it's easier, message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 10),
+
+('NW-AFH', 'New website · Adult family home — Introduction', 1, '{afh}', 'new',
+$q$A modern website for {facility}$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+I'd love to help {facility} get a professional online home. For owners and providers, that usually means a professional website families can find on Google, plus a care system for resident records, progress notes, vitals, medications, incident reports and caregiver credentials that your staff can use from a phone.
+
+I built the website for Harmony Living House, an adult family home in Chehalis, and the RN delegation system Golden Years Home Health uses. Click my {portfolio_link} to see the live work.
+
+Would you be open to a 15-minute call on Pacific time to talk it through? If it's easier, message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 11),
+
+('NW-ANY', 'New website · Any business / individual — Introduction', 1, '{}', 'new',
+$q$A modern website for {facility}$q$,
+$q$Hi {first_name},
+
+My name is Joseph Githaiga. I design premium websites and build data-driven systems, and I work remotely with clients across the US.
+
+I'd love to help {facility} get a professional online home. For you, that usually means a premium website that clearly explains what you do, makes it effortless to contact you, and works beautifully on a phone.
+
+My clients include care providers in Washington State, a luxury safari company and a tax services firm. Click my {portfolio_link} to see the live work.
+
+Would you be open to a 15-minute call on Pacific time to talk it through? If it's easier, message me on {whatsapp_link} at {whatsapp}.
+
+Best regards,
+
+{signature}
+$q$, 12),
+
+('UP-F1', 'Website upgrade · All — Follow-up: free review (day 5)', 2, '{}', 'upgrade',
+$q$Re: {previous_subject}$q$,
+$q$Hi {first_name},
+
+Following up on my note about {facility}'s website. My free review is short and practical. I look at:
+
+1. How the site looks and loads on a phone
+2. How easy it is to send a referral, book a tour or get in touch
+3. How clearly it explains what you offer and who you serve
+4. How it shows up when people in {city} search online
+
+You'd get a one-page summary with three upgrades I'd recommend, whether or not we work together. Just reply "yes".
+
+Examples of my work are on my {portfolio_link}.
+
+Best regards,
+
+{signature}
+$q$, 13),
+
+('UP-F2', 'Website upgrade · All — Final follow-up (day 14)', 4, '{}', 'upgrade',
+$q$Closing the loop on {facility}'s website$q$,
+$q$Hi {first_name},
+
+This will be my last note for now. If refreshing {facility}'s website, adding online forms or simplifying your records becomes a priority, I'd be glad to help, and the free review offer stands.
+
+My work is on my {portfolio_link}, and the quickest way to reach me is {whatsapp_link}.
+
+Thank you for your time, and all the best to you and your team.
+
+Best regards,
+
+{signature}
+$q$, 14),
+
+('NW-F1', 'New website · All — Follow-up: free homepage sketch (day 5)', 2, '{}', 'new',
+$q$Re: {previous_subject}$q$,
+$q$Hi {first_name},
+
+Following up on my note from earlier this week. When families, partners or customers look you up online, three things usually decide whether they get in touch:
+
+1. They can tell in a few seconds what you offer and who you serve.
+2. There's a simple way to send a referral, book a visit or ask a question.
+3. Everything works properly on a phone.
 
 If it helps, I'd be glad to sketch a free homepage design for {facility} so you can see what it could look like. There's no cost and no obligation; just reply "yes" and I'll send it within three business days.
 
@@ -339,13 +548,28 @@ Click my {portfolio_link} for examples of my work.
 Best regards,
 
 {signature}
-$b$, 1),
+$q$, 15),
 
-('3A', 'Meeting offer (day 10)', 3, '{}',
-$s$15 minutes this week?$s$,
-$b$Hi {first_name},
+('NW-F2', 'New website · All — Final follow-up (day 14)', 4, '{}', 'new',
+$q$Closing the loop$q$,
+$q$Hi {first_name},
 
-I'd love to show you what a modern website or a simple care-management system could look like for {facility}. A short call is usually enough to see whether it's a fit.
+I don't want to fill your inbox, so this will be my last note for now.
+
+If a website, online forms or a simpler way to manage records ever becomes a priority for {facility}, I'd be glad to help. Whenever you'd like a look at my work, click my {portfolio_link}.
+
+Thank you for your time, and all the best.
+
+Best regards,
+
+{signature}
+$q$, 16),
+
+('ALL-MEET', 'Both lists · All — Meeting offer (day 10)', 3, '{}', null,
+$q$15 minutes this week?$q$,
+$q$Hi {first_name},
+
+I'd love to show you what a modern website or a simple data-driven system could look like for {facility}. A short call is usually enough to see whether it's a fit.
 
 Would either of these work (Pacific time)?
 • {day_option_1}
@@ -358,33 +582,18 @@ Click my {portfolio_link} to see recent projects.
 Best regards,
 
 {signature}
-$b$, 1),
+$q$, 17),
 
-('4A', 'Final follow-up (day 21)', 4, '{}',
-$s$Closing the loop$s$,
-$b$Hi {first_name},
-
-I don't want to fill your inbox, so this will be my last note for now.
-
-If a new website, an online referral form, or a simpler way to manage records and staff credentials ever becomes a priority for {facility}, I'd be glad to help. Whenever you'd like a look at my work, click my {portfolio_link}.
-
-Thank you for your time, and all the best to you and your team.
-
-Best regards,
-
-{signature}
-$b$, 1),
-
-('5A', 'After a reply – next steps', 5, '{}',
-$s$Re: {previous_subject}$s$,
-$b$Hi {first_name},
+('ALL-REPLY', 'Both lists · All — After a reply: next steps', 5, '{}', null,
+$q$Re: {previous_subject}$q$,
+$q$Hi {first_name},
 
 Thank you for getting back to me. I'm glad to help.
 
 To put together a clear proposal for {facility}, it would help to know:
 
 1. Do you have a website today? If so, what's the address?
-2. What matters most right now: more referrals, easier admissions, or less paperwork for staff?
+2. What matters most right now: more enquiries, easier admissions, or less paperwork for staff?
 3. Who else should be involved in the decision?
 
 We can cover this on a short call at {meeting_time} (Pacific time), or on {whatsapp_link} at {whatsapp}.
@@ -392,11 +601,11 @@ We can cover this on a short call at {meeting_time} (Pacific time), or on {whats
 Best regards,
 
 {signature}
-$b$, 1),
+$q$, 18),
 
-('5B', 'After a call – proposal follow-up', 5, '{}',
-$s$Your proposal for {facility}$s$,
-$b$Hi {first_name},
+('ALL-PROP', 'Both lists · All — After a call: proposal follow-up', 5, '{}', null,
+$q$Your proposal for {facility}$q$,
+$q$Hi {first_name},
 
 Thank you for your time today. As promised, here's a summary of what we discussed for {facility}:
 
@@ -409,84 +618,11 @@ If any questions come up, the quickest way to reach me is {whatsapp_link}.
 Best regards,
 
 {signature}
-$b$, 2),
-
-('U1', 'Website upgrade – introduction', 7, '{}',
-$s$Upgrading {facility}'s website$s$,
-$b$Hi {first_name},
-
-My name is Joseph Githaiga. I design premium websites and build management systems for care facilities, and I work remotely with clients across the US.
-
-Since {facility} already has a website, I'm not suggesting starting over. I help facilities get more out of the site they have:
-
-• A faster, modern design that works well on a phone, where most families and discharge planners look first
-• Online referral, tour and waitlist forms that land straight in your inbox
-• Clear pages for the care you provide, admissions and payment options
-• Simple editing, so your team can keep it up to date without calling a developer
-
-Click my {portfolio_link} to see recent work, including Golden Years Home Care and Harmony Living House.
-
-If you'd like, I'll review your current website for free and send you three specific upgrades. Just reply "yes", or message me on {whatsapp_link} at {whatsapp}.
-
-Best regards,
-
-{signature}
-$b$, 1),
-
-('U2', 'Website upgrade – free review follow-up (day 5)', 7, '{}',
-$s$Re: {previous_subject}$s$,
-$b$Hi {first_name},
-
-Following up on my note about {facility}'s website. My free review is short and practical. I look at:
-
-1. How the site looks and loads on a phone
-2. How easy it is for a family or discharge planner to send a referral or book a tour
-3. How clearly it explains the care you provide and who you accept
-4. How it shows up when people in {city} search for care
-
-You'd get a one-page summary with three upgrades I'd recommend, whether or not we work together. Just reply "yes".
-
-You can see examples of my work on my {portfolio_link}.
-
-Best regards,
-
-{signature}
-$b$, 2),
-
-('U3', 'Website upgrade – final follow-up (day 14)', 7, '{}',
-$s$Closing the loop on {facility}'s website$s$,
-$b$Hi {first_name},
-
-This will be my last note for now. If refreshing {facility}'s website or adding online referral and tour forms becomes a priority, I'd be glad to help, and the free review offer stands.
-
-My work is on my {portfolio_link}, and the quickest way to reach me is {whatsapp_link}.
-
-Thank you for your time, and all the best to you and your team.
-
-Best regards,
-
-{signature}
-$b$, 3),
-
-('QP1', 'Quick pitch – short note', 6, '{}',
-$s$Website & systems for {facility}$s$,
-$b$Hi {first_name},
-
-I'm Joseph, a web designer who works remotely with care facilities across the US. I build modern websites, referral forms and care-management systems, including the ones Golden Years Home Care and Harmony Living House use today.
-
-Click my {portfolio_link} to see my work.
-
-Would you be open to a quick call or a chat on {whatsapp_link}?
-
-Best regards,
-
-{signature}
-$b$, 1)
-
-on conflict (code) do update set name = excluded.name, stage = excluded.stage, categories = excluded.categories,
+$q$, 19)
+on conflict (code) do update set name = excluded.name, stage = excluded.stage, categories = excluded.categories, list = excluded.list,
   subject = excluded.subject, body = excluded.body, sort_order = excluded.sort_order;
 
--- Check: should list 53 contacts (all with email) and 11 templates
+-- Check: 53 contacts and 19 templates
 select (select count(*) from public.outreach_contacts) as contacts,
        (select count(*) from public.outreach_templates) as templates,
        (select count(*) from public.outreach_contacts where email is not null) as with_email;
